@@ -14,3 +14,8 @@ To download or see previous releases: [Click here](https://github.com/dhavalpate
 
 The app currently supports casting following resources:
 - Anyme links
+
+## Important Links
+
+- Anyme App - [Link](https://zunjae.github.io/anymeapp.com/)
+- LinkCast Web - [Link](https://linkcast-fbdff.firebaseapp.com/)
