@@ -19,7 +19,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 public class LauncherActivity extends AppCompatActivity {
 
     private final String TAG = "LAUNCHER_ACTIVITY";
-    private final String APP_VERSION = "v1.0";
+    private final String APP_VERSION = "v1.1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
