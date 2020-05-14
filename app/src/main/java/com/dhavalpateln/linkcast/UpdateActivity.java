@@ -8,8 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,12 +20,22 @@ import com.google.firebase.database.ValueEventListener;
 public class UpdateActivity extends AppCompatActivity {
 
     public final String TAG = "UPDATE_ACTIVITY";
+    private TextView versionTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update);
 
+        versionTextView = findViewById(R.id.versionTextView);
+
+        FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), new ValueCallback() {
+            @Override
+            public void onValueObtained(Object o) {
+                String version = o.toString();
+                versionTextView.setText(version);
+            }
+        });
 
     }
 
