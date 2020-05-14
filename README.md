@@ -18,4 +18,4 @@ The app currently supports casting following resources:
 ## Important Links
 
 - Anyme App - [Link](https://zunjae.github.io/anymeapp.com/)
-- LinkCast Web - [Link](https://linkcast-fbdff.firebaseapp.com/)
+- LinkCast Web - [Link](https://linkcast-fbdff.firebaseapp.com/), [GitHub](https://github.com/dhavalpateln/LinkCastWeb)
