@@ -1,13 +1,22 @@
 package com.dhavalpateln.linkcast;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -22,12 +31,19 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import android.view.Menu;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+
+    private TextView displayNameTextView;
+    private TextView emailTextView;
+    private ImageView profileImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +72,38 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        profileImageView = navigationView.getHeaderView(0).findViewById(R.id.profileImageView);
+        displayNameTextView = navigationView.getHeaderView(0).findViewById(R.id.displayNameTextView);
+        emailTextView = navigationView.getHeaderView(0).findViewById(R.id.emailTextView);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user!=null) {
+            Uri imageUri = user.getPhotoUrl();
+            if(imageUri != null) {
+                int imageResolution = 256;
+                String path = imageUri.getPath();
+                path = "https://lh5.googleusercontent.com"
+                        + path;
+                path = path.replace("s96-c", "s" + imageResolution + "-c");
+
+                displayNameTextView.setText(user.getDisplayName());
+                emailTextView.setText(user.getEmail());
+                Glide.with(getApplicationContext())
+                        .load(path)
+                        .centerCrop()
+                        .crossFade()
+                        .bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(profileImageView);
+                /*Glide.with(getApplicationContext())
+                        .load("")
+                        .placeholder(R.drawable.navback)
+                        .crossFade()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(navbg);*/
+
+            }
+        }
         //updateUserMetaData();
     }
 
@@ -71,6 +119,28 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_sign_out:
+                AuthUI.getInstance()
+                        .signOut(getApplicationContext())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Intent intent = new Intent(MainActivity.this, LauncherActivity.class);
+                                startActivity(intent);
+                                MainActivity.this.finish();
+                            }
+                        });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 
     public void updateUserMetaData() {

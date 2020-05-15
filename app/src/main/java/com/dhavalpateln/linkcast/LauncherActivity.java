@@ -60,7 +60,7 @@ public class LauncherActivity extends AppCompatActivity {
                 }
                 else {
 
-                    FirebaseAuth.getInstance().signOut();
+
                     FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                     if(firebaseUser == null) {
                         List<AuthUI.IdpConfig> providers = Arrays.asList(
