@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast;
 
 import android.os.Bundle;
 
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -13,6 +14,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        //updateUserMetaData();
     }
 
     @Override
@@ -65,5 +71,14 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public void updateUserMetaData() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference ref = FirebaseDBHelper.getUserDataRef();
+        ref.child("displayName").setValue(user.getDisplayName());
+        ref.child("email").setValue(user.getEmail());
+        ref.child("phone").setValue(user.getPhoneNumber());
+        ref.child("photoURI").setValue(user.getPhotoUrl().toString());
     }
 }
