@@ -17,10 +17,16 @@ public class FirebaseDBHelper {
     public static DatabaseReference getAppAPKLinkRef() {
         return FirebaseDB.getInstance().getReference("app").child("link");
     }
-
     public static DatabaseReference getUserDataRef() {
         return FirebaseDB.getInstance().getReference("userdata").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
+    public static DatabaseReference getUserLinkRef() {
+        return getUserDataRef().child("links");
+    }
+    public static void removeLink(String id) {
+        getUserLinkRef().child(id).setValue(null);
+    }
+
 
     public static void getValue(DatabaseReference databaseReference, final ValueCallback valueCallback) {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
