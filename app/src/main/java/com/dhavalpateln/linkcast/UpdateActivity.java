@@ -31,8 +31,8 @@ public class UpdateActivity extends AppCompatActivity {
 
         FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), new ValueCallback() {
             @Override
-            public void onValueObtained(Object o) {
-                String version = o.toString();
+            public void onValueObtained(DataSnapshot dataSnapshot) {
+                String version = dataSnapshot.getValue().toString();
                 versionTextView.setText(version);
             }
         });

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class LinkReceiver extends AppCompatActivity {
+public class MediaReceiver extends AppCompatActivity {
 
     FirebaseMessaging fm;
     FirebaseDatabase database;
@@ -27,6 +28,8 @@ public class LinkReceiver extends AppCompatActivity {
         Intent linkIntent = getIntent();
         String url = linkIntent.getData().toString();
         String title = linkIntent.getExtras().getString("title");
+
+        /** Old Logic - To be Deprecated **/
         database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("title");
         myRef.setValue(title);
@@ -41,6 +44,17 @@ public class LinkReceiver extends AppCompatActivity {
         myRef.updateChildren(childUpdates);
         /*myRef.child("link").child(id).child("title").setValue(title);
         myRef.child("link").child(id).child("url").setValue(url);*/
+
+
+        /** New Logic **/
+        Intent receivedIntent = getIntent();
+        DatabaseReference userLinkRef = FirebaseDBHelper.getUserLinkRef();
+        String time = getCurrentTime();
+        Map<String, Object> update = new HashMap<>();
+        update.put(time + "/type", "video");
+        update.put(time + "/title", receivedIntent.getExtras().getString("title"));
+        update.put(time + "/url", receivedIntent.getData().toString());
+        userLinkRef.updateChildren(update);
 
         finish();
     }
