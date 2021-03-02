@@ -56,6 +56,13 @@ public class MediaReceiver extends AppCompatActivity {
         update.put(time + "/url", receivedIntent.getData().toString());
         userLinkRef.updateChildren(update);
 
+        if(linkIntent.hasExtra("intentSource")) {
+            if(linkIntent.getStringExtra("intentSource").equals("anime_web_explorer")) {
+                Intent mainactivity = new Intent(this, MainActivity.class);
+                startActivity(mainactivity);
+            }
+        }
+
         finish();
     }
 
