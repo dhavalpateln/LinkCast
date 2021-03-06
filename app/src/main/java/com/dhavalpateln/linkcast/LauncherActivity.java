@@ -28,7 +28,7 @@ import java.util.List;
 public class LauncherActivity extends AppCompatActivity {
 
     private final String TAG = "LAUNCHER_ACTIVITY";
-    private final String APP_VERSION = "v1.1";
+    private final String APP_VERSION = "v2.0";
 
     private static final int RC_SIGN_IN = 9001;
 
@@ -76,7 +76,7 @@ public class LauncherActivity extends AppCompatActivity {
                     }
                     else {
                         updateUserMetaData();
-
+                        //Intent mainActivity = new Intent(LauncherActivity.this, AnimeWebExplorer.class);
                         Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
                         startActivity(mainActivity);
                         finish();
@@ -102,6 +102,7 @@ public class LauncherActivity extends AppCompatActivity {
 
                 updateUserMetaData();
 
+                //Intent start = new Intent(this, AnimeWebExplorer.class);
                 Intent start = new Intent(this, MainActivity.class);
                 startActivity(start);
                 LauncherActivity.this.finish();

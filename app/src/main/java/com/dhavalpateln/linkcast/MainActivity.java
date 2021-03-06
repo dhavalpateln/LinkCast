@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.dialogs.SearchDialog;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView displayNameTextView;
     private TextView emailTextView;
     private ImageView profileImageView;
+    private SearchDialog searchDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +54,21 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+        searchDialog = new SearchDialog();
+        searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
+            @Override
+            public void onSearchButtonClicked(String searchString, String source) {
+                Intent animeSearchIntent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
+                animeSearchIntent.putExtra("search", searchString);
+                animeSearchIntent.putExtra("source", source);
+                startActivity(animeSearchIntent);
+            }
+        });
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                searchDialog.show(getSupportFragmentManager(), "Search");
             }
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -64,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
-                R.id.nav_tools, R.id.nav_share, R.id.nav_send)
+                R.id.nav_home, R.id.nav_anime_links,
+                /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -141,6 +153,12 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    public void fourAnimeListener(View view) {
+        Intent intent = new Intent(this, AnimeWebExplorer.class);
+        startActivity(intent);
+        this.finish();
     }
 
     public void updateUserMetaData() {
