@@ -1,6 +1,8 @@
 package com.dhavalpateln.linkcast;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -8,16 +10,18 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
+import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -47,6 +51,19 @@ public class MainActivity extends AppCompatActivity {
     private ImageView profileImageView;
     private SearchDialog searchDialog;
 
+    private void checkAndRequestPermission(String permission, int requestCode) {
+        if (ContextCompat.checkSelfPermission(
+                this, permission) ==
+                PackageManager.PERMISSION_GRANTED) {
+        }
+        else {
+            // You can directly ask for the permission.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{permission},
+                    requestCode);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+
+        checkAndRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, 100);
+        checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, 101);
+
         searchDialog = new SearchDialog();
         searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
             @Override
@@ -137,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+
             case R.id.action_sign_out:
                 AuthUI.getInstance()
                         .signOut(getApplicationContext())
@@ -169,4 +191,6 @@ public class MainActivity extends AppCompatActivity {
         ref.child("phone").setValue(user.getPhoneNumber());
         ref.child("photoURI").setValue(user.getPhotoUrl().toString());
     }
+
+
 }

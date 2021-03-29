@@ -1,15 +1,18 @@
 package com.dhavalpateln.linkcast.ui.home;
 
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -18,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
+import com.dhavalpateln.linkcast.LinkDownloadManager;
 import com.dhavalpateln.linkcast.LinkMaterialCardView;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
@@ -29,8 +33,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class HomeFragment extends Fragment {
 
@@ -63,6 +70,19 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(String id, String title, String url) {
                         FirebaseDBHelper.removeLink(id);
+                    }
+                });
+                card.addButton(getContext(), "DOWNLOAD", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url) {
+
+                        LinkDownloadManager linkDownloadManager = new LinkDownloadManager(url, title + ".mp4", new LinkDownloadManager.LinkDownloadListener() {
+                            @Override
+                            public void onDownloadComplete() {
+                                Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        linkDownloadManager.startDownload(getContext());
                     }
                 });
 

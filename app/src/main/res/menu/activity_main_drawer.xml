@@ -12,10 +12,10 @@
             android:id="@+id/nav_anime_links"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_anime_links" />
-        <!--<item
-            android:id="@+id/nav_tools"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/menu_tools" />-->
+        <item
+            android:id="@+id/nav_downloads"
+            android:icon="@android:drawable/stat_sys_download_done"
+            android:title="@string/menu_downloads" />
     </group>
 
     <item android:title="Communicate">
