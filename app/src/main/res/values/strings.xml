@@ -26,8 +26,9 @@
 
 
     <string-array name="source_list">
+        <item>animekisa.tv</item>
+        <item>animekisa.vip</item>
         <item>4anime</item>
         <item>animeultima</item>
-        <item>animekisa</item>
     </string-array>
 </resources>

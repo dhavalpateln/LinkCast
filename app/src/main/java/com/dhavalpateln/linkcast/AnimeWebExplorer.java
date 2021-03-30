@@ -42,6 +42,31 @@ public class AnimeWebExplorer extends AppCompatActivity {
     DatabaseReference animeLinkDBRef;
     boolean notFoundMP4 = true;
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (animeExplorerWebView != null) {
+            animeExplorerWebView.onPause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (animeExplorerWebView != null) {
+            animeExplorerWebView.onResume();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (animeExplorerWebView != null) {
+            animeExplorerWebView.destroy();
+            animeExplorerWebView = null;
+        }
+    }
+
     public String getCurrentTime() {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -57,13 +82,16 @@ public class AnimeWebExplorer extends AppCompatActivity {
             return "https://4anime.to/?s=" + URLEncoder.encode(searchTerm);
         }
         if(source.equals("9anime")) {
-            return "https://www13.9anime.to/search?keyword=" + URLEncoder.encode(searchTerm);
+            return "https://9anime.to/search?keyword=" + URLEncoder.encode(searchTerm);
         }
         if(source.equals("animeultima")) {
             return "https://www1.animeultima.to/search?search=" + URLEncoder.encode(searchTerm);
         }
-        if(source.equals("animekisa")) {
+        if(source.equals("animekisa.tv")) {
             return "https://animekisa.tv/search?q=" + URLEncoder.encode(searchTerm);
+        }
+        if(source.equals("animekisa.vip")) {
+            return "https://www.animekisa.vip/search?name=" + URLEncoder.encode(searchTerm);
         }
         return "https://4anime.to/";
     }
@@ -90,12 +118,22 @@ public class AnimeWebExplorer extends AppCompatActivity {
             }
             return title;
         }
-        if(currentWebViewURI.contains("animekisa")) {
+        if(currentWebViewURI.contains("animekisa.tv")) {
             if(includeEpisode) {
                 return currentWebViewURI.split("animekisa.tv/")[1];
             }
             else {
                 return currentWebViewURI.split("animekisa.tv/")[1].split("-episode")[0];
+            }
+        }
+        if(currentWebViewURI.contains("animekisa.vip")) {
+            String[] elements = currentWebViewURI.split("/");
+            if(includeEpisode) {
+
+                return elements[elements.length - 1];
+            }
+            else {
+                return elements[elements.length - 1].split("-episode")[0];
             }
         }
         return searchTerm;
@@ -210,16 +248,23 @@ public class AnimeWebExplorer extends AppCompatActivity {
         private boolean containsAds(String urlString) {
             if(urlString.contains(".mp4") && notFoundMP4) return false;
 
-            if(urlString.contains(".css") || urlString.contains(".js")) return false;
-
             if(currentWebViewURI.contains("4anime")) {
+                if(urlString.contains(".css") || urlString.contains(".js")) return false;
                 if(urlString.contains("google")||urlString.contains("facebook")) return true;
                 if(!urlString.contains("4anime.to")) return true;
             }
 
-            if(currentWebViewURI.contains("animekisa")) {
+            if(currentWebViewURI.contains("animekisa.tv")) {
+                if(urlString.contains(".css") || urlString.contains(".js")) return false;
                 if(urlString.contains("google")||urlString.contains("facebook")) return true;
                 if(!urlString.contains("animekisa.tv")) return true;
+            }
+
+            if(currentWebViewURI.contains("animekisa.vip")) {
+                if(urlString.contains(".css") || urlString.contains(".js")) return false;
+                if(urlString.contains("play")) return false;
+                if(urlString.contains("google")||urlString.contains("facebook")) return true;
+                if(!urlString.contains("animekisa.vip")) return true;
             }
 
             if(currentWebViewURI.contains("animeultima")) {
@@ -237,16 +282,16 @@ public class AnimeWebExplorer extends AppCompatActivity {
             }
 
             if(currentWebViewURI.contains("9anime")) {
-
+                if(urlString.contains(".css") || urlString.contains(".js")) return false;
                 //if(urlString.contains(".css")) return false;
                 /*if(urlString.contains("google")||urlString.contains("facebook")) {
                     return true;
                 }*/
-                /*if(urlString.contains(".jpg") || urlString.contains("https://www.google.com/recaptcha")) {
+                if(urlString.contains(".jpg") || urlString.contains("https://www.google.com/recaptcha")) {
                     return false;
-                }*/
+                }
                 if(!urlString.contains("9anime.to")) {
-                    return true;
+                    return false;
                 }
             }
 
@@ -288,5 +333,8 @@ public class AnimeWebExplorer extends AppCompatActivity {
             }
             return super.shouldInterceptRequest(view, request);
         }
+
+
+
     }
 }
