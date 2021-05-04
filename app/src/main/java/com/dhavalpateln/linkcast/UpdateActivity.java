@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
+import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,13 +55,13 @@ public class UpdateActivity extends AppCompatActivity {
                 String link = dataSnapshot.getValue().toString();
                 Log.i(TAG, "Link obtained : " + link);
 
-                LinkDownloadManager downloadManager = new LinkDownloadManager(link, "LinkCast.apk", new LinkDownloadManager.LinkDownloadListener() {
+                LinkDownloadManagerDialog downloadManager = new LinkDownloadManagerDialog(link, "LinkCast." + versionTextView.getText().toString() + ".apk", new LinkDownloadManagerDialog.LinkDownloadListener() {
                     @Override
                     public void onDownloadComplete() {
                         Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
                     }
                 });
-                downloadManager.startDownload(getApplicationContext());
+                downloadManager.show(getSupportFragmentManager(), "Download");
 
             }
 
