@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
 import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.firebase.ui.auth.AuthUI;
@@ -30,6 +31,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -158,7 +160,18 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.action_open_web:
 
+                FirebaseDBHelper.getValue(FirebaseDBHelper.getAppWebLinkRef(), new ValueCallback() {
+                    @Override
+                    public void onValueObtained(DataSnapshot dataSnapshot) {
+                        String url = (String) dataSnapshot.getValue();
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(url));
+                        startActivity(intent);
+                    }
+                });
+                return true;
             case R.id.action_sign_out:
                 AuthUI.getInstance()
                         .signOut(getApplicationContext())

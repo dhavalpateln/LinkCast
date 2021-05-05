@@ -13,11 +13,18 @@ import androidx.annotation.NonNull;
 
 
 public class FirebaseDBHelper {
+
+    public static DatabaseReference getAppDataRef() {
+        return FirebaseDB.getInstance().getReference("app");
+    }
     public static DatabaseReference getAppVersionRef() {
-        return FirebaseDB.getInstance().getReference("app").child("version");
+        return getAppDataRef().child("version");
     }
     public static DatabaseReference getAppAPKLinkRef() {
-        return FirebaseDB.getInstance().getReference("app").child("link");
+        return getAppDataRef().child("link");
+    }
+    public static DatabaseReference getAppWebLinkRef() {
+        return getAppDataRef().child("web");
     }
 
     public static DatabaseReference getFeedbackRef() {
