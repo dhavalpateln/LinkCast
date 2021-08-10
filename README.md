@@ -4,9 +4,9 @@ Android app to cast resources to a easily available website.
 
 ## Releases
 
-[Download latest APK](https://github.com/dhavalpateln/LinkCast/releases/download/v3.0/LinkCast.apk)
+[Download latest APK](https://github.com/dhavalpateln/LinkCast/releases/download/v3.2/LinkCast.apk)
 
-Read about the latest release [here](https://github.com/dhavalpateln/LinkCast/releases/tag/v3.0)
+Read about the latest release [here](https://github.com/dhavalpateln/LinkCast/releases/tag/v3.2)
 
 To download or see previous releases: [Click here](https://github.com/dhavalpateln/LinkCast/releases)
 
