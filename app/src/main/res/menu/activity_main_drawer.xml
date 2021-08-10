@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_anime_links" />
         <item
+            android:id="@+id/nav_manga_links"
+            android:icon="@android:drawable/ic_menu_gallery"
+            android:title="@string/menu_manga_links" />
+        <item
             android:id="@+id/nav_downloads"
             android:icon="@android:drawable/stat_sys_download_done"
             android:title="@string/menu_downloads" />

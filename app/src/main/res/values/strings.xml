@@ -23,12 +23,14 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="menu_downloads">Downloads</string>
+    <string name="menu_manga_links">Manga Links</string>
 
 
     <string-array name="source_list">
         <item>animekisa.tv</item>
-        <item>animekisa.vip</item>
-        <item>4anime</item>
-        <item>animeultima</item>
+        <item>animekisa.cc</item>
+        <item>streamani.net</item>
+        <item>manga4life</item>
+        <item>mangadex</item>
     </string-array>
 </resources>

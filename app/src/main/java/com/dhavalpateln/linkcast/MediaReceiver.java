@@ -30,7 +30,7 @@ public class MediaReceiver extends AppCompatActivity {
         String title = linkIntent.getExtras().getString("title");
 
         /** Old Logic - To be Deprecated **/
-        database = FirebaseDatabase.getInstance();
+        /*database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("title");
         myRef.setValue(title);
         myRef = database.getReference("url");
@@ -41,7 +41,7 @@ public class MediaReceiver extends AppCompatActivity {
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/link/" + id + "/title", title);
         childUpdates.put("/link/" + id + "/url", url);
-        myRef.updateChildren(childUpdates);
+        myRef.updateChildren(childUpdates);*/
         /*myRef.child("link").child(id).child("title").setValue(title);
         myRef.child("link").child(id).child("url").setValue(url);*/
 

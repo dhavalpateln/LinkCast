@@ -40,7 +40,27 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserAnimeWebExplorerLinkRef() {
         return getUserDataRef().child("animewebexplorerlinks");
     }
-
+    public static DatabaseReference getUserMangaWebExplorerLinkRef() {
+        return getUserDataRef().child("mangawebexplorerlinks");
+    }
+    public static DatabaseReference getUserDownloadQueue() {
+        return getUserDataRef().child("downloadqueue");
+    }
+    public static DatabaseReference getUserWebDownloadQueueTypes() {
+        return getUserDownloadQueue().child("types");
+    }
+    public static DatabaseReference getUserRemoteDownloadQueue() {
+        return getUserDownloadQueue().child("remote");
+    }
+    public static DatabaseReference getRemoteDownloadQueue() {
+        return FirebaseDB.getInstance().getReference("downloadqueue").child("remote");
+    }
+    public static DatabaseReference getUserRemoteDownloadCode() {
+        return getUserDataRef().child("remotecode");
+    }
+    public static DatabaseReference getUserPiMoteDownloadQueue() {
+        return getUserDownloadQueue().child("pimote");
+    }
 
 
     public static void removeLink(String id) {

@@ -7,11 +7,9 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <WebView
-        android:id="@+id/anime_explorer_web_view"
+        android:id="@+id/manga_explorer_web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="178dp"
-        tools:layout_editor_absoluteY="298dp" >
-    </WebView>
-
+        tools:layout_editor_absoluteY="298dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

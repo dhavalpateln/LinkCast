@@ -20,12 +20,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.ValueCallback;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class LinkDownloadManagerDialog extends DialogFragment {
 
     private static final String LOCAL_DOWNLOAD = "Local";
+    private static final String PIMOTE_DOWNLOAD = "PiMote";
+    private static final String REMOTE_DOWNLOAD = "Remote";
 
     private DownloadManager.Request request;
     private LinkDownloadListener listener;
@@ -72,6 +82,34 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         downloadTypeSpinner.setAdapter(spinnerAdapter);
         spinnerAdapter.setNotifyOnChange(true);
         spinnerAdapter.add(LOCAL_DOWNLOAD);
+        spinnerAdapter.add(REMOTE_DOWNLOAD);                            //Web download not available yet
+
+        FirebaseDBHelper.getUserWebDownloadQueueTypes().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                spinnerAdapter.add((String) dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
@@ -80,7 +118,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 String selectedDownloadType = (String) downloadTypeSpinner.getSelectedItem();
-                if(selectedDownloadType == LOCAL_DOWNLOAD) {
+                if(selectedDownloadType.equals(LOCAL_DOWNLOAD)) {
                     request = new DownloadManager.Request(Uri.parse(source))
                             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
                             //.setDestinationUri(Uri.parse("/Network storage/RASPBERRYPI/pidisk1/" + fileName))
@@ -92,6 +130,24 @@ public class LinkDownloadManagerDialog extends DialogFragment {
 
                     DownloadManager downloadManager= (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
                     downloadID = downloadManager.enqueue(request);
+                }
+                else if(selectedDownloadType.equals(REMOTE_DOWNLOAD)) {
+                    Map<String, Object> childs = new HashMap<>();
+                    childs.put("filename", fileName);
+                    childs.put("url", source);
+                    FirebaseDBHelper.getUserRemoteDownloadQueue().push().updateChildren(childs);
+                    /*FirebaseDBHelper.getValue(FirebaseDBHelper.getUserRemoteDownloadCode(), new ValueCallback() {
+                        @Override
+                        public void onValueObtained(DataSnapshot dataSnapshot) {
+                            String code = (String) dataSnapshot.getValue();
+                            if(code != null) {
+                                FirebaseDBHelper.getRemoteDownloadQueue().child(code).push().setValue(source);
+                            }
+                        }
+                    });*/
+                }
+                else if(selectedDownloadType.equals(PIMOTE_DOWNLOAD)) {
+                    FirebaseDBHelper.getUserPiMoteDownloadQueue().push().setValue(source);
                 }
                 LinkDownloadManagerDialog.this.getDialog().cancel();
             }

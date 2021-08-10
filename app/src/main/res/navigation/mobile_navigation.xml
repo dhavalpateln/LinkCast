@@ -17,6 +17,11 @@
         android:label="@string/menu_anime_links"
         tools:layout="@layout/fragment_anime" />
     <fragment
+        android:id="@+id/nav_manga_links"
+        android:name="com.dhavalpateln.linkcast.ui.mangas.MangaFragment"
+        android:label="@string/menu_manga_links"
+        tools:layout="@layout/fragment_manga" />
+    <fragment
         android:id="@+id/nav_downloads"
         android:name="com.dhavalpateln.linkcast.ui.download.DownloadFragment"
         android:label="@string/menu_downloads"
