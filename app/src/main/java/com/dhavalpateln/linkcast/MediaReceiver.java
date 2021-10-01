@@ -21,6 +21,16 @@ public class MediaReceiver extends AppCompatActivity {
     FirebaseMessaging fm;
     FirebaseDatabase database;
 
+    public static void insertData(String type, String title, String url) {
+        DatabaseReference userLinkRef = FirebaseDBHelper.getUserLinkRef();
+        String time = getCurrentTime();
+        Map<String, Object> update = new HashMap<>();
+        update.put(time + "/type", type);
+        update.put(time + "/title", title);
+        update.put(time + "/url", url);
+        userLinkRef.updateChildren(update);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,13 +58,12 @@ public class MediaReceiver extends AppCompatActivity {
 
         /** New Logic **/
         Intent receivedIntent = getIntent();
-        DatabaseReference userLinkRef = FirebaseDBHelper.getUserLinkRef();
-        String time = getCurrentTime();
-        Map<String, Object> update = new HashMap<>();
-        update.put(time + "/type", "video");
-        update.put(time + "/title", receivedIntent.getExtras().getString("title"));
-        update.put(time + "/url", receivedIntent.getData().toString());
-        userLinkRef.updateChildren(update);
+        insertData(
+                "video",
+                receivedIntent.getExtras().getString("title"),
+                receivedIntent.getData().toString()
+        );
+
 
         if(linkIntent.hasExtra("intentSource")) {
             if(linkIntent.getStringExtra("intentSource").equals("anime_web_explorer")) {
@@ -66,7 +75,7 @@ public class MediaReceiver extends AppCompatActivity {
         finish();
     }
 
-    public String getCurrentTime() {
+    public static String getCurrentTime() {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String formattedDate = df.format(c.getTime());

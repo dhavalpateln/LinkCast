@@ -57,13 +57,13 @@ public class MangaFragment extends Fragment {
                             startActivity(intent);
                         }
                     });
-                    /*card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                         @Override
                         public void onClick(String id, String title, String url) {
-                            FirebaseDBHelper.removeAnimeLink(id);
+                            FirebaseDBHelper.removeMangaLink(id);
                         }
                     });
-                    card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    /*card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                         @Override
                         public void onClick(String id, String title, String url) {
                             BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url);

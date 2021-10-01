@@ -70,6 +70,10 @@ public class FirebaseDBHelper {
         getUserAnimeWebExplorerLinkRef().child(id).setValue(null);
     }
 
+    public static void removeMangaLink(String id) {
+        getUserMangaWebExplorerLinkRef().child(id).setValue(null);
+    }
+
 
     public static void getValue(DatabaseReference databaseReference, final ValueCallback valueCallback) {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {

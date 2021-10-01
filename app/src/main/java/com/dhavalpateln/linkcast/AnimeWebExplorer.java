@@ -5,7 +5,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.dhavalpateln.linkcast.animesources.AnimeKisaCC;
+import com.dhavalpateln.linkcast.animesources.AnimeKisaTV;
+import com.dhavalpateln.linkcast.animesources.AnimePahe;
+import com.dhavalpateln.linkcast.animesources.AnimeSource;
+import com.dhavalpateln.linkcast.animesources.AnimeUltima;
+import com.dhavalpateln.linkcast.animesources.Animixplay;
+import com.dhavalpateln.linkcast.animesources.FourAnime;
+import com.dhavalpateln.linkcast.animesources.NineAnime;
+import com.dhavalpateln.linkcast.animesources.StreamAni;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,7 +42,9 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class AnimeWebExplorer extends AppCompatActivity {
 
@@ -41,6 +53,10 @@ public class AnimeWebExplorer extends AppCompatActivity {
     String currentWebViewURI = null;
     DatabaseReference animeLinkDBRef;
     boolean notFoundMP4 = true;
+    boolean stateSaved = false;
+    private boolean castDialogOpen = false;
+    private Map<String, AnimeSource> animeSourceMap;
+    Set<String> mp4sFound;
 
     @Override
     protected void onPause() {
@@ -48,6 +64,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         if (animeExplorerWebView != null) {
             animeExplorerWebView.onPause();
         }
+        stateSaved = true;
     }
 
     @Override
@@ -56,6 +73,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         if (animeExplorerWebView != null) {
             animeExplorerWebView.onResume();
         }
+        stateSaved = false;
     }
 
     @Override
@@ -74,29 +92,24 @@ public class AnimeWebExplorer extends AppCompatActivity {
         return formattedDate;
     }
 
+    private AnimeSource getAnimeSource(String term) {
+        for(Map.Entry<String, AnimeSource> entry: animeSourceMap.entrySet()) {
+            if(entry.getValue().isCorrectSource(term)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
     private String getSearchURL(String searchTerm, String source) {
         if(source.equals("saved")) {
             return searchTerm;
         }
-        if(source.equals("4anime")) {
-            return "https://4animes.org/?s=" + URLEncoder.encode(searchTerm);
+        AnimeSource animeSource = getAnimeSource(source);
+        if(animeSource != null) {
+            return animeSource.getSearchURL(searchTerm);
         }
-        if(source.equals("9anime")) {
-            return "https://9anime.to/search?keyword=" + URLEncoder.encode(searchTerm);
-        }
-        if(source.equals("animeultima")) {
-            return "https://www1.animeultima.to/search?search=" + URLEncoder.encode(searchTerm);
-        }
-        if(source.equals("animekisa.tv")) {
-            return "https://animekisa.tv/search?q=" + URLEncoder.encode(searchTerm);
-        }
-        if(source.equals("animekisa.cc")) {
-            return "https://www.animekisa.cc/search?name=" + URLEncoder.encode(searchTerm);
-        }
-        if(source.equals("streamani.net")) {
-            return "https://streamani.net/search.html?keyword=" + URLEncoder.encode(searchTerm);
-        }
-        return "https://4anime.to/";
+        return animeSourceMap.get("animekisa.tv").getSearchURL(searchTerm);
     }
 
     private String getAnimeTitle(boolean includeEpisode) {
@@ -104,48 +117,13 @@ public class AnimeWebExplorer extends AppCompatActivity {
             return getIntent().getStringExtra("animeTitle");
         }
         String searchTerm = getIntent().getStringExtra("search");
-        if(currentWebViewURI.contains("4anime")) {
-
-            String title = currentWebViewURI.split("4animes.org/")[1];
-            if(includeEpisode) {
-                title = title.split("\\?")[0];
+        try {
+            AnimeSource animeSource = getAnimeSource(currentWebViewURI);
+            if(animeSource != null) {
+                return animeSource.getAnimeTitle(currentWebViewURI, searchTerm, includeEpisode);
             }
-            else {
-                if (title.contains("anime/")) {
-                    title = title.split("/")[1];
-                } else if (title.contains("episode") && !includeEpisode) {
-                    title = title.split("-episode")[0];
-                } else {
-                    title = searchTerm;
-                }
-            }
-            return title;
-        }
-        if(currentWebViewURI.contains("animekisa.tv")) {
-            if(includeEpisode) {
-                return currentWebViewURI.split("animekisa.tv/")[1];
-            }
-            else {
-                return currentWebViewURI.split("animekisa.tv/")[1].split("-episode")[0];
-            }
-        }
-        if(currentWebViewURI.contains("animekisa.cc")) {
-            String[] elements = currentWebViewURI.split("/");
-            if(includeEpisode) {
-
-                return elements[elements.length - 1];
-            }
-            else {
-                return elements[elements.length - 1].split("-episode")[0];
-            }
-        }
-        if(currentWebViewURI.contains("streamani.net")) {
-            if(includeEpisode) {
-                return currentWebViewURI.split("streamani.net/videos/")[1];
-            }
-            else {
-                return currentWebViewURI.split("streamani.net/videos/")[1].split("-episode")[0];
-            }
+        } catch (Exception e) {
+            return searchTerm;
         }
         return searchTerm;
     }
@@ -157,7 +135,18 @@ public class AnimeWebExplorer extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        animeSourceMap = new HashMap<>();
+        animeSourceMap.put("animixplay.to", new Animixplay());
+        animeSourceMap.put("animekisa.cc", new AnimeKisaCC());
+        animeSourceMap.put("animekisa.tv", new AnimeKisaTV());
+        animeSourceMap.put("animepahe.com", new AnimePahe());
+        animeSourceMap.put("4anime.org", new FourAnime());
+        animeSourceMap.put("9anime.to", new NineAnime());
+        animeSourceMap.put("animeultima", new AnimeUltima());
+        animeSourceMap.put("streamani.net", new StreamAni());
 
+
+        mp4sFound = new HashSet<>();
         final Intent calledIntent = getIntent();
         animeExplorerWebView = findViewById(R.id.anime_explorer_web_view);
         WebSettings webSettings = animeExplorerWebView.getSettings();
@@ -174,32 +163,16 @@ public class AnimeWebExplorer extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
+
                     if (calledIntent.getStringExtra("source").equals("saved")) {
                         FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
                                 .child(calledIntent.getStringExtra("id"))
                                 .child("url")
                                 .setValue(currentWebViewURI);
-                        if (currentWebViewURI.contains("4anime") && currentWebViewURI.contains("episode")) {
-                            String episodeNum = currentWebViewURI.split("\\?")[0].split("episode-")[1];
-                            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                                    .child(calledIntent.getStringExtra("id"))
-                                    .child("title")
-                                    .setValue(calledIntent.getStringExtra("title").split(" - EP")[0] + " - EP" + episodeNum);
-                        }
-                        if (currentWebViewURI.contains("animekisa") && currentWebViewURI.contains("episode")) {
-                            String episodeNum = currentWebViewURI.split("episode-")[1];
-                            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                                    .child(calledIntent.getStringExtra("id"))
-                                    .child("title")
-                                    .setValue(calledIntent.getStringExtra("title").split(" - EP")[0] + " - EP" + episodeNum);
-                        }
-                        if (currentWebViewURI.contains("streamani") && currentWebViewURI.contains("episode")) {
-                            String episodeNum = currentWebViewURI.split("episode-")[1];
-                            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                                    .child(calledIntent.getStringExtra("id"))
-                                    .child("title")
-                                    .setValue(calledIntent.getStringExtra("title").split(" - EP")[0] + " - EP" + episodeNum);
+
+                        AnimeSource animeSource = getAnimeSource(currentWebViewURI);
+                        if(animeSource != null) {
+                            animeSource.updateBookmarkPage(currentWebViewURI, calledIntent.getStringExtra("id"), calledIntent.getStringExtra("title"));
                         }
                         Snackbar.make(view, "Bookmark Updated", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
@@ -213,56 +186,40 @@ public class AnimeWebExplorer extends AppCompatActivity {
                         Snackbar.make(view, "Added the link to Bookmarks", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
-                }
-                catch(Exception e) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    Intent crashIntent = new Intent(getApplicationContext(), CrashReportActivity.class);
-                    crashIntent.putExtra("subject", "Crash");
-                    crashIntent.putExtra("message", sw.toString());
-                    startActivity(crashIntent);
-                }
+
+
             }
 
         });
     }
 
     private class MyWebViewClient extends WebViewClient {
+
+        @Override
+        public void onLoadResource(WebView view, String url) {
+            super.onLoadResource(view, url);
+
+
+        }
+
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
             Log.d(TAG, "shouldOverrideUrlLoading: " + url);
             String hostName = Uri.parse(url).getHost();
-            if (hostName.contains("4anime")) {
+            if(hostName == null) {
+                return true;
+            }
+
+            AnimeSource animeSource = getAnimeSource(hostName);
+            if(animeSource != null) {
                 // This is my website, so do not override; let my WebView load the page
                 currentWebViewURI = url;
                 view.loadUrl(url);
+                mp4sFound = new HashSet<>();
                 return false;
             }
-            if (hostName.contains("animeultima")) {
-                // This is my website, so do not override; let my WebView load the page
-                currentWebViewURI = url;
-                view.loadUrl(url);
-                return false;
-            }
-            if (hostName.contains("9anime")) {
-                // This is my website, so do not override; let my WebView load the page
-                currentWebViewURI = url;
-                view.loadUrl(url);
-                return false;
-            }
-            if (hostName.contains("animekisa")) {
-                // This is my website, so do not override; let my WebView load the page
-                currentWebViewURI = url;
-                view.loadUrl(url);
-                return false;
-            }
-            if (hostName.contains("streamani.net")) {
-                // This is my website, so do not override; let my WebView load the page
-                currentWebViewURI = url;
-                view.loadUrl(url);
-                return false;
-            }
+
             // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
             /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);*/
@@ -271,72 +228,27 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
         private boolean containsAds(String urlString) {
 
-
-            if(currentWebViewURI.contains("4anime")) {
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
-                if(urlString.contains(".css") || urlString.contains(".js")) return false;
-                if(urlString.contains("google")||urlString.contains("facebook")) return true;
-                if(!urlString.contains("4animes.org")) return true;
+            if(urlString.startsWith("https://prd.jwpltx.com")) {
+                return true;
             }
 
-            if(currentWebViewURI.contains("animekisa.tv")) {
+            AnimeSource animeSource = getAnimeSource(currentWebViewURI);
+            if(animeSource != null) {
+                return animeSource.containsAds(urlString, notFoundMP4, currentWebViewURI);
+            }
+            if(currentWebViewURI.contains("mp4upload.com")) {
                 //return false;
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
+                if(urlString.endsWith(".mp4") && notFoundMP4) return false;
                 if(urlString.contains("https://streamani.net/")) return false;
+                if(urlString.contains("https://dood.la/")) return false;
+                if(urlString.contains("https://hydrax.net/")) return false;
+                if(urlString.contains("https://sbplay.org/")) return false;
                 if(urlString.contains("gogo-stream")) return false;
                 if(urlString.contains(".css") || urlString.contains(".js")) return false;
                 if(urlString.contains("google")||urlString.contains("facebook")) return true;
                 if(urlString.contains("https://gogo-stream.com/loadserver.php?id=MTY1Njkx")) return false;
-                if(!urlString.contains("animekisa.tv")) return true;
+                if(!urlString.contains("mp4upload.com")) return true;
             }
-
-            if(currentWebViewURI.contains("animekisa.cc")) {
-                if(urlString.contains("blank.mp4")) return true;
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
-                if(urlString.contains(".css") || urlString.contains(".js")) return false;
-                if(urlString.contains("play")) return false;
-                if(urlString.contains("google")||urlString.contains("facebook")) return true;
-                if(!urlString.contains("animekisa.cc")) return true;
-            }
-
-            if(currentWebViewURI.contains("animeultima")) {
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
-                return false;
-                /*if(urlString.contains("https://www.googletagmanager.com")) {
-                    return false;
-                }
-                if(urlString.contains("google")||urlString.contains("facebook")) {
-                    return true;
-                }
-
-                if(!urlString.contains("animeultima")) {
-                    return true;
-                }*/
-            }
-
-            if(currentWebViewURI.contains("9anime")) {
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
-                if(urlString.contains(".css") || urlString.contains(".js")) return false;
-                //if(urlString.contains(".css")) return false;
-                /*if(urlString.contains("google")||urlString.contains("facebook")) {
-                    return true;
-                }*/
-                if(urlString.contains(".jpg") || urlString.contains("https://www.google.com/recaptcha")) {
-                    return false;
-                }
-                if(!urlString.contains("9anime.to")) {
-                    return false;
-                }
-            }
-
-            if(currentWebViewURI.contains("streamani.net")) {
-                if(urlString.contains(".mp4") && notFoundMP4) return false;
-                if(urlString.endsWith(".png") || urlString.endsWith(".jpg")) return false;
-                if(urlString.contains(".css") || urlString.contains(".js")) return false;
-                if(urlString.contains("google")||urlString.contains("facebook")) return true;
-                if(!urlString.contains("streamani.net")) return true;
-            }
-
             return false;
         }
 
@@ -357,19 +269,85 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 return getTextWebResource(textStream);
             }
             Log.d(TAG, "shouldInterceptRequest: " + request.getUrl().toString());
-            if(request.getUrl().toString().endsWith(".mp4") || request.getUrl().toString().contains(".mp4")) {
-                notFoundMP4 = false;
-                if(currentWebViewURI.contains("animeultima")) {
+            String requestUrl = request.getUrl().toString();
+
+            AnimeSource animeSource = getAnimeSource(currentWebViewURI);
+            boolean isPlayable = false;
+            if(animeSource != null) {
+                isPlayable = animeSource.isPlayable(requestUrl);
+            }
+            else {
+                isPlayable = request.getUrl().toString().endsWith(".mp4") || request.getUrl().toString().contains(".mp4") || request.getUrl().toString().contains(".m3u8");
+            }
+
+            if(isPlayable) {
+
+                if(mp4sFound.contains(requestUrl)) {
+                    InputStream textStream = new ByteArrayInputStream("".getBytes());
+                    return getTextWebResource(textStream);
                 }
                 else {
-                    Intent intent = new Intent(getApplicationContext(), MediaReceiver.class);
-                    intent.setData(request.getUrl());
+                    //notFoundMP4 = false;
+                    mp4sFound.add(requestUrl);
+                    Log.d(TAG, "shouldInterceptRequest: found mp4: " + request.getUrl().toString());
+                }
+                if(currentWebViewURI.contains("animeultima")) {
+                }
+                /*else if(currentWebViewURI.contains("animixplay") && !requestUrl.startsWith("https://v1.mp4.sh/")) {
+
+                }*/
+                else if(!castDialogOpen && !stateSaved){
+                    castDialogOpen = true;
+
 
                     String animeTitle = getAnimeTitle(true);
+
+                    MediaReceiver.insertData("video", animeTitle, request.getUrl().toString());
+
+                    Map<String, CastDialog.OnClickListener> map = new HashMap<>();
+
+                    map.put("PLAY", new CastDialog.OnClickListener() {
+                        @Override
+                        public void onClick(CastDialog castDialog, String title, String url) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                            castDialogOpen = false;
+                            mp4sFound = new HashSet<>();
+                            mp4sFound.add(url);
+                            castDialog.close();
+                        }
+                    });
+                    map.put("CAST MORE", new CastDialog.OnClickListener() {
+                        @Override
+                        public void onClick(CastDialog castDialog, String title, String url) {
+                            castDialogOpen = false;
+                            mp4sFound = new HashSet<>();
+                            mp4sFound.add(url);
+                            castDialog.close();
+                        }
+                    });
+                    map.put("MAIN MENU", new CastDialog.OnClickListener() {
+                        @Override
+                        public void onClick(CastDialog castDialog, String title, String url) {
+                            castDialogOpen = false;
+                            mp4sFound = new HashSet<>();
+                            mp4sFound.add(url);
+                            castDialog.close();
+                            finish();
+                        }
+                    });
+
+                    CastDialog castDialog = new CastDialog(animeTitle, request.getUrl().toString(), map);
+                    castDialog.show(getSupportFragmentManager(), "CastDialog");
+                    notFoundMP4 = true;
+                    /*Intent intent = new Intent(getApplicationContext(), MediaReceiver.class);
+                    intent.setData(request.getUrl());
                     intent.putExtra("title", animeTitle);
                     intent.putExtra("intentSource", "anime_web_explorer");
                     startActivity(intent);
-                    finish();
+                    finish();*/
+                    InputStream textStream = new ByteArrayInputStream("".getBytes());
+                    return getTextWebResource(textStream);
                 }
                 Log.d(TAG, "shouldInterceptRequest: " + request.getUrl().toString());
             }

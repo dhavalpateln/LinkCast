@@ -38,6 +38,7 @@ public class LauncherActivity extends AppCompatActivity {
 
         Log.i(TAG, "Started Activity");
 
+
         FirebaseMessaging.getInstance().subscribeToTopic("update").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -76,6 +77,7 @@ public class LauncherActivity extends AppCompatActivity {
                     }
                     else {
                         updateUserMetaData();
+                        //throw new RuntimeException("Test Crash");
                         //Intent mainActivity = new Intent(LauncherActivity.this, AnimeWebExplorer.class);
                         Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
                         startActivity(mainActivity);

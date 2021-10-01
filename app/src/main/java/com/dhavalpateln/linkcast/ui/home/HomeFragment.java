@@ -31,6 +31,8 @@ import java.util.Map;
 public class HomeFragment extends Fragment {
 
     private Map<String, MaterialCardView> viewMap;
+    private DatabaseReference linkRef;
+    private ChildEventListener linkChildEventListener;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -42,8 +44,8 @@ public class HomeFragment extends Fragment {
 
         final LinearLayout linearLayout = root.findViewById(R.id.homeLinearLayout);
 
-        DatabaseReference linkRef = FirebaseDBHelper.getUserLinkRef();
-        linkRef.addChildEventListener(new ChildEventListener() {
+        linkRef = FirebaseDBHelper.getUserLinkRef();
+        linkChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Link link = dataSnapshot.getValue(Link.class);
@@ -99,9 +101,14 @@ public class HomeFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        linkRef.addChildEventListener(linkChildEventListener);
         return root;
     }
 
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        linkRef.removeEventListener(linkChildEventListener);
+    }
 }

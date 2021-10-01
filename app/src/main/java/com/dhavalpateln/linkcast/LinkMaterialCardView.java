@@ -42,7 +42,7 @@ public class LinkMaterialCardView {
         materialCardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.materialCardBackgroud));
         materialCardView.setPadding(20, 50, 20, 50);
         materialCardView.setStrokeWidth(1);
-        materialCardView.setStrokeColor(Color.BLACK);
+        materialCardView.setStrokeColor(context.getResources().getColor(R.color.materialCardTextColor));
         materialCardView.setCardElevation(10);
 
         linearLayout = new LinearLayout(context);
