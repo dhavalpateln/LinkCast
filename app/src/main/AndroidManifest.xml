@@ -15,7 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".manga.MangaReaderActivity"></activity>
+        <activity android:name=".exoplayer.ExoPlayerActivity"
+            android:configChanges="orientation|screenSize|layoutDirection"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity android:name=".manga.MangaReaderActivity" />
         <activity android:name=".MangaWebExplorer" />
         <activity android:name=".ui.RemoteCodeActivity" />
 

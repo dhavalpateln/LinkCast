@@ -19,6 +19,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.Link;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -53,7 +54,11 @@ public class HomeFragment extends Fragment {
                 card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
                     public void onClick(String id, String title, String url) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);*/
+                        Intent intent = new Intent(getContext(), ExoPlayerActivity.class);
+                        intent.putExtra("url", url);
+                        intent.putExtra("title", title);
                         startActivity(intent);
                     }
                 });

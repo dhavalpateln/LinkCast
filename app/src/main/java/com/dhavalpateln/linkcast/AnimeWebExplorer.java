@@ -198,8 +198,6 @@ public class AnimeWebExplorer extends AppCompatActivity {
         @Override
         public void onLoadResource(WebView view, String url) {
             super.onLoadResource(view, url);
-
-
         }
 
         @Override
@@ -211,9 +209,12 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 return true;
             }
 
-            AnimeSource animeSource = getAnimeSource(hostName);
+            String sourceTerm = currentWebViewURI != null ? currentWebViewURI : hostName;
+
+            AnimeSource animeSource = getAnimeSource(sourceTerm);
             if(animeSource != null) {
                 // This is my website, so do not override; let my WebView load the page
+
                 currentWebViewURI = url;
                 view.loadUrl(url);
                 mp4sFound = new HashSet<>();
@@ -297,49 +298,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
                 }*/
                 else if(!castDialogOpen && !stateSaved){
-                    castDialogOpen = true;
-
-
-                    String animeTitle = getAnimeTitle(true);
-
-                    MediaReceiver.insertData("video", animeTitle, request.getUrl().toString());
-
-                    Map<String, CastDialog.OnClickListener> map = new HashMap<>();
-
-                    map.put("PLAY", new CastDialog.OnClickListener() {
-                        @Override
-                        public void onClick(CastDialog castDialog, String title, String url) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                            startActivity(intent);
-                            castDialogOpen = false;
-                            mp4sFound = new HashSet<>();
-                            mp4sFound.add(url);
-                            castDialog.close();
-                        }
-                    });
-                    map.put("CAST MORE", new CastDialog.OnClickListener() {
-                        @Override
-                        public void onClick(CastDialog castDialog, String title, String url) {
-                            castDialogOpen = false;
-                            mp4sFound = new HashSet<>();
-                            mp4sFound.add(url);
-                            castDialog.close();
-                        }
-                    });
-                    map.put("MAIN MENU", new CastDialog.OnClickListener() {
-                        @Override
-                        public void onClick(CastDialog castDialog, String title, String url) {
-                            castDialogOpen = false;
-                            mp4sFound = new HashSet<>();
-                            mp4sFound.add(url);
-                            castDialog.close();
-                            finish();
-                        }
-                    });
-
-                    CastDialog castDialog = new CastDialog(animeTitle, request.getUrl().toString(), map);
-                    castDialog.show(getSupportFragmentManager(), "CastDialog");
-                    notFoundMP4 = true;
+                    openCastDialog(requestUrl);
                     /*Intent intent = new Intent(getApplicationContext(), MediaReceiver.class);
                     intent.setData(request.getUrl());
                     intent.putExtra("title", animeTitle);
@@ -354,7 +313,51 @@ public class AnimeWebExplorer extends AppCompatActivity {
             return super.shouldInterceptRequest(view, request);
         }
 
+        public void openCastDialog(String requestUrl) {
+            castDialogOpen = true;
 
+
+            String animeTitle = getAnimeTitle(true);
+
+            MediaReceiver.insertData("video", animeTitle, requestUrl);
+
+            Map<String, CastDialog.OnClickListener> map = new HashMap<>();
+
+            map.put("PLAY", new CastDialog.OnClickListener() {
+                @Override
+                public void onClick(CastDialog castDialog, String title, String url) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                    castDialogOpen = false;
+                    mp4sFound = new HashSet<>();
+                    mp4sFound.add(url);
+                    castDialog.close();
+                }
+            });
+            map.put("CAST MORE", new CastDialog.OnClickListener() {
+                @Override
+                public void onClick(CastDialog castDialog, String title, String url) {
+                    castDialogOpen = false;
+                    mp4sFound = new HashSet<>();
+                    mp4sFound.add(url);
+                    castDialog.close();
+                }
+            });
+            map.put("MAIN MENU", new CastDialog.OnClickListener() {
+                @Override
+                public void onClick(CastDialog castDialog, String title, String url) {
+                    castDialogOpen = false;
+                    mp4sFound = new HashSet<>();
+                    mp4sFound.add(url);
+                    castDialog.close();
+                    finish();
+                }
+            });
+
+            CastDialog castDialog = new CastDialog(animeTitle, requestUrl, map);
+            castDialog.show(getSupportFragmentManager(), "CastDialog");
+            notFoundMP4 = true;
+        }
 
     }
 }

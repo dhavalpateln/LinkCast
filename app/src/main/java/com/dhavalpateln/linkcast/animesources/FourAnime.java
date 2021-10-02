@@ -34,7 +34,7 @@ public class FourAnime extends AnimeSource {
 
     @Override
     public boolean isCorrectSource(String term) {
-        return term.contains("4anime.org");
+        return term.contains("4animes.org");
     }
 
     @Override
