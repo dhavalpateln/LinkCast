@@ -46,6 +46,8 @@ public class StreamAni extends AnimeSource {
         if(urlString.contains("https://streamani.net/")) return false;
         if(urlString.contains("https://dood.la/")) return false;
         if(urlString.contains("https://hydrax.net/")) return false;
+        if(urlString.contains("https://goload.one/")) return false;
+        if(urlString.contains("https://sbplay.org/")) return false;
         if(urlString.endsWith(".png") || urlString.endsWith(".jpg")) return false;
         if(urlString.contains(".css") || urlString.contains(".js")) return false;
         if(urlString.contains("google")||urlString.contains("facebook")) return true;

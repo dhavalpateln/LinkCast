@@ -4,11 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".exoplayer.ExoPlayerActivity">
+    tools:context=".exoplayer.ExoPlayerActivity"
+    app:shutter_background_color="#00000000"
+    >
 
     <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/exoplayer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        app:shutter_background_color="#00000000"
+        android:background="#000000"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

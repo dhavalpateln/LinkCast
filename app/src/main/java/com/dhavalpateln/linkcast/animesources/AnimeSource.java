@@ -5,6 +5,7 @@ import java.util.Map;
 public abstract class AnimeSource {
 
     public String animeSource;
+    private String lastTitle = "";
 
     public AnimeSource() {}
 
@@ -18,6 +19,10 @@ public abstract class AnimeSource {
     public String getAnimeSourceName() {
         return animeSource;
     }
+    public String getLastCheckedUrl() { return null; }
+
+    public void updateLastTitle(String title) { this.lastTitle = title; }
+    public String getLastTitle() { return this.lastTitle; }
 
 
 }

@@ -12,6 +12,7 @@ import com.dhavalpateln.linkcast.R;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -71,6 +72,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
 
         exoplayerView = findViewById(R.id.exoplayer);
         exoplayerView.setKeepScreenOn(true);
+        //exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
     }
 
     private void release() {

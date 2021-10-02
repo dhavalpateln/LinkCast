@@ -12,10 +12,12 @@ import com.dhavalpateln.linkcast.animesources.AnimeSource;
 import com.dhavalpateln.linkcast.animesources.AnimeUltima;
 import com.dhavalpateln.linkcast.animesources.Animixplay;
 import com.dhavalpateln.linkcast.animesources.FourAnime;
+import com.dhavalpateln.linkcast.animesources.KwikCX;
 import com.dhavalpateln.linkcast.animesources.NineAnime;
 import com.dhavalpateln.linkcast.animesources.StreamAni;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -144,6 +146,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         animeSourceMap.put("9anime.to", new NineAnime());
         animeSourceMap.put("animeultima", new AnimeUltima());
         animeSourceMap.put("streamani.net", new StreamAni());
+        animeSourceMap.put("kwik.cx", new KwikCX());
 
 
         mp4sFound = new HashSet<>();
@@ -198,6 +201,16 @@ public class AnimeWebExplorer extends AppCompatActivity {
         @Override
         public void onLoadResource(WebView view, String url) {
             super.onLoadResource(view, url);
+            //if(view.getTitle().contains("animepahe")) animeSourceMap.get("animepahe.com").updateLastTitle(view.getTitle());
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            if(view.getTitle().contains("animepahe")) {
+                animeSourceMap.get("animepahe.com").updateLastTitle(view.getTitle());
+                animeSourceMap.get("kwik.cx").updateLastTitle(view.getTitle());
+            }
         }
 
         @Override
@@ -209,12 +222,16 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 return true;
             }
 
-            String sourceTerm = currentWebViewURI != null ? currentWebViewURI : hostName;
+            String sourceTerm = url;
+
+            if(sourceTerm.startsWith("https://na") && sourceTerm.contains(".mp4")) {
+                openCastDialog(url);
+                return true;
+            }
 
             AnimeSource animeSource = getAnimeSource(sourceTerm);
             if(animeSource != null) {
                 // This is my website, so do not override; let my WebView load the page
-
                 currentWebViewURI = url;
                 view.loadUrl(url);
                 mp4sFound = new HashSet<>();
@@ -224,6 +241,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
             /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);*/
+            Log.d(TAG, "shouldOverrideUrlLoading: Blocked: " + url);
             return true;
         }
 
@@ -326,7 +344,8 @@ public class AnimeWebExplorer extends AppCompatActivity {
             map.put("PLAY", new CastDialog.OnClickListener() {
                 @Override
                 public void onClick(CastDialog castDialog, String title, String url) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+                    intent.putExtra("url", url);
                     startActivity(intent);
                     castDialogOpen = false;
                     mp4sFound = new HashSet<>();
