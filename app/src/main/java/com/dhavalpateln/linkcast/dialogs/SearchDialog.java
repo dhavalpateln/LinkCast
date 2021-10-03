@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -20,6 +21,7 @@ public class SearchDialog extends DialogFragment {
 
     private SearchButtonClickListener searchButtonClickListener;
     private EditText searchEditText;
+    private CheckBox advancedModeCheckBox;
     private Spinner spinner;
     private String searchTerm;
 
@@ -33,7 +35,7 @@ public class SearchDialog extends DialogFragment {
     }
 
     public interface SearchButtonClickListener {
-        void onSearchButtonClicked(String searchString, String source);
+        void onSearchButtonClicked(String searchString, String source, boolean advancedMode);
     }
 
     @NonNull
@@ -43,6 +45,9 @@ public class SearchDialog extends DialogFragment {
         // Get the layout inflater
         final LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.search_dialog, null);
+
+        advancedModeCheckBox = view.findViewById(R.id.advanced_mode_checkbox);
+
         searchEditText = view.findViewById(R.id.anime_serach_edit_text);
         searchEditText.setText(searchTerm);
 
@@ -59,7 +64,7 @@ public class SearchDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(searchButtonClickListener != null) {
-                    searchButtonClickListener.onSearchButtonClicked(searchEditText.getText().toString(), spinner.getSelectedItem().toString());
+                    searchButtonClickListener.onSearchButtonClicked(searchEditText.getText().toString(), spinner.getSelectedItem().toString(), advancedModeCheckBox.isChecked());
                 }
                 SearchDialog.this.getDialog().cancel();
             }

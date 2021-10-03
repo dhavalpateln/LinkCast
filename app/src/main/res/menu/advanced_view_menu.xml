@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/av_bookmark"
+        android:orderInCategory="10"
+        android:title="Bookmark"/>
+    <item
+        android:id="@+id/av_basic_mode"
+        android:orderInCategory="10"
+        android:title="Open in basic mode"/>
+</menu>

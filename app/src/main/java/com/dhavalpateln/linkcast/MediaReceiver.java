@@ -22,12 +22,23 @@ public class MediaReceiver extends AppCompatActivity {
     FirebaseDatabase database;
 
     public static void insertData(String type, String title, String url) {
+        insertData(type, title, url, null);
+    }
+
+    public static void insertData(String type, String title, String url, Map<String, String> data) {
         DatabaseReference userLinkRef = FirebaseDBHelper.getUserLinkRef();
         String time = getCurrentTime();
         Map<String, Object> update = new HashMap<>();
         update.put(time + "/type", type);
         update.put(time + "/title", title);
         update.put(time + "/url", url);
+
+        if(data != null) {
+            for(String key: data.keySet()) {
+                update.put(time + "/data/" + key, data.get(key));
+            }
+        }
+
         userLinkRef.updateChildren(update);
     }
 

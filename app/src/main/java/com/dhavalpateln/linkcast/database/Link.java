@@ -1,9 +1,21 @@
 package com.dhavalpateln.linkcast.database;
 
+import java.util.Map;
+
 public class Link {
     private String type;
     private String title;
     private String url;
+
+    public Map<String, String> getData() {
+        return data;
+    }
+
+    public void setData(Map<String, String> data) {
+        this.data = data;
+    }
+
+    private Map<String, String> data;
 
     public String getType() {
         return type;

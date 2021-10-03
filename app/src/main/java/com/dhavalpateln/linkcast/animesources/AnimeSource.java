@@ -23,6 +23,7 @@ public abstract class AnimeSource {
 
     public void updateLastTitle(String title) { this.lastTitle = title; }
     public String getLastTitle() { return this.lastTitle; }
+    public boolean isAdvancedModeUrl(String url) {return false;}
 
 
 }

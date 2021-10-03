@@ -48,7 +48,7 @@ public class MangaFragment extends Fragment {
                     LinkMaterialCardView card = new LinkMaterialCardView(getContext(), dataSnapshot.getKey(), link.getTitle(), link.getUrl());
                     card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                         @Override
-                        public void onClick(String id, String title, String url) {
+                        public void onClick(String id, String title, String url, Map<String, String> data) {
                             Intent intent = new Intent(getContext(), MangaWebExplorer.class);
                             intent.putExtra("search", url);
                             intent.putExtra("source", "saved");
@@ -59,7 +59,7 @@ public class MangaFragment extends Fragment {
                     });
                     card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                         @Override
-                        public void onClick(String id, String title, String url) {
+                        public void onClick(String id, String title, String url, Map<String, String> data) {
                             FirebaseDBHelper.removeMangaLink(id);
                         }
                     });

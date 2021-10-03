@@ -10,13 +10,16 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.Link;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+
+import java.util.Map;
 
 public class LinkMaterialCardView {
 
     public interface MaterialCardViewButtonClickListener {
-        void onClick(String id, String title, String url);
+        void onClick(String id, String title, String url, Map<String, String> data);
     }
 
     private MaterialCardView materialCardView;
@@ -27,12 +30,15 @@ public class LinkMaterialCardView {
     private String id;
     private String title;
     private String url;
+    private Map<String, String> data;
+    private Link link;
 
-    public LinkMaterialCardView(Context context, String id, String title, String url) {
+    public LinkMaterialCardView(Context context, String id, String title, String url, Map<String, String> data) {
 
         this.id = id;
         this.title = title;
         this.url = url;
+        this.data = data;
 
         materialCardView = new MaterialCardView(context);
         //materialCardView.setCheckable(false);
@@ -70,6 +76,14 @@ public class LinkMaterialCardView {
         materialCardView.addView(linearLayout);
     }
 
+    public LinkMaterialCardView(Context context, String id, String title, String url) {
+        this(context, id, title, url, null);
+    }
+
+    public LinkMaterialCardView(Context context, String id, Link link) {
+        this(context, id, link.getTitle(), link.getUrl(), link.getData());
+    }
+
     public void addButton(Context context, String text, final MaterialCardViewButtonClickListener listener) {
         MaterialButton openButton = new MaterialButton(context, null, R.attr.borderlessButtonStyle);
         LinearLayout.LayoutParams openButtonLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -79,7 +93,7 @@ public class LinkMaterialCardView {
         openButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onClick(id, title, url);
+                listener.onClick(id, title, url, data);
             }
         });
         buttonLinearLayout.addView(openButton);

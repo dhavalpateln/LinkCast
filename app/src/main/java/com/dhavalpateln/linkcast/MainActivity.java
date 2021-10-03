@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         searchDialog = new SearchDialog();
         searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
             @Override
-            public void onSearchButtonClicked(String searchString, String source) {
+            public void onSearchButtonClicked(String searchString, String source, boolean advancedMode) {
                 Intent searchIntent;
                 if(mangaSourceList.contains(source)) {
                     searchIntent = new Intent(getApplicationContext(), MangaWebExplorer.class);
@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 searchIntent.putExtra("search", searchString);
                 searchIntent.putExtra("source", source);
+                searchIntent.putExtra("advancedMode", advancedMode);
                 startActivity(searchIntent);
             }
         });

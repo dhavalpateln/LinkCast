@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.LinkMaterialCardView;
 import com.dhavalpateln.linkcast.R;
@@ -38,6 +39,8 @@ import java.util.Map;
 
 public class AnimeFragment extends Fragment {
 
+    private DatabaseReference linkRef;
+    private ChildEventListener linkChildEventListener;
     private Map<String, LinkMaterialCardView> viewMap;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -45,52 +48,51 @@ public class AnimeFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_anime, container, false);
         viewMap = new HashMap<>();
         final LinearLayout linearLayout = root.findViewById(R.id.anime_links_linear_layout);
-        DatabaseReference linkRef = FirebaseDBHelper.getUserAnimeWebExplorerLinkRef();
-        linkRef.addChildEventListener(new ChildEventListener() {
+        linkRef = FirebaseDBHelper.getUserAnimeWebExplorerLinkRef();
+        linkChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                try {
-                    Link link = dataSnapshot.getValue(Link.class);
-                    //MaterialCardView card = createCard(dataSnapshot.getKey(), link.getTitle(), link.getUrl());
-                    LinkMaterialCardView card = new LinkMaterialCardView(getContext(), dataSnapshot.getKey(), link.getTitle(), link.getUrl());
-                    card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url) {
-                            Intent intent = new Intent(getContext(), AnimeWebExplorer.class);
-                            intent.putExtra("search", url);
-                            intent.putExtra("source", "saved");
-                            intent.putExtra("id", id);
-                            intent.putExtra("title", title);
-                            startActivity(intent);
-                        }
-                    });
-                    card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url) {
-                            FirebaseDBHelper.removeAnimeLink(id);
-                        }
-                    });
-                    card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url) {
-                            BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url);
-                            dialog.show(getParentFragmentManager(), "bookmarkEdit");
-                        }
-                    });
 
-                    linearLayout.addView(card.getCard(), 1);
-                    viewMap.put(dataSnapshot.getKey(), card);
-                }
-                catch (Exception e) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    Intent crashIntent = new Intent(getContext(), CrashReportActivity.class);
-                    crashIntent.putExtra("subject", "Crash");
-                    crashIntent.putExtra("message", sw.toString());
-                    startActivity(crashIntent);
+                Link link = dataSnapshot.getValue(Link.class);
+                //MaterialCardView card = createCard(dataSnapshot.getKey(), link.getTitle(), link.getUrl());
+                LinkMaterialCardView card = new LinkMaterialCardView(getContext(), dataSnapshot.getKey(), link);
+                card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
+                        Intent intent = new Intent(getContext(), AnimeWebExplorer.class);
+                        if(data != null) {
+                            if(data.containsKey("mode") && data.get("mode").equals("advanced")) {
+                                intent = new Intent(getContext(), AnimeAdvancedView.class);
+                                intent.putExtra("url", url);
+                            }
+                            for(Map.Entry<String, String> entry: data.entrySet()) {
+                                intent.putExtra("data-" + entry.getKey(), entry.getValue());
+                            }
+                        }
+                        intent.putExtra("search", url);
+                        intent.putExtra("source", "saved");
+                        intent.putExtra("id", id);
+                        intent.putExtra("title", title);
+                        startActivity(intent);
+                    }
+                });
+                card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
+                        FirebaseDBHelper.removeAnimeLink(id);
+                    }
+                });
+                card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
+                        BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url);
+                        dialog.show(getParentFragmentManager(), "bookmarkEdit");
+                    }
+                });
 
-                }
+                linearLayout.addView(card.getCard(), 1);
+                viewMap.put(dataSnapshot.getKey(), card);
+
             }
 
             @Override
@@ -112,8 +114,15 @@ public class AnimeFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        linkRef.addChildEventListener(linkChildEventListener);
         return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        linkRef.removeEventListener(linkChildEventListener);
     }
 
 }

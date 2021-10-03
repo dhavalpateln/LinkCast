@@ -53,24 +53,29 @@ public class HomeFragment extends Fragment {
                 LinkMaterialCardView card = new LinkMaterialCardView(getContext(), dataSnapshot.getKey(), link.getTitle(), link.getUrl());
                 card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
-                    public void onClick(String id, String title, String url) {
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
                         /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         startActivity(intent);*/
                         Intent intent = new Intent(getContext(), ExoPlayerActivity.class);
                         intent.putExtra("url", url);
                         intent.putExtra("title", title);
+                        if(data != null) {
+                            if(data.containsKey("Referer")) {
+                                intent.putExtra("Referer", data.get("Referer"));
+                            }
+                        }
                         startActivity(intent);
                     }
                 });
                 card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
-                    public void onClick(String id, String title, String url) {
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
                         FirebaseDBHelper.removeLink(id);
                     }
                 });
                 card.addButton(getContext(), "DOWNLOAD", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
-                    public void onClick(String id, String title, String url) {
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
 
                         LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, title + ".mp4", new LinkDownloadManagerDialog.LinkDownloadListener() {
                             @Override

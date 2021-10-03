@@ -82,7 +82,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         downloadTypeSpinner.setAdapter(spinnerAdapter);
         spinnerAdapter.setNotifyOnChange(true);
         spinnerAdapter.add(LOCAL_DOWNLOAD);
-        spinnerAdapter.add(REMOTE_DOWNLOAD);                            //Web download not available yet
+        //spinnerAdapter.add(REMOTE_DOWNLOAD);                            //Web download not available yet
 
         FirebaseDBHelper.getUserWebDownloadQueueTypes().addChildEventListener(new ChildEventListener() {
             @Override

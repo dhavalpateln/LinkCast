@@ -12,6 +12,7 @@ import com.dhavalpateln.linkcast.animesources.AnimeSource;
 import com.dhavalpateln.linkcast.animesources.AnimeUltima;
 import com.dhavalpateln.linkcast.animesources.Animixplay;
 import com.dhavalpateln.linkcast.animesources.FourAnime;
+import com.dhavalpateln.linkcast.animesources.GenericSource;
 import com.dhavalpateln.linkcast.animesources.KwikCX;
 import com.dhavalpateln.linkcast.animesources.NineAnime;
 import com.dhavalpateln.linkcast.animesources.StreamAni;
@@ -58,7 +59,9 @@ public class AnimeWebExplorer extends AppCompatActivity {
     boolean stateSaved = false;
     private boolean castDialogOpen = false;
     private Map<String, AnimeSource> animeSourceMap;
+    private GenericSource genericSource;
     Set<String> mp4sFound;
+    private boolean useAdvancedMode;
 
     @Override
     protected void onPause() {
@@ -100,12 +103,19 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 return entry.getValue();
             }
         }
+        if(genericSource != null) {
+            return genericSource;
+        }
         return null;
     }
 
     private String getSearchURL(String searchTerm, String source) {
         if(source.equals("saved")) {
             return searchTerm;
+        }
+        if(source.equals("generic")) {
+            genericSource = new GenericSource(getIntent().getStringExtra("generic_url"));
+            return genericSource.getSearchURL(searchTerm);
         }
         AnimeSource animeSource = getAnimeSource(source);
         if(animeSource != null) {
@@ -149,13 +159,20 @@ public class AnimeWebExplorer extends AppCompatActivity {
         animeSourceMap.put("kwik.cx", new KwikCX());
 
 
+
         mp4sFound = new HashSet<>();
         final Intent calledIntent = getIntent();
+
+        useAdvancedMode = calledIntent.getBooleanExtra("advancedMode", false);
+
         animeExplorerWebView = findViewById(R.id.anime_explorer_web_view);
         WebSettings webSettings = animeExplorerWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
         animeExplorerWebView.setWebViewClient(new MyWebViewClient());
+        /*Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("Referer", "https://kwik.cx/");
+        animeExplorerWebView.loadUrl("https://kwik.cx/d/M2n5mRecobmn", headerMap);*/
         animeExplorerWebView.loadUrl(getSearchURL(
                 calledIntent.getStringExtra("search"),
                 calledIntent.getStringExtra("source")
@@ -168,6 +185,9 @@ public class AnimeWebExplorer extends AppCompatActivity {
             public void onClick(View view) {
 
                     if (calledIntent.getStringExtra("source").equals("saved")) {
+                        if(!calledIntent.hasExtra("id")) {
+                            calledIntent.putExtra("id", getCurrentTime());
+                        }
                         FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
                                 .child(calledIntent.getStringExtra("id"))
                                 .child("url")
@@ -231,6 +251,18 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
             AnimeSource animeSource = getAnimeSource(sourceTerm);
             if(animeSource != null) {
+                if(useAdvancedMode && animeSource.isAdvancedModeUrl(sourceTerm)) {
+                    Intent intent = new Intent(AnimeWebExplorer.this, AnimeAdvancedView.class);
+                    intent.putExtra("source", animeSource.getAnimeSourceName());
+                    intent.putExtra("url", url);
+                    intent.putExtra("intentFrom", "AnimeWebExplorer");
+                    if(getIntent().hasExtra("id")) {
+                        intent.putExtra("id", getIntent().getStringExtra("id"));
+                    }
+                    startActivity(intent);
+                    finish();
+                    return true;
+                }
                 // This is my website, so do not override; let my WebView load the page
                 currentWebViewURI = url;
                 view.loadUrl(url);
@@ -337,15 +369,22 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
             String animeTitle = getAnimeTitle(true);
 
-            MediaReceiver.insertData("video", animeTitle, requestUrl);
+            Map<String, String> data = new HashMap<>();
+            if(currentWebViewURI.startsWith("https://kwik.cx/")) {
+                data.put("Referer", "https://kwik.cx/");
+            }
+            MediaReceiver.insertData("video", animeTitle, requestUrl, data);
 
             Map<String, CastDialog.OnClickListener> map = new HashMap<>();
 
             map.put("PLAY", new CastDialog.OnClickListener() {
                 @Override
-                public void onClick(CastDialog castDialog, String title, String url) {
+                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
                     Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
                     intent.putExtra("url", url);
+                    if(data.containsKey("Referer")) {
+                        intent.putExtra("Referer", data.get("Referer"));
+                    }
                     startActivity(intent);
                     castDialogOpen = false;
                     mp4sFound = new HashSet<>();
@@ -355,7 +394,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             });
             map.put("CAST MORE", new CastDialog.OnClickListener() {
                 @Override
-                public void onClick(CastDialog castDialog, String title, String url) {
+                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
                     castDialogOpen = false;
                     mp4sFound = new HashSet<>();
                     mp4sFound.add(url);
@@ -364,7 +403,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             });
             map.put("MAIN MENU", new CastDialog.OnClickListener() {
                 @Override
-                public void onClick(CastDialog castDialog, String title, String url) {
+                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
                     castDialogOpen = false;
                     mp4sFound = new HashSet<>();
                     mp4sFound.add(url);
@@ -373,7 +412,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 }
             });
 
-            CastDialog castDialog = new CastDialog(animeTitle, requestUrl, map);
+            CastDialog castDialog = new CastDialog(animeTitle, requestUrl, map, data);
             castDialog.show(getSupportFragmentManager(), "CastDialog");
             notFoundMP4 = true;
         }

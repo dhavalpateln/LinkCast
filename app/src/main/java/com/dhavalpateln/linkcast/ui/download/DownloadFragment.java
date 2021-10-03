@@ -50,7 +50,7 @@ public class DownloadFragment extends Fragment {
             LinkMaterialCardView card = new LinkMaterialCardView(getContext(), filePath, fileName, filePath);
             card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                 @Override
-                public void onClick(String id, String title, String url) {
+                public void onClick(String id, String title, String url, Map<String, String> data) {
                     //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     //intent.setData(Uri.parse(url));
@@ -61,7 +61,7 @@ public class DownloadFragment extends Fragment {
             });
             card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                 @Override
-                public void onClick(String id, String title, String url) {
+                public void onClick(String id, String title, String url, Map<String, String> data) {
                     new File(url).delete();
                     //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
                     linearLayout.removeView(viewMap.get(id));

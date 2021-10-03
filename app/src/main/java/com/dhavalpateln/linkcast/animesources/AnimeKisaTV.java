@@ -38,6 +38,12 @@ public class AnimeKisaTV extends AnimeSource{
                     .child("title")
                     .setValue(title.split(" - EP")[0] + " - EP" + episodeNum);
         }
+        else {
+            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
+                    .child(id)
+                    .child("title")
+                    .setValue(title);
+        }
     }
 
     @Override
@@ -55,6 +61,11 @@ public class AnimeKisaTV extends AnimeSource{
         if(urlString.contains("https://gogo-stream.com/loadserver.php?id=MTY1Njkx")) return false;
         if(!urlString.contains("animekisa.tv")) return true;
         return false;
+    }
+
+    @Override
+    public boolean isAdvancedModeUrl(String url) {
+        return !url.startsWith("https://animekisa.tv/search?q=") && url.startsWith("https://animekisa.tv/");
     }
 
     @Override

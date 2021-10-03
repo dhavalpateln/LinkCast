@@ -29,11 +29,12 @@ public class MALReceiverActivity extends AppCompatActivity {
             SearchDialog dialog = new SearchDialog(malIntent.getStringExtra("android.intent.extra.SUBJECT"));
             dialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
                 @Override
-                public void onSearchButtonClicked(String searchString, String source) {
+                public void onSearchButtonClicked(String searchString, String source, boolean advancedMode) {
                     Intent animeSearchIntent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
                     animeSearchIntent.putExtra("search", searchString);
                     animeSearchIntent.putExtra("source", source);
                     animeSearchIntent.putExtra("animeTitle", searchString);
+                    animeSearchIntent.putExtra("advancedMode", advancedMode);
                     startActivity(animeSearchIntent);
                 }
             });

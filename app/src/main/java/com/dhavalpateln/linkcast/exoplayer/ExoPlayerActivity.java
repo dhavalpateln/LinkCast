@@ -90,15 +90,16 @@ public class ExoPlayerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
 
-
         Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Referer", "https://kwik.cx");
+        if(intent.hasExtra("Referer")) {
+            headerMap.put("Referer", intent.getStringExtra("Referer"));
+        }
+
         DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory().setDefaultRequestProperties(headerMap);
-
-
         player = new SimpleExoPlayer.Builder(getApplicationContext())
                 .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
                 .build();
+
         exoplayerView.setPlayer(player);
 
         // Build the media item.
