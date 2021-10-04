@@ -61,4 +61,9 @@ public class Animixplay extends AnimeSource {
     public boolean isPlayable(String url) {
         return url.contains(".mp4") || url.contains(".m3u8");
     }
+
+    @Override
+    public boolean isAdvancedModeUrl(String url) {
+        return !url.startsWith("https://animixplay.to/?q=") && url.startsWith("https://animixplay.to/v1");
+    }
 }

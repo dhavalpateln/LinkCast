@@ -79,8 +79,9 @@ public abstract class AnimeScrapper {
         return null;
     }
 
-    public abstract boolean canScrape(String url);
+    public abstract boolean isCorrectURL(String url);
     public abstract Map<String, String> getEpisodeList(String episodeListUrl) throws IOException;
     public abstract Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException;
     public abstract String extractData();
+    public abstract String getDisplayName();
 }

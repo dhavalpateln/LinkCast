@@ -24,8 +24,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dhavalpateln.linkcast.animescrappers.AnimeKisaCCExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
+import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
@@ -56,6 +58,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private RecyclerViewAdapter adapter;
     private TextView animeTitleTextView;
     private TextView animeEpisodeNumTextView;
+    private AnimeScrapper sourceExtractor;
 
     public String getCurrentTime() {
         Calendar c = Calendar.getInstance();
@@ -170,6 +173,15 @@ public class AnimeAdvancedView extends AppCompatActivity {
 
         extractors = new HashMap<>();
         extractors.put("animekisa.tv", new AnimeKisaTVExtractor(calledIntent.getStringExtra("url")));
+        extractors.put("animekisa.cc", new AnimeKisaCCExtractor(calledIntent.getStringExtra("url")));
+        extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
+
+        for(String extractorName: extractors.keySet()) {
+            if(extractors.get(extractorName).isCorrectURL(calledIntent.getStringExtra("url"))) {
+                sourceExtractor = extractors.get(extractorName);
+                break;
+            }
+        }
 
         ExtractDataTask extractDataTask = new ExtractDataTask();
         extractDataTask.execute(calledIntent.getStringExtra("url"));
@@ -259,7 +271,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         @Override
         protected Map<String, String> doInBackground(String... strings) {
             String url = strings[0];
-            AnimeScrapper extractor = extractors.get("animekisa.tv");
+            AnimeScrapper extractor = sourceExtractor;
             Map<String, String> extractedEpisodes = null;
             try {
                 extractedEpisodes = extractor.extractEpisodeUrls(url);
@@ -284,7 +296,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            AnimeScrapper extractor = extractors.get("animekisa.tv");
+            AnimeScrapper extractor = sourceExtractor;
             if(extractor.getData("imageUrl") != null) {
                 Glide.with(getApplicationContext())
                         .load(extractor.getData("imageUrl"))
@@ -323,7 +335,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
             try {
                 String urlString = strings[0];
                 this.baseURL = strings[0];
-                extractors.get("animekisa.tv").extractData();
+                sourceExtractor.extractData();
                 return null;
             } catch (Exception e) {
                 return null;
@@ -349,7 +361,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
                             id = getCurrentTime();
                         }
                         Map<String, Object> update = new HashMap<>();
-                        update.put(id + "/title", animeTitleTextView.getText().toString() + "(A)");
+                        update.put(id + "/title", animeTitleTextView.getText().toString() + "(" + sourceExtractor.getDisplayName() + ")");
                         update.put(id + "/url", calledIntent.getStringExtra("url"));
                         update.put(id + "/data/mode", "advanced");
                         update.put(id + "/data/episodenumtext", animeEpisodeNumTextView.getText().toString());

@@ -19,4 +19,9 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
+    <style name="ExoMediaButton.Fullscreen">
+        <item name="android:src">@drawable/exo_styled_controls_fullscreen_enter</item>
+        <item name="android:contentDescription">@string/exo_controls_pause_description</item>
+    </style>
+
 </resources>

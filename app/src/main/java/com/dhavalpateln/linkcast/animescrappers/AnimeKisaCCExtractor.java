@@ -1,25 +1,20 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
-import android.os.Build;
 import android.util.Log;
-import android.webkit.WebView;
-
-import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AnimeKisaTVExtractor extends AnimeScrapper {
+public class AnimeKisaCCExtractor extends AnimeScrapper {
 
-    private String TAG = "AnimeKisaTV - Extractor";
+    private String TAG = "AnimeKisaCC - Extractor";
 
-    public AnimeKisaTVExtractor(String baseUrl) {
+    public AnimeKisaCCExtractor(String baseUrl) {
         super(baseUrl);
-        setData("domain", "https://animekisa.tv/");
+        setData("domain", "https://www.animekisa.cc/");
     }
 
     @Override
@@ -30,9 +25,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     @Override
     public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
         if(!episodeList.containsKey(episodeListUrl)) {
-            String baseHtmlContent = getHttpContent(episodeListUrl);
-            String lines[] = baseHtmlContent.split("\n");
-            getEpisodeList(episodeListUrl, lines, 0);
+            return null;
         }
         return episodeList.get(episodeListUrl);
     }
@@ -45,7 +38,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                 Pattern pattern = Pattern.compile("<a class=\"infovan\" href=\"(.*?)\">");
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.find()) {
-                    String episodeUrl = getData("domain") + matcher.group(1);
+                    String episodeUrl = matcher.group(1);
                     String episodeNum = episodeUrl.split("-episode-")[1];
                     episodeList.get(episodeListUrl).put(episodeNum, episodeUrl);
                 }
@@ -63,8 +56,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
         String baseHtmlContent = getHttpContent(episodeUrl);
         String downloadEpisodeLink = null;
         for(String line: baseHtmlContent.split("\n")) {
-            if(line.contains("var VidStreaming =")) {
-                Pattern pattern = Pattern.compile("var VidStreaming = \"(.*?)\";");
+            if(line.contains("<a id=\"download\" href=\"")) {
+                Pattern pattern = Pattern.compile("<a id=\"download\" href=\"(.*?)\"");
                 Matcher matcher = pattern.matcher(baseHtmlContent);
                 if (matcher.find()) {
                     downloadEpisodeLink = matcher.group(1);
@@ -184,7 +177,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                         Pattern pattern = Pattern.compile("<img class=\"posteri\".*src=\"(.*?)\"");
                         Matcher matcher = pattern.matcher(line);
                         if (matcher.find()) {
-                            setData("imageUrl", getData("domain") + matcher.group(1));
+                            setData("imageUrl", matcher.group(1));
                             foundImage = true;
                         }
                     }
@@ -204,7 +197,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                     foundEpisodeListStartLineNum = true;
                 }
             }
-            getEpisodeList(this.baseUrl, lines, episodeListStartLineNum);
+            getEpisodeList(this.baseUrl, lines, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -213,6 +206,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return "AnimeKisa.tv";
+        return "AnimeKisa.cc";
     }
+
 }

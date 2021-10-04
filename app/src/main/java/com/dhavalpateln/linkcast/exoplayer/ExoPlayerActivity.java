@@ -1,18 +1,24 @@
 package com.dhavalpateln.linkcast.exoplayer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.R;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -20,13 +26,15 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class ExoPlayerActivity extends AppCompatActivity {
 
-    private StyledPlayerView exoplayerView;
+    private PlayerView exoplayerView;
     private SimpleExoPlayer player;
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0L;
+    private ImageView fullScreenIcon;
 
 
     @Override
@@ -62,6 +70,22 @@ public class ExoPlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+            fullScreenIcon.setImageResource(R.drawable.exo_styled_controls_fullscreen_exit);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+            fullScreenIcon.setImageResource(R.drawable.exo_styled_controls_fullscreen_enter);
+        }
+    }
+
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exo_player);
@@ -70,6 +94,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
+        fullScreenIcon = findViewById(R.id.exo_fullscreen);
         exoplayerView = findViewById(R.id.exoplayer);
         exoplayerView.setKeepScreenOn(true);
         //exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
@@ -113,4 +138,16 @@ public class ExoPlayerActivity extends AppCompatActivity {
 
     }
 
+    public void toggleFullscreen(View view) {
+        if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
+    public void skip90(View view) {
+        player.seekTo(player.getCurrentPosition() + 90000L);
+    }
 }

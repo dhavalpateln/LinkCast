@@ -15,7 +15,7 @@ public class EmbedSitoExtractor extends AnimeScrapper {
     }
 
     @Override
-    public boolean canScrape(String url) {
+    public boolean isCorrectURL(String url) {
         return false;
     }
 
@@ -45,5 +45,9 @@ public class EmbedSitoExtractor extends AnimeScrapper {
     @Override
     public String extractData() {
         return null;
+    }
+    @Override
+    public String getDisplayName() {
+        return "EmbedSito";
     }
 }

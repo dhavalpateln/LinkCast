@@ -1,30 +1,25 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
-import android.os.Build;
 import android.util.Log;
-import android.webkit.WebView;
-
-import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AnimeKisaTVExtractor extends AnimeScrapper {
+public class VidStreamingExtractor extends AnimeScrapper {
 
     private String TAG = "AnimeKisaTV - Extractor";
 
-    public AnimeKisaTVExtractor(String baseUrl) {
+    public VidStreamingExtractor(String baseUrl) {
         super(baseUrl);
         setData("domain", "https://animekisa.tv/");
     }
 
     @Override
     public boolean isCorrectURL(String url) {
-        return url.startsWith(getData("domain"));
+        return false;
     }
 
     @Override
@@ -180,8 +175,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
             for(int linenum = 0; linenum < lines.length; linenum++) {
                 String line = lines[linenum].trim();
                 if(!foundImage) {
-                    if(line.contains("<img class=\"posteri\"")) {
-                        Pattern pattern = Pattern.compile("<img class=\"posteri\".*src=\"(.*?)\"");
+                    if(line.startsWith("<div class=\"infopicbox\">")) {
+                        Pattern pattern = Pattern.compile("<img class=\"posteri\" .* src=\"(.*?)\"");
                         Matcher matcher = pattern.matcher(line);
                         if (matcher.find()) {
                             setData("imageUrl", getData("domain") + matcher.group(1));
@@ -210,9 +205,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
         }
         return null;
     }
-
     @Override
     public String getDisplayName() {
-        return "AnimeKisa.tv";
+        return "VidStreaming";
     }
 }
