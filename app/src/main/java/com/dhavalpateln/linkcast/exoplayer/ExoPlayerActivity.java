@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -29,13 +30,19 @@ import java.util.Map;
 
 public class ExoPlayerActivity extends AppCompatActivity {
 
+    public static final String ID = "id";
+    public static final String EPISODE_NUM = "num";
+    public static final String LAST_VIEW_POINT = "last_point";
+
     private PlayerView exoplayerView;
     private SimpleExoPlayer player;
     private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0L;
     private ImageView fullScreenIcon;
-
+    private boolean saveProgress = true;
+    private String id = null;
+    private String episodeNum = null;
 
     @Override
     protected void onStart() {
@@ -67,6 +74,9 @@ public class ExoPlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         release();
+        if(saveProgress && id != null && episodeNum != null) {
+            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
+        }
     }
 
     @Override
@@ -97,6 +107,17 @@ public class ExoPlayerActivity extends AppCompatActivity {
         fullScreenIcon = findViewById(R.id.exo_fullscreen);
         exoplayerView = findViewById(R.id.exoplayer);
         exoplayerView.setKeepScreenOn(true);
+
+        Intent calledIntent = getIntent();
+        if(calledIntent.hasExtra(ID)) id = calledIntent.getStringExtra(ID);
+        if(calledIntent.hasExtra(EPISODE_NUM)) episodeNum = calledIntent.getStringExtra(EPISODE_NUM);
+        if(calledIntent.hasExtra(LAST_VIEW_POINT)) {
+            playbackPosition = Long.valueOf(calledIntent.getStringExtra(LAST_VIEW_POINT));
+        }
+        if(player != null) {
+            player.seekTo(currentWindow, playbackPosition);
+        }
+
         //exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
     }
 
@@ -148,6 +169,6 @@ public class ExoPlayerActivity extends AppCompatActivity {
     }
 
     public void skip90(View view) {
-        player.seekTo(player.getCurrentPosition() + 90000L);
+        player.seekTo(player.getCurrentPosition() + 85000L);
     }
 }

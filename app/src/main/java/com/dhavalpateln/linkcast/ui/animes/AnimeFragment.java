@@ -65,6 +65,7 @@ public class AnimeFragment extends Fragment {
                                 intent = new Intent(getContext(), AnimeAdvancedView.class);
                                 intent.putExtra("url", url);
                             }
+                            intent.putExtra("mapdata", (HashMap<String, String>) data);
                             for(Map.Entry<String, String> entry: data.entrySet()) {
                                 intent.putExtra("data-" + entry.getKey(), entry.getValue());
                             }
@@ -98,6 +99,7 @@ public class AnimeFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 viewMap.get(dataSnapshot.getKey()).cardTitle(dataSnapshot.child("title").getValue().toString());
+                viewMap.get(dataSnapshot.getKey()).updateData((Map<String, String>) dataSnapshot.child("data").getValue());
             }
 
             @Override

@@ -59,6 +59,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private TextView animeTitleTextView;
     private TextView animeEpisodeNumTextView;
     private AnimeScrapper sourceExtractor;
+    private String id;
+    private boolean saveProgress = true;
 
     public String getCurrentTime() {
         Calendar c = Calendar.getInstance();
@@ -121,7 +123,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
                 public void onClick(View v) {
                     animeEpisodeNumTextView.setText("Episode - " + recyclerData.getNum());
                     ExtractEpisodeTask task = new ExtractEpisodeTask();
-                    task.execute(recyclerData.getUrl());
+                    task.execute(recyclerData.getUrl(), recyclerData.getNum());
+                    if(saveProgress && id != null) {
+                        FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child("episodenumtext")
+                                .setValue(animeEpisodeNumTextView.getText().toString());
+                    }
                 }
             });
         }
@@ -160,6 +166,9 @@ public class AnimeAdvancedView extends AppCompatActivity {
         if(calledIntent.hasExtra("data-episodenumtext")) {
             animeEpisodeNumTextView.setText(calledIntent.getStringExtra("data-episodenumtext"));
         }
+        if(calledIntent.hasExtra("id")) {
+            id = calledIntent.getStringExtra("id");
+        }
 
         episodeListData = new ArrayList<>();
         adapter = new RecyclerViewAdapter(episodeListData,this);
@@ -187,7 +196,28 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractDataTask.execute(calledIntent.getStringExtra("url"));
     }
 
+    public void startPlayer(String url, String episodeNum, HashMap<String, String> headers) {
+        Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+        intent.putExtra("url", url);
+        intent.putExtra("saveProgress", saveProgress);
+        if(id != null)  intent.putExtra("id", id);
+        if(headers != null) intent.putExtra("headers", headers);
+        if(episodeNum != null) intent.putExtra(ExoPlayerActivity.EPISODE_NUM, episodeNum);
+        if(getIntent().hasExtra("data-" + episodeNum)) {
+            FirebaseDBHelper.getValue(FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum), dataSnapshot -> {
+                intent.putExtra(ExoPlayerActivity.LAST_VIEW_POINT, (String) dataSnapshot.getValue());
+                startActivity(intent);
+            });
+        }
+        else {
+            startActivity(intent);
+        }
+
+    }
+
     public class ExtractEpisodeTask extends AsyncTask<String, Integer, Map<String, String>> {
+
+        private String episodeNum;
 
         @Override
         protected void onPreExecute() {
@@ -210,15 +240,12 @@ public class AnimeAdvancedView extends AppCompatActivity {
                         map.put("PLAY", new CastDialog.OnClickListener() {
                             @Override
                             public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
+
                                 if(url.contains(".m3u8") || url.replace(".mp4upload", "").contains(".mp4")) {
-                                    Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
-                                    intent.putExtra("url", url);
-                                    startActivity(intent);
+                                    startPlayer(url, episodeNum, null);
                                 }
                                 else if(source.toLowerCase().startsWith("xstreamcdn")) {
-                                    Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
-                                    intent.putExtra("url", url);
-                                    startActivity(intent);
+                                    startPlayer(url, episodeNum, null);
                                 }
                                 else {
                                     Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
@@ -271,6 +298,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         @Override
         protected Map<String, String> doInBackground(String... strings) {
             String url = strings[0];
+            episodeNum = strings[1];
             AnimeScrapper extractor = sourceExtractor;
             Map<String, String> extractedEpisodes = null;
             try {

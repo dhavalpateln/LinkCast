@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
-    private Map<String, MaterialCardView> viewMap;
+    private Map<String, LinkMaterialCardView> viewMap;
     private DatabaseReference linkRef;
     private ChildEventListener linkChildEventListener;
 
@@ -89,17 +89,17 @@ public class HomeFragment extends Fragment {
                 });
 
                 linearLayout.addView(card.getCard(), 1);
-                viewMap.put(dataSnapshot.getKey(), card.getCard());
+                viewMap.put(dataSnapshot.getKey(), card);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                viewMap.get(dataSnapshot.getKey()).updateData((Map<String, String>) dataSnapshot.child("data").getValue());
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                linearLayout.removeView(viewMap.get(dataSnapshot.getKey()));
+                linearLayout.removeView(viewMap.get(dataSnapshot.getKey()).getCard());
             }
 
             @Override
