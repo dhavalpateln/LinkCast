@@ -25,6 +25,7 @@ import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 import com.dhavalpateln.linkcast.listeners.CrashListener;
 import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
 import com.dhavalpateln.linkcast.ui.feedback.FeedbackFragment;
+import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.database.ChildEventListener;
@@ -47,6 +48,7 @@ public class AnimeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_anime, container, false);
         viewMap = new HashMap<>();
+
         final LinearLayout linearLayout = root.findViewById(R.id.anime_links_linear_layout);
         linkRef = FirebaseDBHelper.getUserAnimeWebExplorerLinkRef();
         linkChildEventListener = new ChildEventListener() {

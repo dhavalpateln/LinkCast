@@ -279,12 +279,30 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
         private boolean containsAds(String urlString) {
 
+
+
             if(urlString.startsWith("https://prd.jwpltx.com")) {
                 return true;
             }
 
             AnimeSource animeSource = getAnimeSource(currentWebViewURI);
             if(animeSource != null) {
+                if(useAdvancedMode) {
+                    if(animeSource.getAnimeSourceName().equals("animepahe.com")) {
+                        if(animeSource.isAdvancedModeUrl(urlString)) {
+                            Intent intent = new Intent(AnimeWebExplorer.this, AnimeAdvancedView.class);
+                            intent.putExtra("source", animeSource.getAnimeSourceName());
+                            intent.putExtra("url", urlString + ":::" + currentWebViewURI);
+                            intent.putExtra("intentFrom", "AnimeWebExplorer");
+                            if(getIntent().hasExtra("id")) {
+                                intent.putExtra("id", getIntent().getStringExtra("id"));
+                            }
+                            startActivity(intent);
+                            finish();
+                            return true;
+                        }
+                    }
+                }
                 return animeSource.containsAds(urlString, notFoundMP4, currentWebViewURI);
             }
             if(currentWebViewURI.contains("mp4upload.com")) {
@@ -370,7 +388,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             String animeTitle = getAnimeTitle(true);
 
             Map<String, String> data = new HashMap<>();
-            if(currentWebViewURI.startsWith("https://kwik.cx/")) {
+            if(currentWebViewURI.startsWith("https://kwik.cx/") || currentWebViewURI.startsWith("https://animepahe.com/")) {
                 data.put("Referer", "https://kwik.cx/");
             }
             MediaReceiver.insertData("video", animeTitle, requestUrl, data);

@@ -36,6 +36,7 @@ public class FAQFragment extends Fragment {
                 }
             }
         });*/
+        // TODO: Implement FAQ
         return root;
     }
 

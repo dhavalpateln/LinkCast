@@ -6,4 +6,5 @@
     <color name="materialCardBackgroud">#132330</color>
     <color name="materialCardTextColor">#000000</color>
     <color name="fabBackgroud">#145488</color>
+    <color name="antimode">#FFFFFF</color>
 </resources>

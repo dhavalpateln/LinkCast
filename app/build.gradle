@@ -3,11 +3,11 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.dhavalpateln.linkcast"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -44,13 +44,19 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+    implementation 'com.google.android.exoplayer:extension-cast:2.15.1'
 // Import the BoM for the Firebase platform
     implementation platform('com.google.firebase:firebase-bom:28.4.1')
 
+    //Cast dep
+    implementation 'androidx.mediarouter:mediarouter:1.0.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:17.0.0'
     // Declare the dependencies for the Crashlytics and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-analytics'
+    //implementation 'com.google.firebase:firebase-crashlytics'
+    //implementation 'com.google.firebase:firebase-analytics'
+    implementation "com.github.TorrentStream:TorrentStream-Android:2.7.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

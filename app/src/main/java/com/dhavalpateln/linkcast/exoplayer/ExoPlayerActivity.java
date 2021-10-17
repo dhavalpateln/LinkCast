@@ -15,20 +15,28 @@ import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.github.se_bastiaan.torrentstream.StreamStatus;
+import com.github.se_bastiaan.torrentstream.Torrent;
+import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.gms.cast.framework.CastContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class ExoPlayerActivity extends AppCompatActivity {
+public class ExoPlayerActivity extends AppCompatActivity implements TorrentListener {
 
     public static final String ID = "id";
     public static final String EPISODE_NUM = "num";
@@ -43,6 +51,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
     private boolean saveProgress = true;
     private String id = null;
     private String episodeNum = null;
+    private boolean usedIntent = false;
 
     @Override
     protected void onStart() {
@@ -74,9 +83,6 @@ public class ExoPlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         release();
-        if(saveProgress && id != null && episodeNum != null) {
-            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
-        }
     }
 
     @Override
@@ -108,16 +114,6 @@ public class ExoPlayerActivity extends AppCompatActivity {
         exoplayerView = findViewById(R.id.exoplayer);
         exoplayerView.setKeepScreenOn(true);
 
-        Intent calledIntent = getIntent();
-        if(calledIntent.hasExtra(ID)) id = calledIntent.getStringExtra(ID);
-        if(calledIntent.hasExtra(EPISODE_NUM)) episodeNum = calledIntent.getStringExtra(EPISODE_NUM);
-        if(calledIntent.hasExtra(LAST_VIEW_POINT)) {
-            playbackPosition = Long.valueOf(calledIntent.getStringExtra(LAST_VIEW_POINT));
-        }
-        if(player != null) {
-            player.seekTo(currentWindow, playbackPosition);
-        }
-
         //exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
     }
 
@@ -127,6 +123,9 @@ public class ExoPlayerActivity extends AppCompatActivity {
             this.currentWindow = player.getCurrentWindowIndex();
             this.playbackPosition = player.getCurrentPosition();
             player.release();
+            if(saveProgress && id != null && episodeNum != null) {
+                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
+            }
         }
         player = null;
     }
@@ -135,6 +134,15 @@ public class ExoPlayerActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
+        if(intent.hasExtra(ID)) id = intent.getStringExtra(ID);
+        if(intent.hasExtra(EPISODE_NUM)) episodeNum = intent.getStringExtra(EPISODE_NUM);
+
+        if(!usedIntent) {
+            usedIntent = true;
+            if(intent.hasExtra(LAST_VIEW_POINT)) {
+                playbackPosition = Long.valueOf(intent.getStringExtra(LAST_VIEW_POINT));
+            }
+        }
 
         Map<String, String> headerMap = new HashMap<>();
         if(intent.hasExtra("Referer")) {
@@ -167,8 +175,45 @@ public class ExoPlayerActivity extends AppCompatActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
     }
+    public void cast(View view) {
+        CastContext castContext = CastContext.getSharedInstance(getApplicationContext());
+
+    }
 
     public void skip90(View view) {
         player.seekTo(player.getCurrentPosition() + 85000L);
     }
+
+
+    /* TORRENT LISTENERS - START*/
+    @Override
+    public void onStreamPrepared(Torrent torrent) {
+
+    }
+
+    @Override
+    public void onStreamStarted(Torrent torrent) {
+
+    }
+
+    @Override
+    public void onStreamError(Torrent torrent, Exception e) {
+
+    }
+
+    @Override
+    public void onStreamReady(Torrent torrent) {
+
+    }
+
+    @Override
+    public void onStreamProgress(Torrent torrent, StreamStatus status) {
+
+    }
+
+    @Override
+    public void onStreamStopped() {
+
+    }
+    /* TORRENT LISTENERS - END*/
 }

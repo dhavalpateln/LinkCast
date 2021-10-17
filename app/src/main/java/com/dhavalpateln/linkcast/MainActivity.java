@@ -11,9 +11,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerCastActivity;
 import com.dhavalpateln.linkcast.ui.RemoteCodeActivity;
 import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links,
+                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/
                 /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        //CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;
     }
 
