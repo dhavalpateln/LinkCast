@@ -17,7 +17,7 @@ public class KwikCX extends AnimeSource {
 
     @Override
     public boolean isCorrectSource(String term) {
-        if(term.startsWith("https://na") && term.contains(".mp4")) return true;
+        if(term.startsWith("https://na") && (term.contains(".mp4") || term.contains(".m3u8"))) return true;
         return term.startsWith("https://kwik.cx");
     }
 
@@ -29,6 +29,7 @@ public class KwikCX extends AnimeSource {
     @Override
     public boolean containsAds(String urlString, boolean notFoundMP4, String currentWebViewURI) {
         if(urlString.contains(".mp4") && notFoundMP4) return false;
+        if(urlString.contains("uwu.m3u8") && notFoundMP4) return false;
         if(!urlString.contains("https://kwik.cx/")) return true;
         return false;
     }

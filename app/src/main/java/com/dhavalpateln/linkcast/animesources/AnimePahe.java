@@ -81,7 +81,7 @@ public class AnimePahe extends AnimeSource {
 
     @Override
     public boolean isAdvancedModeUrl(String url) {
-        //if(url.startsWith("https://animepahe.com/api?m=release")) return true;
+        if(url.startsWith("https://animepahe.com/api?m=release")) return true;
         return false; //url.startsWith("https://animepahe.com/anime/");
     }
 

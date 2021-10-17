@@ -224,7 +224,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractors.put("animekisa.tv", new AnimeKisaTVExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animekisa.cc", new AnimeKisaCCExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
-        //extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
+        extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
 
         for(String extractorName: extractors.keySet()) {
             if(extractors.get(extractorName).isCorrectURL(calledIntent.getStringExtra("url"))) {
@@ -265,8 +265,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Cast not supported yet with this source", Toast.LENGTH_LONG).show();
             }
             CastPlayer castPlayer = new CastPlayer(castContext);
-
-
 
             String mimeType = MimeTypes.VIDEO_MP4;
 

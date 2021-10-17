@@ -30,9 +30,15 @@ public class AnimePaheExtractor extends AnimeScrapper{
 
     public AnimePaheExtractor(String baseUrl) {
         super(baseUrl);
-        String[] links = baseUrl.split(":::");
-        this.apiUrl = links[0];
-        this.animeUrl = links[1];
+        if(baseUrl.contains(":::")) {
+            String[] links = baseUrl.split(":::");
+            this.apiUrl = links[0];
+            this.animeUrl = links[1];
+        }
+        else {
+            this.apiUrl = baseUrl;
+            this.animeUrl = baseUrl;
+        }
     }
 
     @Override
@@ -89,9 +95,12 @@ public class AnimePaheExtractor extends AnimeScrapper{
                     for (Iterator<String> it = episodeInfo.keys(); it.hasNext(); ) {
                         String res = it.next();
                         String fansub = episodeInfo.getJSONObject(res).getString("fansub");
-                        String kwikUrl = episodeInfo.getJSONObject(res).getString("kwik");
-                        String kwikContent = getHttpContent(kwikUrl, "https://kwik.cx/");
-                        for(String kwikContentLine: kwikContent.split("\n")) {
+                        String kwikUrl = episodeInfo.getJSONObject(res).getString("kwik_adfly");
+                        result.put(fansub + " - " + res, kwikUrl);
+                        order += "," + fansub + " - " + res;
+                        Log.d(TAG, fansub + " - " + res + " : " + kwikUrl);
+                        //String kwikContent = getHttpContent(kwikUrl, "https://kwik.cx/");
+                        /*for(String kwikContentLine: kwikContent.split("\n")) {
                             if(kwikContentLine.startsWith("<script>eval(function")) {
                                 String response = getHttpContent("https://dnpatel.pythonanywhere.com/unpack?data=" + Uri.encode(kwikContentLine));
                                 String url = new JSONObject(response).getString("url");
@@ -99,7 +108,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
                                 order += "," + fansub + " - " + res;
                                 Log.d(TAG, fansub + " - " + res + " : " + url);
                             }
-                        }
+                        }*/
                     }
                 }
             }
