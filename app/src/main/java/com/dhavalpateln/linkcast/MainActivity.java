@@ -46,6 +46,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -103,6 +104,14 @@ public class MainActivity extends AppCompatActivity {
                 searchIntent.putExtra("source", source);
                 searchIntent.putExtra("advancedMode", advancedMode);
                 startActivity(searchIntent);
+            }
+        });
+
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
+                return false;
             }
         });
 
@@ -191,10 +200,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 return true;
-            case R.id.action_remote_code:
+            /*case R.id.action_remote_code:
                 Intent intent = new Intent(MainActivity.this, RemoteCodeActivity.class);
                 startActivity(intent);
-                return true;
+                return true;*/
             case R.id.action_sign_out:
                 AuthUI.getInstance()
                         .signOut(getApplicationContext())

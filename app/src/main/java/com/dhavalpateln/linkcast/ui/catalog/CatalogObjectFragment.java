@@ -121,7 +121,7 @@ public class CatalogObjectFragment extends Fragment {
             });
             holder.editButton.setOnClickListener(v -> {
                 // TODO: add more fields to edit
-                BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl());
+                BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
                 dialog.show(getParentFragmentManager(), "bookmarkEdit");
             });
             if(recyclerData.getTitle().contains("Chuuni") || recyclerData.getTitle().contains("Boku no Hero Academia 3")) {

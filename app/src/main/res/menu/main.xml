@@ -2,21 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/media_route_menu_item"
-        android:title="CAST"
-        android:orderInCategory="1"
-        app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_open_web"
         android:orderInCategory="10"
         android:title="Open Webpage"
         app:showAsAction="never" />
-    <item
+    <!--<item
         android:id="@+id/action_remote_code"
         android:orderInCategory="10"
         android:title="Remote Code"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_sign_out"
         android:orderInCategory="100"

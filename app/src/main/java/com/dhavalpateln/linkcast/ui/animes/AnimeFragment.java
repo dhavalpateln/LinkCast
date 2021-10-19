@@ -1,15 +1,11 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,19 +18,11 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.Link;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.listeners.CrashListener;
-import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
-import com.dhavalpateln.linkcast.ui.feedback.FeedbackFragment;
-import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,7 +76,7 @@ public class AnimeFragment extends Fragment {
                 card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
                     public void onClick(String id, String title, String url, Map<String, String> data) {
-                        BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url);
+                        BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url, data);
                         dialog.show(getParentFragmentManager(), "bookmarkEdit");
                     }
                 });
