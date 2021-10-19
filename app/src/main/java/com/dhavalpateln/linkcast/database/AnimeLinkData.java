@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.database;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AnimeLinkData {
@@ -26,10 +27,15 @@ public class AnimeLinkData {
     }
 
     public Map<String, String> getData() {
+        if(this.data == null) {
+            this.data = new HashMap<>();
+            this.data.put("status", "Planned");
+        }
         return data;
     }
 
     public void setData(Map<String, String> data) {
+
         this.data = data;
     }
 

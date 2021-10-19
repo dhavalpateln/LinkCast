@@ -115,7 +115,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                                         if(!result.containsKey("StreamSB - " + res)) {
                                             Log.d(TAG, "error: sleeping and retrying");
                                             try {
-                                                Thread.sleep(1000);
+                                                Thread.sleep(2000);
                                             } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }

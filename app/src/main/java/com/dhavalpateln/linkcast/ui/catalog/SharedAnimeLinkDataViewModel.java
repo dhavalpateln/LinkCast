@@ -49,6 +49,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Map<String, AnimeLinkData> map = data.getValue();
                 AnimeLinkData animeLinkData = snapshot.getValue(AnimeLinkData.class);
+
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
             }

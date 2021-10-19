@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.database;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Link {
@@ -9,6 +10,9 @@ public class Link {
     private Map<String, String> data;
 
     public Map<String, String> getData() {
+        if(this.data == null) {
+            this.data = new HashMap<>();
+        }
         return data;
     }
 

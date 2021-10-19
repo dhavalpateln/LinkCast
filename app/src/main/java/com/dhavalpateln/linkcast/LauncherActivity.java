@@ -28,7 +28,7 @@ import java.util.List;
 public class LauncherActivity extends AppCompatActivity {
 
     private final String TAG = "LAUNCHER_ACTIVITY";
-    private final String APP_VERSION = "v4.1";
+    private final String APP_VERSION = "v4.1.2";
 
     private static final int RC_SIGN_IN = 9001;
 
@@ -37,7 +37,6 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Log.i(TAG, "Started Activity");
-
 
         FirebaseMessaging.getInstance().subscribeToTopic("update").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

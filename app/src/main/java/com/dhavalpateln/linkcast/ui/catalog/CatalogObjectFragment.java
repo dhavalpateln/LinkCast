@@ -206,13 +206,14 @@ public class CatalogObjectFragment extends Fragment {
                 for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
                     AnimeLinkData animeLinkData = entry.getValue();
                     animeLinkData.setId(entry.getKey());
-                    if(!animeLinkData.getData().containsKey("status")) {
+                    if (!animeLinkData.getData().containsKey("status")) {
                         animeLinkData.getData().put("status", "Planned");
                     }
 
-                    if(mParam1.equals("All") || mParam1.equals(animeLinkData.getData().get("status"))) {
+                    if (mParam1.equals("All") || mParam1.equals(animeLinkData.getData().get("status"))) {
                         data.add(entry.getValue());
                     }
+
                 }
                 adapter.notifyDataSetChanged();
             }
