@@ -72,6 +72,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
         // Get the layout inflater
         final LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.link_download_manager_dialog, null);
@@ -82,7 +83,9 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         downloadTypeSpinner.setAdapter(spinnerAdapter);
         spinnerAdapter.setNotifyOnChange(true);
         spinnerAdapter.add(LOCAL_DOWNLOAD);
-        //spinnerAdapter.add(REMOTE_DOWNLOAD);                            //Web download not available yet
+        //spinnerAdapter.add(REMOTE_DOWNLOAD);
+        // Web download not available yet
+
 
         FirebaseDBHelper.getUserWebDownloadQueueTypes().addChildEventListener(new ChildEventListener() {
             @Override
@@ -129,6 +132,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
                             .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
 
                     DownloadManager downloadManager= (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+
                     downloadID = downloadManager.enqueue(request);
                 }
                 else if(selectedDownloadType.equals(REMOTE_DOWNLOAD)) {

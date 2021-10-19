@@ -26,6 +26,12 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="Advanced Mode (Beta) - used if supported"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_margin="10dp"
+            android:text="Tip: Long press on search icon on bottom right to quickly search saved links. Works on Button in this dialog too."/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

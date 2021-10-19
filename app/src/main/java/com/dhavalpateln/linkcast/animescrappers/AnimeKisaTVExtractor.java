@@ -86,6 +86,9 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                         //
                         if(source.toLowerCase().equals("streamsb")) {
                             Log.d(TAG, "StreamSB src");
+                            if(url.contains("/e/")) {
+                                url = url.replace("/e/", "/d/") + ".html";
+                            }
                             String streamsbContent = getHttpContent(url);
                             for(String streamsbLine: streamsbContent.split("\n")) {
                                 streamsbLine = streamsbLine.trim();
@@ -138,6 +141,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                                 for(String res: episodeUrls.keySet()) {
                                     result.put("XstreamCDN - " + res, episodeUrls.get(res));
                                     order += ",XstreamCDN - " + res;
+                                    Log.d(TAG, "XstreamCDN - " + res + " : " + episodeUrls.get(res));
                                 }
                             } catch (Exception e) {
 
@@ -145,6 +149,34 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
                         }
                         else if(source.toLowerCase().equals("doodstream")) {
+                            String doodStreamHtmlContent = getHttpContent(url);
+                            String downloadUrl = null;
+                            for(String doodStreamline: doodStreamHtmlContent.split("\n")) {
+                                if(doodStreamline.trim().startsWith("<a href=\"")) {
+                                    Pattern doodDownloadLinkPattern = Pattern.compile("<a href=\"(/download/.*?)\"");
+                                    Matcher doodmatcher = doodDownloadLinkPattern.matcher(doodStreamline);
+                                    if (doodmatcher.find()) {
+                                        downloadUrl = "https://dood.la" + doodmatcher.group(1);
+                                        break;
+                                    }
+                                }
+                            }
+                            if(downloadUrl != null) {
+                                String mainContent = getHttpContent(downloadUrl);
+                                for(String httpLine: mainContent.split("\n")) {
+                                    if(httpLine.trim().startsWith("<a onclick=\"window.open")) {
+                                        Pattern doodDownloadLinkPattern = Pattern.compile("<a onclick=\"window.open\\('(.*?)', '_self'\\)\"");
+                                        Matcher doodmatcher = doodDownloadLinkPattern.matcher(httpLine);
+                                        if (doodmatcher.find()) {
+                                            downloadUrl = doodmatcher.group(1);
+                                            result.put("DOODSTREAM", downloadUrl);
+                                            order += ",DOODSTREAM";
+                                            Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             continue;
                         }
                         else {

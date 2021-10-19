@@ -2,12 +2,20 @@ package com.dhavalpateln.linkcast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
+import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -29,11 +37,72 @@ public class UpdateActivity extends AppCompatActivity {
 
     public final String TAG = "UPDATE_ACTIVITY";
     private TextView versionTextView;
+    private long downloadID;
+    private ProgressDialog progressDialog;
+
+    private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Fetching the download id received with the broadcast
+
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            //Checking if the received broadcast is for our enqueued download by matching download id
+            if (downloadID == id) {
+                progressDialog.cancel();
+                DownloadManager.Query query = new DownloadManager.Query();
+                query.setFilterById(id);
+                DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                Cursor c = manager.query(query);
+                if(c.moveToFirst()) {
+                    do {
+                        String name = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                        File mFile = new File(Uri.parse(name).getPath());
+                        String path = mFile.getAbsolutePath();
+                        Log.d("DOWNLOAD LISTENER", "file name: " + path);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+                        builder.setTitle("Update ready to install");
+                        builder.setPositiveButton("Install", (dialogInterface, i) -> {
+                            Intent apkInstallIntent = new Intent(Intent.ACTION_VIEW);
+                            apkInstallIntent.setData(Uri.parse(name));
+                            startActivity(apkInstallIntent);
+                            dialogInterface.cancel();
+                        });
+                        File toInstall = new File(path);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            Uri apkUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", toInstall);
+                            Intent apkInstallIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                            apkInstallIntent.setData(apkUri);
+                            apkInstallIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            startActivity(apkInstallIntent);
+                        }
+
+                    } while (c.moveToNext());
+                }
+                c.close();
+
+            }
+        }
+    };
+
+    private BroadcastReceiver onNotificationClicked = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Fetching the download id received with the broadcast
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            //Checking if the received broadcast is for our enqueued download by matching download id
+            if (downloadID == id) {
+
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update);
+
+        registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        registerReceiver(onNotificationClicked, new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED));
 
         versionTextView = findViewById(R.id.versionTextView);
 
@@ -52,16 +121,27 @@ public class UpdateActivity extends AppCompatActivity {
         linkRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String link = dataSnapshot.getValue().toString();
-                Log.i(TAG, "Link obtained : " + link);
+                String source = dataSnapshot.getValue().toString();
+                String fileName = "LinkCast." + versionTextView.getText().toString() + ".apk";
+                Log.i(TAG, "Link obtained : " + source);
 
-                LinkDownloadManagerDialog downloadManager = new LinkDownloadManagerDialog(link, "LinkCast." + versionTextView.getText().toString() + ".apk", new LinkDownloadManagerDialog.LinkDownloadListener() {
-                    @Override
-                    public void onDownloadComplete() {
-                        Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                downloadManager.show(getSupportFragmentManager(), "Download");
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(source))
+                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
+                        //.setDestinationUri(Uri.parse("/Network storage/RASPBERRYPI/pidisk1/" + fileName))
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "LinkCast/" + fileName)// Uri of the destination file
+                        .setTitle(fileName)// Title of the Download Notification
+                        .setDescription("Downloading " + fileName)// Description of the Download Notification
+                        .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                        .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+
+                DownloadManager downloadManager= (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+                downloadID = downloadManager.enqueue(request);
+
+                progressDialog = new ProgressDialog(UpdateActivity.this);
+                progressDialog.setMessage("Downloading...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
 
             }
 

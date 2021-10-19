@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 
 public class FirebaseDBHelper {
 
-    public static DatabaseReference getAppDataRef() {
+    private static DatabaseReference getAppDataRef() {
         return FirebaseDB.getInstance().getReference("app");
     }
     public static DatabaseReference getAppVersionRef() {
@@ -25,6 +25,13 @@ public class FirebaseDBHelper {
     }
     public static DatabaseReference getAppWebLinkRef() {
         return getAppDataRef().child("web");
+    }
+
+    private static DatabaseReference getAppMetricsLinkRef() {
+        return FirebaseDB.getInstance().getReference("metrics");
+    }
+    public static DatabaseReference getAppMetricsLastAccessedLinkRef() {
+        return getAppMetricsLinkRef().child("last_accessed");
     }
 
     public static DatabaseReference getFeedbackRef() {
@@ -40,6 +47,10 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserAnimeWebExplorerLinkRef() {
         return getUserDataRef().child("animewebexplorerlinks");
     }
+    public static DatabaseReference getUserAnimeWebExplorerLinkRef(String id) {
+        return getUserDataRef().child("animewebexplorerlinks").child(id);
+    }
+
     public static DatabaseReference getUserMangaWebExplorerLinkRef() {
         return getUserDataRef().child("mangawebexplorerlinks");
     }

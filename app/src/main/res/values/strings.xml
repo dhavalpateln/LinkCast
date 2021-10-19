@@ -25,6 +25,7 @@
     <string name="menu_downloads">Downloads</string>
     <string name="menu_manga_links">Manga Links</string>
     <string name="exo_controls_full_screen_description">Fullscreen</string>
+    <string name="menu_anime_catalog">Catalog</string>
 
 
     <string-array name="source_list">
@@ -36,4 +37,6 @@
         <item>manga4life</item>
         <item>mangadex</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -22,7 +22,7 @@ public class FAQFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_faq, container, false);
-        toExapnd = root.findViewById(R.id.toexpand);
+        /*toExapnd = root.findViewById(R.id.toexpand);
         cardView = root.findViewById(R.id.card);
         root.findViewById(R.id.card).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,7 +35,8 @@ public class FAQFragment extends Fragment {
                     toExapnd.setVisibility(View.VISIBLE);
                 }
             }
-        });
+        });*/
+        // TODO: Implement FAQ
         return root;
     }
 

@@ -43,6 +43,21 @@ public abstract class AnimeScrapper {
         String result = out.toString();
         return result;
     }
+    public String getHttpContent(String urlString, String referer) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestProperty("Referer", referer);
+        InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+        int bufferSize = 1024;
+        char[] buffer = new char[bufferSize];
+        StringBuilder out = new StringBuilder();
+        Reader inr = new InputStreamReader(in, StandardCharsets.UTF_8);
+        for (int numRead; (numRead = inr.read(buffer, 0, buffer.length)) > 0; ) {
+            out.append(buffer, 0, numRead);
+        }
+        String result = out.toString();
+        return result;
+    }
 
     public int getHttpResponseCode(String urlString) throws IOException {
         URL url = new URL(urlString);

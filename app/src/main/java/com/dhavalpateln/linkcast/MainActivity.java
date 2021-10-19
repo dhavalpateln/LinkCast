@@ -11,9 +11,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerCastActivity;
 import com.dhavalpateln.linkcast.ui.RemoteCodeActivity;
 import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -44,6 +46,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -104,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links,
+                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/
                 /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();
@@ -162,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        //CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item);
         return true;
     }
 
@@ -188,10 +200,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 return true;
-            case R.id.action_remote_code:
+            /*case R.id.action_remote_code:
                 Intent intent = new Intent(MainActivity.this, RemoteCodeActivity.class);
                 startActivity(intent);
-                return true;
+                return true;*/
             case R.id.action_sign_out:
                 AuthUI.getInstance()
                         .signOut(getApplicationContext())

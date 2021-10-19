@@ -6,11 +6,11 @@
         android:orderInCategory="10"
         android:title="Open Webpage"
         app:showAsAction="never" />
-    <item
+    <!--<item
         android:id="@+id/action_remote_code"
         android:orderInCategory="10"
         android:title="Remote Code"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_sign_out"
         android:orderInCategory="100"

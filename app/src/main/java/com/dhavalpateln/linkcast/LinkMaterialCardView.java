@@ -104,6 +104,10 @@ public class LinkMaterialCardView {
         titleTextView.setText(title);
     }
 
+    public void updateData(Map<String, String> data) {
+        this.data = data;
+    }
+
     public MaterialCardView getCard() {
         return materialCardView;
     }

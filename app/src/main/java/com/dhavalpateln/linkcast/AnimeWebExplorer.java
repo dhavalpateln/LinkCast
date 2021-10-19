@@ -20,6 +20,11 @@ import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastState;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +41,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -173,10 +179,19 @@ public class AnimeWebExplorer extends AppCompatActivity {
         /*Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Referer", "https://kwik.cx/");
         animeExplorerWebView.loadUrl("https://kwik.cx/d/M2n5mRecobmn", headerMap);*/
-        animeExplorerWebView.loadUrl(getSearchURL(
+        String searchUrl = getSearchURL(
                 calledIntent.getStringExtra("search"),
                 calledIntent.getStringExtra("source")
-        ));
+        );
+        if(searchUrl.startsWith("https://kwik.cx/")) {
+            Map<String, String> headerMap = new HashMap<>();
+            headerMap.put("Referer", "https://kwik.cx/");
+            animeExplorerWebView.loadUrl(searchUrl, headerMap);
+        }
+        else {
+            animeExplorerWebView.loadUrl(searchUrl);
+        }
+
         currentWebViewURI = animeExplorerWebView.getUrl();
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -248,6 +263,9 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 openCastDialog(url);
                 return true;
             }
+            if(url.startsWith("https://animepahe.com/play/") || url.startsWith("https://kwik.cx/")) {
+                Toast.makeText(getApplicationContext(), "Use Download option here", Toast.LENGTH_LONG).show();
+            }
 
             AnimeSource animeSource = getAnimeSource(sourceTerm);
             if(animeSource != null) {
@@ -279,12 +297,30 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
         private boolean containsAds(String urlString) {
 
+
+
             if(urlString.startsWith("https://prd.jwpltx.com")) {
                 return true;
             }
 
             AnimeSource animeSource = getAnimeSource(currentWebViewURI);
             if(animeSource != null) {
+                if(useAdvancedMode) {
+                    if(animeSource.getAnimeSourceName().equals("animepahe.com")) {
+                        if(animeSource.isAdvancedModeUrl(urlString)) {
+                            Intent intent = new Intent(AnimeWebExplorer.this, AnimeAdvancedView.class);
+                            intent.putExtra("source", animeSource.getAnimeSourceName());
+                            intent.putExtra("url", urlString + ":::" + currentWebViewURI);
+                            intent.putExtra("intentFrom", "AnimeWebExplorer");
+                            if(getIntent().hasExtra("id")) {
+                                intent.putExtra("id", getIntent().getStringExtra("id"));
+                            }
+                            startActivity(intent);
+                            finish();
+                            return true;
+                        }
+                    }
+                }
                 return animeSource.containsAds(urlString, notFoundMP4, currentWebViewURI);
             }
             if(currentWebViewURI.contains("mp4upload.com")) {
@@ -370,7 +406,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             String animeTitle = getAnimeTitle(true);
 
             Map<String, String> data = new HashMap<>();
-            if(currentWebViewURI.startsWith("https://kwik.cx/")) {
+            if(currentWebViewURI.startsWith("https://kwik.cx/") || currentWebViewURI.startsWith("https://animepahe.com/")) {
                 data.put("Referer", "https://kwik.cx/");
             }
             MediaReceiver.insertData("video", animeTitle, requestUrl, data);
@@ -380,12 +416,30 @@ public class AnimeWebExplorer extends AppCompatActivity {
             map.put("PLAY", new CastDialog.OnClickListener() {
                 @Override
                 public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                    Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
-                    intent.putExtra("url", url);
-                    if(data.containsKey("Referer")) {
-                        intent.putExtra("Referer", data.get("Referer"));
+                    CastContext castContext = CastContext.getSharedInstance();
+                    if(castContext.getCastState() == CastState.CONNECTED) {
+                        CastPlayer castPlayer = new CastPlayer(CastContext.getSharedInstance());
+
+                        String mimeType = MimeTypes.VIDEO_MP4;
+
+
+                        MediaItem mediaItem = new MediaItem.Builder()
+                                .setUri(url)
+                                .setMimeType(mimeType)
+                                .build();
+                        castPlayer.setMediaItem(mediaItem);
+                        castPlayer.setPlayWhenReady(true);
+
+                        castPlayer.prepare();
                     }
-                    startActivity(intent);
+                    else {
+                        Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+                        intent.putExtra("url", url);
+                        if (data.containsKey("Referer")) {
+                            intent.putExtra("Referer", data.get("Referer"));
+                        }
+                        startActivity(intent);
+                    }
                     castDialogOpen = false;
                     mp4sFound = new HashSet<>();
                     mp4sFound.add(url);

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
@@ -12,6 +13,12 @@
             android:id="@+id/nav_anime_links"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_anime_links" />
+
+        <!--<item
+            android:id="@+id/nav_anime_catalog"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/menu_anime_catalog" />-->
+
         <item
             android:id="@+id/nav_manga_links"
             android:icon="@android:drawable/ic_menu_gallery"
