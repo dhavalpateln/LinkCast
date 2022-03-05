@@ -1,97 +1,46 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
-import android.webkit.WebView;
-
-import androidx.annotation.RequiresApi;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
+public class GogoAnimeExtractor extends AnimeScrapper {
 
-public class AnimeKisaTVExtractor extends AnimeScrapper {
+    private String TAG = "Gogoanime - Extractor";
 
-    private String TAG = "AnimeKisaTV - Extractor";
-
-    public AnimeKisaTVExtractor(String baseUrl) {
+    public GogoAnimeExtractor(String baseUrl) {
         super(baseUrl);
-        setData("domain", "https://animekisa.tv/");
+        setData("domain", "https://www3.gogoanime.cm/");
     }
 
     @Override
     public boolean isCorrectURL(String url) {
-        return url.startsWith(getData("domain"));
+        return false;
     }
 
     @Override
     public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
-        if(!episodeList.containsKey(episodeListUrl)) {
-            String baseHtmlContent = getHttpContent(episodeListUrl);
-            String lines[] = baseHtmlContent.split("\n");
-            getEpisodeList(episodeListUrl, lines, 0);
-        }
-        return episodeList.get(episodeListUrl);
-    }
-
-    private void getEpisodeList(String episodeListUrl, String[] lines, int startLineNum) {
-        episodeList.put(episodeListUrl, new HashMap<>());
-        for(int linenum = startLineNum; linenum < lines.length; linenum++) {
-            String line = lines[linenum].trim();
-            if(line.startsWith("<a class=\"infovan\"")) {
-                Pattern pattern = Pattern.compile("<a class=\"infovan\" href=\"(.*?)\">");
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    String episodeUrl = getData("domain") + matcher.group(1);
-                    String episodeNum = episodeUrl.split("-episode-")[1];
-                    episodeList.get(episodeListUrl).put(episodeNum, episodeUrl);
-                }
-
-            }
-        }
-    }
-
-    private String pad(String s) {
-        int length = 16 - (s.length() % 16);
-        String result = s;
-        for(int i = 0; i < length; i++) result += ((char) length);
-        return result;
+        return null;
     }
 
     @Override
     public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
+        episodeUrl = episodeUrl.replace("https://animekisa.tv/", "https://www3.gogoanime.cm/");
 
         Map<String, String> result = new HashMap<>();
         String order = "dummy";
 
         Log.d(TAG, "Episode Link:" + episodeUrl);
 
+        String streamSBUrl = null;
+        String downloadEpisodeLink = null;
 
         String baseHtmlContent = getHttpContent(episodeUrl);
-        String downloadEpisodeLink = null;
         for(String line: baseHtmlContent.split("\n")) {
             if(line.contains("var VidStreaming =")) {
                 Pattern pattern = Pattern.compile("var VidStreaming = \"(.*?)\";");
@@ -105,35 +54,18 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
         if(downloadEpisodeLink != null) {
             downloadEpisodeLink = downloadEpisodeLink.replace("load.php", "download");
-            downloadEpisodeLink = downloadEpisodeLink.replace("download", "streaming.php");
             downloadEpisodeLink = downloadEpisodeLink.replace("https://gogoplay1.com/", "https://gogoplay.io/");
             Log.d(TAG, "Download Link:" + downloadEpisodeLink);
-
-
-            try {
-                VidStreamExtractor extractor = new VidStreamExtractor(downloadEpisodeLink);
-                Map<String, String> episodeUrls = extractor.extractEpisodeUrls(downloadEpisodeLink);
-                for(String res: episodeUrls.keySet()) {
-                    result.put("VidStream - " + res, episodeUrls.get(res));
-                    order += ",VidStream - " + res;
-                    Log.d(TAG, "VidStream - " + res + " : " + episodeUrls.get(res));
-                }
-            } catch (Exception e) {
-
-            }
-
-
             String downloadHtmlContent = getHttpContent(downloadEpisodeLink);
             String[] lines = downloadHtmlContent.split("\n");
             for(int linenum = 0; linenum < lines.length; linenum++) {
                 String line = lines[linenum].trim();
-                if(line.startsWith("<li class=\"")) {
-                    Pattern pattern = Pattern.compile("data-video=\"(.*?)\">(.*?)</li>");
-                    Matcher matcher = pattern.matcher(line);
+                if(line.startsWith("<div class=\"dowload\">")) {
+                    Pattern pattern = Pattern.compile("href=\"(.*?)\".*Download (.*?)</a></div>");
+                    Matcher matcher = pattern.matcher(lines[linenum + 1]);
                     if (matcher.find()) {
                         String url = matcher.group(1);
                         String source = matcher.group(2);
-                        Log.d(TAG, "Url: " + url + ", Source: " + source);
                         //
                         if(source.toLowerCase().equals("streamsb")) {
                             StreamSBExtractor extractor = new StreamSBExtractor(url);
@@ -192,16 +124,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                             }
                             continue;
                         }
-                        else if(source.equalsIgnoreCase("mp4upload")) {
-                            continue;
-                        }
                         else {
-                            try {
-                                if (getHttpResponseCode(url) != 200) {continue;}
-                            }
-                            catch (Exception e) {
-                                continue;
-                            }
+                            if(getHttpResponseCode(url) != 200) { continue; }
                             while(result.containsKey(source)) {
                                 source = source + "+";
                             }
@@ -223,49 +147,11 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
     @Override
     public String extractData() {
-        try {
-            boolean foundImage = getData("imageUrl") != null;
-            boolean foundTitle = false;
-            boolean foundEpisodeListStartLineNum = false;
-            int episodeListStartLineNum = 0;
-            String baseHtmlContent = getHttpContent(this.baseUrl);
-            String lines[] = baseHtmlContent.split("\n");
-            for(int linenum = 0; linenum < lines.length; linenum++) {
-                String line = lines[linenum].trim();
-                if(!foundImage) {
-                    if(line.contains("<img class=\"posteri\"")) {
-                        Pattern pattern = Pattern.compile("<img class=\"posteri\".*src=\"(.*?)\"");
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            setData("imageUrl", getData("domain") + matcher.group(1));
-                            foundImage = true;
-                        }
-                    }
-                }
-                if(!foundTitle) {
-                    if(line.startsWith("<h1 class=\"infodes\"")) {
-                        Pattern pattern = Pattern.compile("<h1 .*>(.*?)</h1>");
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            setData("animeTitle", matcher.group(1));
-                            foundTitle = true;
-                        }
-                    }
-                }
-                if(!foundEpisodeListStartLineNum && line.startsWith("<a class=\"infovan\"")) {
-                    episodeListStartLineNum = linenum;
-                    foundEpisodeListStartLineNum = true;
-                }
-            }
-            getEpisodeList(this.baseUrl, lines, episodeListStartLineNum);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return null;
     }
 
     @Override
     public String getDisplayName() {
-        return "AnimeKisa.tv";
+        return null;
     }
 }

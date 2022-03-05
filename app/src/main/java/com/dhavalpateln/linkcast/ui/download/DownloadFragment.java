@@ -41,34 +41,36 @@ public class DownloadFragment extends Fragment {
         final LinearLayout linearLayout = root.findViewById(R.id.download_linear_layout);
 
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/LinkCast");
-        for(File fileElement: file.listFiles()) {
-            String fileName = fileElement.getName();
-            String filePath = fileElement.getAbsolutePath();
-            if(!fileName.endsWith(".mp4")) {
-                continue;
+        if(file != null) {
+            for (File fileElement : file.listFiles()) {
+                String fileName = fileElement.getName();
+                String filePath = fileElement.getAbsolutePath();
+                if (!fileName.endsWith(".mp4")) {
+                    continue;
+                }
+                LinkMaterialCardView card = new LinkMaterialCardView(getContext(), filePath, fileName, filePath);
+                card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
+                        //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        //intent.setData(Uri.parse(url));
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.setDataAndType(Uri.parse(url), "video/*");
+                        startActivity(intent);
+                    }
+                });
+                card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
+                    @Override
+                    public void onClick(String id, String title, String url, Map<String, String> data) {
+                        new File(url).delete();
+                        //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
+                        linearLayout.removeView(viewMap.get(id));
+                    }
+                });
+                linearLayout.addView(card.getCard(), 0);
+                viewMap.put(filePath, card.getCard());
             }
-            LinkMaterialCardView card = new LinkMaterialCardView(getContext(), filePath, fileName, filePath);
-            card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                @Override
-                public void onClick(String id, String title, String url, Map<String, String> data) {
-                    //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    //intent.setData(Uri.parse(url));
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent.setDataAndType(Uri.parse(url), "video/*");
-                    startActivity(intent);
-                }
-            });
-            card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                @Override
-                public void onClick(String id, String title, String url, Map<String, String> data) {
-                    new File(url).delete();
-                    //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
-                    linearLayout.removeView(viewMap.get(id));
-                }
-            });
-            linearLayout.addView(card.getCard(), 0);
-            viewMap.put(filePath, card.getCard());
         }
         return root;
     }

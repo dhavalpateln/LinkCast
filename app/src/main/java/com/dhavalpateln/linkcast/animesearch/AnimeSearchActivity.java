@@ -1,23 +1,26 @@
-package com.dhavalpateln.linkcast.ui.catalog;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
+package com.dhavalpateln.linkcast.animesearch;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,54 +29,27 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
+import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.catalog.SharedAnimeLinkDataViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CatalogObjectFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class CatalogObjectFragment extends Fragment {
+public class AnimeSearchActivity extends AppCompatActivity {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String TAG = "CATALOG_FRAGMENT";
-
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
+    private Map<String, AnimeSearch> searchers;
+    private AnimeSearch animeSearch;
+    private String TAG = "AnimeSearch";
     private ArrayList<AnimeLinkData> data;
-    private RecyclerView recyclerView;
+    private ArrayList<AnimeLinkData> filteredData;
     private RecyclerViewAdapter adapter;
-
-    public CatalogObjectFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment CatalogObjectFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CatalogObjectFragment newInstance(String param1) {
-        CatalogObjectFragment fragment = new CatalogObjectFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private RecyclerView recyclerView;
+    private EditText searchEditText;
 
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
 
@@ -99,10 +75,10 @@ public class CatalogObjectFragment extends Fragment {
             AnimeLinkData recyclerData = episodeDataArrayList.get(position);
             holder.episodeNumTextView.setText(recyclerData.getTitle());
             holder.openButton.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), AnimeWebExplorer.class);
+                Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
                 if(recyclerData.getData() != null) {
                     if(recyclerData.getData().containsKey("mode") && recyclerData.getData().get("mode").equals("advanced")) {
-                        intent = new Intent(getContext(), AnimeAdvancedView.class);
+                        intent = new Intent(getApplicationContext(), AnimeAdvancedView.class);
                         intent.putExtra("url", recyclerData.getUrl());
                     }
                     intent.putExtra("mapdata", (HashMap<String, String>) recyclerData.getData());
@@ -122,14 +98,14 @@ public class CatalogObjectFragment extends Fragment {
             holder.editButton.setOnClickListener(v -> {
                 // TODO: add more fields to edit
                 BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
-                dialog.show(getParentFragmentManager(), "bookmarkEdit");
+                dialog.show(getSupportFragmentManager(), "bookmarkEdit");
             });
             if(recyclerData.getTitle().contains("Chuuni") || recyclerData.getTitle().contains("Boku no Hero Academia 3")) {
                 Log.d(TAG, "fk");
 
             }
             if(recyclerData.getData().containsKey("imageUrl")) {
-                Glide.with(getContext())
+                Glide.with(getApplicationContext())
                         .load(recyclerData.getData().get("imageUrl"))
                         .centerCrop()
                         .crossFade()
@@ -172,55 +148,100 @@ public class CatalogObjectFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }
-    }
+        setContentView(R.layout.activity_anime_search);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_catalog_object, container, false);
-        return root;
-    }
+        data = new ArrayList<>();
+        filteredData = new ArrayList<>();
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if(data == null) {
-            data = new ArrayList<>();
-        }
-        SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
-        recyclerView = view.findViewById(R.id.catalog_recycler_view);
-        adapter = new RecyclerViewAdapter(data, getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        searchers = new HashMap<>();
+        searchers.put("animepahe.com", new AnimePaheSearch());
+
+        String source = getIntent().getStringExtra("source");
+
+        recyclerView = findViewById(R.id.search_recycler_view);
+        adapter = new RecyclerViewAdapter(filteredData, getApplicationContext());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
-        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<Map<String, AnimeLinkData>>() {
-            @Override
-            public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
-                Log.d(TAG, "Data changed");
-                data.clear();
-                for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                    AnimeLinkData animeLinkData = entry.getValue();
-                    animeLinkData.setId(entry.getKey());
-                    if (!animeLinkData.getData().containsKey("status")) {
-                        animeLinkData.getData().put("status", "Planned");
-                    }
 
-                    if (mParam1.equals("All") || mParam1.equalsIgnoreCase(animeLinkData.getData().get("status"))) {
+        searchEditText = findViewById(R.id.editTextSearchBar);
+
+        if(searchers.containsKey(source)) {
+            animeSearch = searchers.get(source);
+        }
+        else if(source.equals("SAVED")) {
+            SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
+            viewModel.getData().observe(this, new Observer<Map<String, AnimeLinkData>>() {
+                @Override
+                public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
+                    Log.d(TAG, "Data changed");
+                    data.clear();
+                    filteredData.clear();
+                    for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
+                        AnimeLinkData animeLinkData = entry.getValue();
+                        animeLinkData.setId(entry.getKey());
                         data.add(entry.getValue());
+                        filteredData.add(entry.getValue());
                     }
+                    adapter.notifyDataSetChanged();
+                }
+            });
 
+
+
+        }
+        else {
+            finish();
+        }
+
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                filteredData.clear();
+                for(AnimeLinkData animeLinkData: data) {
+                    if(animeLinkData.getTitle().toLowerCase().contains(charSequence)) {
+                        filteredData.add(animeLinkData);
+                    }
                 }
                 adapter.notifyDataSetChanged();
             }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
         });
+
     }
 
+    private class ExtractSearchResult extends AsyncTask<String, Integer, ArrayList<AnimeLinkData>> {
+
+        @Override
+        protected void onPostExecute(ArrayList<AnimeLinkData> animeLinkDataList) {
+            super.onPostExecute(animeLinkDataList);
+            filteredData.clear();
+            for(AnimeLinkData animeLinkData: animeLinkDataList) {
+                filteredData.add(animeLinkData);
+            }
+            adapter.notifyDataSetChanged();
+        }
+
+        @Override
+        protected ArrayList<AnimeLinkData> doInBackground(String... strings) {
+            ArrayList<AnimeLinkData> filteredData = new ArrayList<>();
+            String searchTerm = strings[0];
+            String source = strings[1];
 
 
+
+            return null;
+        }
+    }
 
 }

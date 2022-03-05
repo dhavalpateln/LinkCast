@@ -31,7 +31,7 @@ public class FirebaseDBHelper {
         return FirebaseDB.getInstance().getReference("metrics");
     }
     public static DatabaseReference getAppMetricsLastAccessedLinkRef() {
-        return getAppMetricsLinkRef().child("last_accessed");
+        return getAppMetricsLinkRef().child("last_accessed").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     public static DatabaseReference getFeedbackRef() {
@@ -71,6 +71,9 @@ public class FirebaseDBHelper {
     }
     public static DatabaseReference getUserPiMoteDownloadQueue() {
         return getUserDownloadQueue().child("pimote");
+    }
+    public static DatabaseReference getAnimeStatusRef() {
+        return FirebaseDB.getInstance().getReference("anime_status");
     }
 
 

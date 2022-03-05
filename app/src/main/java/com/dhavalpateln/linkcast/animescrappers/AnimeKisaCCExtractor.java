@@ -52,7 +52,7 @@ public class AnimeKisaCCExtractor extends AnimeScrapper {
 
         Map<String, String> result = new HashMap<>();
         String order = "dummy";
-
+        episodeUrl = episodeUrl.replace("https://gogoplay1.com/", "https://gogoplay.io/");
         String baseHtmlContent = getHttpContent(episodeUrl);
         String downloadEpisodeLink = null;
         for(String line: baseHtmlContent.split("\n")) {
@@ -78,58 +78,17 @@ public class AnimeKisaCCExtractor extends AnimeScrapper {
                         String source = matcher.group(2);
                         //
                         if(source.toLowerCase().equals("streamsb")) {
-                            Log.d(TAG, "StreamSB src");
-                            if(url.contains("/e/")) {
-                                url = url.replace("/e/", "/d/") + ".html";
-                            }
-                            String streamsbContent = getHttpContent(url);
-                            for(String streamsbLine: streamsbContent.split("\n")) {
-                                streamsbLine = streamsbLine.trim();
-                                if(streamsbLine.startsWith("<tr><td><a href=\"#\"")) {
-                                    Log.d(TAG, "Found Table row");
-                                    Pattern sbpattern = Pattern.compile("<tr><td><a href=\"#\" onclick=\"download_video\\((.*?)\\).*</a></td><td>(.*x.*?),");
-                                    Matcher sbmatcher = sbpattern.matcher(streamsbLine);
-                                    if (sbmatcher.find()) {
-                                        String[] downloadVideoParams = sbmatcher.group(1).replace("'", "").split(",");
-                                        String res = sbmatcher.group(2);
-                                        String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
-                                                "&hash=" + downloadVideoParams[2];
-                                        Log.d(TAG, lastDownloadUrl);
-
-                                        String lastHTMLContent = getHttpContent(lastDownloadUrl);
-                                        for(String lastHTMLLine: lastHTMLContent.split("\n")) {
-                                            lastHTMLLine = lastHTMLLine.trim();
-                                            if(lastHTMLLine.startsWith("<a href=\"") && lastHTMLLine.contains("Direct Download Link")) {
-                                                result.put("StreamSB - " + res, lastHTMLLine.split("\"")[1]);
-                                                order += ",StreamSB - " + res;
-                                                Log.d(TAG, "StreamSB - " + res + " : " + lastHTMLLine.split("\"")[1]);
-                                            }
-                                        }
-                                        if(!result.containsKey("StreamSB - " + res)) {
-                                            Log.d(TAG, "error: sleeping and retrying");
-                                            try {
-                                                Thread.sleep(2000);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            lastHTMLContent = getHttpContent(lastDownloadUrl);
-                                            for(String lastHTMLLine: lastHTMLContent.split("\n")) {
-                                                lastHTMLLine = lastHTMLLine.trim();
-                                                if(lastHTMLLine.startsWith("<a href=\"") && lastHTMLLine.contains("Direct Download Link")) {
-                                                    result.put("StreamSB - " + res, lastHTMLLine.split("\"")[1]);
-                                                    order += ",StreamSB - " + res;
-                                                    Log.d(TAG, "StreamSB - " + res + " : " + lastHTMLLine.split("\"")[1]);
-                                                }
-                                            }
-                                            Log.d(TAG, "retry complete");
-                                        }
-                                    }
-                                }
+                            StreamSBExtractor extractor = new StreamSBExtractor(url);
+                            Map<String, String> episodeUrls = extractor.extractEpisodeUrls(url);
+                            for(String res: episodeUrls.keySet()) {
+                                result.put("StreamSB - " + res, episodeUrls.get(res));
+                                order += ",StreamSB - " + res;
+                                Log.d(TAG, "StreamSB - " + res + " : " + episodeUrls.get(res));
                             }
                         }
                         else if(source.toLowerCase().equals("xstreamcdn")) {
                             try {
-                                EmbedSitoExtractor extractor = new EmbedSitoExtractor(url);
+                                XStreamExtractor extractor = new XStreamExtractor(url);
                                 Map<String, String> episodeUrls = extractor.extractEpisodeUrls(url);
                                 for(String res: episodeUrls.keySet()) {
                                     result.put("XstreamCDN - " + res, episodeUrls.get(res));
@@ -137,7 +96,7 @@ public class AnimeKisaCCExtractor extends AnimeScrapper {
                                     Log.d(TAG, "XstreamCDN - " + res + " : " + episodeUrls.get(res));
                                 }
                             } catch (Exception e) {
-
+                                Log.d(TAG, "XstreamCDN - ERROR: " + url);
                             }
 
                         }
@@ -153,6 +112,11 @@ public class AnimeKisaCCExtractor extends AnimeScrapper {
                                         break;
                                     }
                                 }
+                            }
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                             if(downloadUrl != null) {
                                 String mainContent = getHttpContent(downloadUrl);

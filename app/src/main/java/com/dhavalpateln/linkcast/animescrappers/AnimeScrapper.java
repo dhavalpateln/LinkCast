@@ -22,6 +22,7 @@ public abstract class AnimeScrapper {
     String baseUrl;
     Map<String, String> dataMap;
     Map<String, Map<String, String>> episodeList;
+    private int connectionTimeout = 6000;
 
     public AnimeScrapper(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -32,6 +33,7 @@ public abstract class AnimeScrapper {
     public String getHttpContent(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        //urlConnection.setConnectTimeout(connectionTimeout);
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];
@@ -46,7 +48,28 @@ public abstract class AnimeScrapper {
     public String getHttpContent(String urlString, String referer) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        //urlConnection.setConnectTimeout(connectionTimeout);
         urlConnection.setRequestProperty("Referer", referer);
+        InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+        int bufferSize = 1024;
+        char[] buffer = new char[bufferSize];
+        StringBuilder out = new StringBuilder();
+        Reader inr = new InputStreamReader(in, StandardCharsets.UTF_8);
+        for (int numRead; (numRead = inr.read(buffer, 0, buffer.length)) > 0; ) {
+            out.append(buffer, 0, numRead);
+        }
+        String result = out.toString();
+        return result;
+    }
+
+    public String getHttpContent(String urlString, Map<String, String> headers) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        //urlConnection.setConnectTimeout(connectionTimeout);
+        for(String header: headers.keySet()) {
+            urlConnection.setRequestProperty(header, headers.get(header));
+        }
+
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];
@@ -62,6 +85,7 @@ public abstract class AnimeScrapper {
     public int getHttpResponseCode(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        //urlConnection.setConnectTimeout(connectionTimeout);
         return urlConnection.getResponseCode();
     }
 
@@ -69,6 +93,7 @@ public abstract class AnimeScrapper {
 
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        //urlConnection.setConnectTimeout(connectionTimeout);
         urlConnection.setRequestMethod("POST");
 
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());

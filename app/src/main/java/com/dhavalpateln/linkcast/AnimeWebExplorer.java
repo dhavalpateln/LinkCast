@@ -16,6 +16,7 @@ import com.dhavalpateln.linkcast.animesources.GenericSource;
 import com.dhavalpateln.linkcast.animesources.KwikCX;
 import com.dhavalpateln.linkcast.animesources.NineAnime;
 import com.dhavalpateln.linkcast.animesources.StreamAni;
+import com.dhavalpateln.linkcast.animesources.StreamSB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
@@ -163,6 +164,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         animeSourceMap.put("animeultima", new AnimeUltima());
         animeSourceMap.put("streamani.net", new StreamAni());
         animeSourceMap.put("kwik.cx", new KwikCX());
+        animeSourceMap.put("sbplay.org", new StreamSB());
 
 
 
@@ -252,6 +254,9 @@ public class AnimeWebExplorer extends AppCompatActivity {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
             Log.d(TAG, "shouldOverrideUrlLoading: " + url);
+            if(url.contains("opcharizardon.com")) {
+                return true;
+            }
             String hostName = Uri.parse(url).getHost();
             if(hostName == null) {
                 return true;
@@ -260,6 +265,10 @@ public class AnimeWebExplorer extends AppCompatActivity {
             String sourceTerm = url;
 
             if(sourceTerm.startsWith("https://na") && sourceTerm.contains(".mp4")) {
+                openCastDialog(url);
+                return true;
+            }
+            if(sourceTerm.endsWith(".mp4")) {
                 openCastDialog(url);
                 return true;
             }
@@ -287,6 +296,12 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 mp4sFound = new HashSet<>();
                 return false;
             }
+            if(getIntent().hasExtra("scrapper") && getIntent().getStringExtra("scrapper").equals("AnimePahe.com")) {
+                currentWebViewURI = url;
+                view.loadUrl(url);
+                mp4sFound = new HashSet<>();
+                return false;
+            }
 
             // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
             /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -301,6 +316,10 @@ public class AnimeWebExplorer extends AppCompatActivity {
 
             if(urlString.startsWith("https://prd.jwpltx.com")) {
                 return true;
+            }
+            if(getIntent().hasExtra("scrapper") && getIntent().getStringExtra("scrapper").equals("AnimePahe.com")) {
+                if(urlString.contains(Uri.parse(currentWebViewURI).getHost()))    return false;
+                if(urlString.contains("captcha"))   return false;
             }
 
             AnimeSource animeSource = getAnimeSource(currentWebViewURI);
@@ -406,9 +425,13 @@ public class AnimeWebExplorer extends AppCompatActivity {
             String animeTitle = getAnimeTitle(true);
 
             Map<String, String> data = new HashMap<>();
+            if(currentWebViewURI.startsWith("https://animekisa.")) {
+                data.put("Referer", "https://linkcast-fbdff.firebaseapp.com/");
+            }
             if(currentWebViewURI.startsWith("https://kwik.cx/") || currentWebViewURI.startsWith("https://animepahe.com/")) {
                 data.put("Referer", "https://kwik.cx/");
             }
+
             MediaReceiver.insertData("video", animeTitle, requestUrl, data);
 
             Map<String, CastDialog.OnClickListener> map = new HashMap<>();
@@ -417,7 +440,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 @Override
                 public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
                     CastContext castContext = CastContext.getSharedInstance();
-                    if(castContext.getCastState() == CastState.CONNECTED) {
+                    if(castContext != null && castContext.getCastState() == CastState.CONNECTED) {
                         CastPlayer castPlayer = new CastPlayer(CastContext.getSharedInstance());
 
                         String mimeType = MimeTypes.VIDEO_MP4;

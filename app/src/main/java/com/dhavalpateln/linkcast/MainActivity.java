@@ -8,12 +8,14 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerCastActivity;
 import com.dhavalpateln.linkcast.ui.RemoteCodeActivity;
 import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
+import com.dhavalpateln.linkcast.utils.Utils;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView profileImageView;
     private SearchDialog searchDialog;
     private Set<String> mangaSourceList;
+    private Set<String> advancedSearchSourceList;
 
     private void checkAndRequestPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(
@@ -85,9 +88,14 @@ public class MainActivity extends AppCompatActivity {
         checkAndRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, 100);
         checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, 101);
 
+        FirebaseDBHelper.getAppMetricsLastAccessedLinkRef().setValue(Utils.getCurrentTime());
+
         mangaSourceList = new HashSet<>();//;
         mangaSourceList.add("mangadex");
         mangaSourceList.add("manga4life");
+
+        advancedSearchSourceList = new HashSet<>();
+        advancedSearchSourceList.add("animepahe.com");
 
         searchDialog = new SearchDialog();
         searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
@@ -96,6 +104,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent searchIntent;
                 if(mangaSourceList.contains(source)) {
                     searchIntent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+                }
+                else if(false && advancedMode && advancedSearchSourceList.contains(source)) {
+                    searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
                 }
                 else {
                     searchIntent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
@@ -110,7 +121,12 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
+                Intent searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
+                searchIntent.putExtra("search", "");
+                searchIntent.putExtra("source", "SAVED");
+                searchIntent.putExtra("advancedMode", true);
+                startActivity(searchIntent);
                 return false;
             }
         });
@@ -126,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/
+                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
                 /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();

@@ -1,6 +1,5 @@
 package com.dhavalpateln.linkcast.exoplayer;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -11,36 +10,37 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.github.se_bastiaan.torrentstream.StreamStatus;
-import com.github.se_bastiaan.torrentstream.Torrent;
-import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.cast.framework.CastContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class ExoPlayerActivity extends AppCompatActivity implements TorrentListener {
+public class ExoPlayerActivity extends AppCompatActivity {
 
     public static final String ID = "id";
     public static final String EPISODE_NUM = "num";
     public static final String LAST_VIEW_POINT = "last_point";
+    public static final String MEDIA_URL = "url";
+    public static final String FILE_TYPE = "file_type";
+
+    public enum FileTypes {
+        LOCAL,
+        URL
+    }
 
     private PlayerView exoplayerView;
     private SimpleExoPlayer player;
@@ -52,6 +52,7 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
     private String id = null;
     private String episodeNum = null;
     private boolean usedIntent = false;
+    private FileTypes fileType;
 
     @Override
     protected void onStart() {
@@ -65,12 +66,17 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
         if(player == null) {
             initPlayer();
         }
+        else {
+            player.play();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        release();
+        if(player != null) {
+            player.pause();
+        }
     }
 
     @Override
@@ -88,6 +94,14 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        if(getIntent().hasExtra(FILE_TYPE)) {
+            fileType = (FileTypes) getIntent().getSerializableExtra(FILE_TYPE);
+        }
+        else {
+            fileType = FileTypes.URL;
+        }
+
 
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -149,10 +163,14 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
             headerMap.put("Referer", intent.getStringExtra("Referer"));
         }
 
+
         DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory().setDefaultRequestProperties(headerMap);
+
         player = new SimpleExoPlayer.Builder(getApplicationContext())
                 .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
                 .build();
+
+
 
         exoplayerView.setPlayer(player);
 
@@ -168,6 +186,9 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
     }
 
     public void toggleFullscreen(View view) {
+        //if(player == null)  return;
+        //if(!player.isPlaying()) return;
+        Log.d("EXOPLAYER", "CRASH UPCOMING????????");
         if(getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
@@ -185,35 +206,5 @@ public class ExoPlayerActivity extends AppCompatActivity implements TorrentListe
     }
 
 
-    /* TORRENT LISTENERS - START*/
-    @Override
-    public void onStreamPrepared(Torrent torrent) {
 
-    }
-
-    @Override
-    public void onStreamStarted(Torrent torrent) {
-
-    }
-
-    @Override
-    public void onStreamError(Torrent torrent, Exception e) {
-
-    }
-
-    @Override
-    public void onStreamReady(Torrent torrent) {
-
-    }
-
-    @Override
-    public void onStreamProgress(Torrent torrent, StreamStatus status) {
-
-    }
-
-    @Override
-    public void onStreamStopped() {
-
-    }
-    /* TORRENT LISTENERS - END*/
 }

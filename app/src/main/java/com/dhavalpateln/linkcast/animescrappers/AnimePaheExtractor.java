@@ -3,6 +3,9 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.net.Uri;
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +30,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
     private String TAG = "AnimePahe - Extractor";
     private String animeUrl;
     private String apiUrl;
+    private String animeTitle;
 
     public AnimePaheExtractor(String baseUrl) {
         super(baseUrl);
@@ -34,10 +38,12 @@ public class AnimePaheExtractor extends AnimeScrapper{
             String[] links = baseUrl.split(":::");
             this.apiUrl = links[0];
             this.animeUrl = links[1];
+            this.animeTitle = links[2];
         }
         else {
             this.apiUrl = baseUrl;
             this.animeUrl = baseUrl;
+            this.animeTitle = null;
         }
     }
 
@@ -49,7 +55,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
 
     @Override
     public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
-        if(!episodeList.containsKey(episodeListUrl)) {
+        if(!episodeList.containsKey("fixed")) {
             Map<String, String> map = new HashMap<>();
             try {
                 String basePageUrl = episodeListUrl.split("&sort=")[0] + "&sort=episode_asc";
@@ -57,18 +63,19 @@ public class AnimePaheExtractor extends AnimeScrapper{
                 JSONObject jsonContent = new JSONObject(jsonStringContent);
                 int totalEpisodes = jsonContent.getInt("total");
                 int episodesPerPage = jsonContent.getInt("per_page");
+                int startEpisodeNum = jsonContent.getJSONArray("data").getJSONObject(0).getInt("episode");
                 for(int episodeNum = 0; episodeNum < totalEpisodes; episodeNum++) {
                     int pageNum = (episodeNum / episodesPerPage) + 1;
                     String episodePageUrl = basePageUrl + "&page=" + pageNum;
-                    map.put(String.valueOf(episodeNum + 1), episodePageUrl + ":::" + (episodeNum + 1));
+                    map.put(String.valueOf(episodeNum + 1), episodePageUrl + ":::" + (episodeNum + startEpisodeNum));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            episodeList.put(episodeListUrl, map);
-            episodeList.put(baseUrl, map);
+            episodeList.put("fixed", map);
+            //episodeList.put(baseUrl, map);
         }
-        return episodeList.get(episodeListUrl);
+        return episodeList.get("fixed");
     }
 
     @Override
@@ -126,6 +133,18 @@ public class AnimePaheExtractor extends AnimeScrapper{
         try {
             boolean foundImage = getData("imageUrl") != null;
             boolean foundTitle = false;
+
+            if(animeTitle != null) {
+                AnimePaheSearch animePaheSearch = new AnimePaheSearch();
+                JSONArray searchArray = animePaheSearch.search(animeTitle.replace("(AnimePahe.com)", ""));
+                JSONObject result = searchArray.getJSONObject(0);
+                this.animeUrl = result.getString(AnimeSearch.LINK);
+                setData("imageUrl", result.getString(AnimeSearch.IMAGE));
+                foundImage = true;
+                setData("animeTitle", result.getString(AnimeSearch.TITLE));
+                foundTitle = true;
+            }
+
             String[] lines = getHttpContent(animeUrl).split("\n");
             for(int i = 0; i < lines.length; i++) {
                 String line = lines[i].trim();

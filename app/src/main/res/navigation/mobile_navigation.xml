@@ -36,6 +36,12 @@
         tools:layout="@layout/fragment_download" />
 
     <fragment
+        android:id="@+id/nav_status"
+        android:name="com.dhavalpateln.linkcast.ui.status.StatusFragment"
+        android:label="@string/menu_status"
+        tools:layout="@layout/fragment_status" />
+
+    <fragment
         android:id="@+id/nav_feedback"
         android:name="com.dhavalpateln.linkcast.ui.feedback.FeedbackFragment"
         android:label="@string/menu_feedback"

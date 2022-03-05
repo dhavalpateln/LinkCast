@@ -1,10 +1,13 @@
 package com.dhavalpateln.linkcast;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Toast;
 
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -47,41 +50,35 @@ public class MediaReceiver extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.linkeceiver_layout);
         Intent linkIntent = getIntent();
-        String url = linkIntent.getData().toString();
-        String title = linkIntent.getExtras().getString("title");
 
-        /** Old Logic - To be Deprecated **/
-        /*database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("title");
-        myRef.setValue(title);
-        myRef = database.getReference("url");
-        myRef.setValue(url);
-
-        myRef = database.getReference();
-        String id = getCurrentTime();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/link/" + id + "/title", title);
-        childUpdates.put("/link/" + id + "/url", url);
-        myRef.updateChildren(childUpdates);*/
-        /*myRef.child("link").child(id).child("title").setValue(title);
-        myRef.child("link").child(id).child("url").setValue(url);*/
+        if(!linkIntent.hasExtra("title")) {
+            Toast.makeText(getApplicationContext(), "Not Supported Yet!", Toast.LENGTH_LONG);
+            /*Intent playerIntent = new Intent(MediaReceiver.this, ExoPlayerActivity.class);
+            playerIntent.putExtra(ExoPlayerActivity.MEDIA_URL, Uri.parse(linkIntent.getData().toString()));
+            playerIntent.putExtra(ExoPlayerActivity.FILE_TYPE, ExoPlayerActivity.FileTypes.LOCAL);
+            startActivity(playerIntent);*/
+        }
+        else {
+            Intent receivedIntent = getIntent();
+            insertData(
+                    "video",
+                    receivedIntent.getExtras().getString("title"),
+                    receivedIntent.getData().toString()
+            );
 
 
-        /** New Logic **/
-        Intent receivedIntent = getIntent();
-        insertData(
-                "video",
-                receivedIntent.getExtras().getString("title"),
-                receivedIntent.getData().toString()
-        );
-
-
-        if(linkIntent.hasExtra("intentSource")) {
-            if(linkIntent.getStringExtra("intentSource").equals("anime_web_explorer")) {
-                Intent mainactivity = new Intent(this, MainActivity.class);
-                startActivity(mainactivity);
+            if(linkIntent.hasExtra("intentSource")) {
+                if(linkIntent.getStringExtra("intentSource").equals("anime_web_explorer")) {
+                    Intent mainactivity = new Intent(this, MainActivity.class);
+                    startActivity(mainactivity);
+                }
             }
         }
+
+
+
+
+
 
         finish();
     }
