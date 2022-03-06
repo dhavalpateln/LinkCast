@@ -8,16 +8,11 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.animesearch.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.SearchDialog;
-import com.dhavalpateln.linkcast.exoplayer.ExoPlayerCastActivity;
-import com.dhavalpateln.linkcast.ui.RemoteCodeActivity;
-import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -48,7 +43,6 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.HashSet;
 import java.util.Set;

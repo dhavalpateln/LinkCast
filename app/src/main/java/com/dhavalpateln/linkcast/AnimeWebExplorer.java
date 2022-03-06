@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -57,6 +58,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class AnimeWebExplorer extends AppCompatActivity {
+
+    public static final String RETURN_RESULT = "returnresult";
+    public static final String RESULT_URL = "url";
+    public static final String RESULT_REFERER = "referer";
+    public static final String RESULT_EPISODE_NUM = "episodenum";
 
     WebView animeExplorerWebView;
     String TAG = "AnimeExplorer";
@@ -432,66 +438,78 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 data.put("Referer", "https://kwik.cx/");
             }
 
-            MediaReceiver.insertData("video", animeTitle, requestUrl, data);
+            if(getIntent().getBooleanExtra(RETURN_RESULT, false)) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RESULT_URL, requestUrl);
+                if(data.containsKey("Referer")) {
+                    returnIntent.putExtra(RESULT_REFERER, data.get("Referer"));
+                }
+                returnIntent.putExtra(RESULT_EPISODE_NUM, getIntent().getStringExtra(RESULT_EPISODE_NUM));
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
+            else {
 
-            Map<String, CastDialog.OnClickListener> map = new HashMap<>();
+                MediaReceiver.insertData("video", animeTitle, requestUrl, data);
 
-            map.put("PLAY", new CastDialog.OnClickListener() {
-                @Override
-                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                    CastContext castContext = CastContext.getSharedInstance();
-                    if(castContext != null && castContext.getCastState() == CastState.CONNECTED) {
-                        CastPlayer castPlayer = new CastPlayer(CastContext.getSharedInstance());
+                Map<String, CastDialog.OnClickListener> map = new HashMap<>();
 
-                        String mimeType = MimeTypes.VIDEO_MP4;
+                map.put("PLAY", new CastDialog.OnClickListener() {
+                    @Override
+                    public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
+                        CastContext castContext = CastContext.getSharedInstance();
+                        if (castContext != null && castContext.getCastState() == CastState.CONNECTED) {
+                            CastPlayer castPlayer = new CastPlayer(CastContext.getSharedInstance());
+
+                            String mimeType = MimeTypes.VIDEO_MP4;
 
 
-                        MediaItem mediaItem = new MediaItem.Builder()
-                                .setUri(url)
-                                .setMimeType(mimeType)
-                                .build();
-                        castPlayer.setMediaItem(mediaItem);
-                        castPlayer.setPlayWhenReady(true);
+                            MediaItem mediaItem = new MediaItem.Builder()
+                                    .setUri(url)
+                                    .setMimeType(mimeType)
+                                    .build();
+                            castPlayer.setMediaItem(mediaItem);
+                            castPlayer.setPlayWhenReady(true);
 
-                        castPlayer.prepare();
-                    }
-                    else {
-                        Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
-                        intent.putExtra("url", url);
-                        if (data.containsKey("Referer")) {
-                            intent.putExtra("Referer", data.get("Referer"));
+                            castPlayer.prepare();
+                        } else {
+                            Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+                            intent.putExtra("url", url);
+                            if (data.containsKey("Referer")) {
+                                intent.putExtra("Referer", data.get("Referer"));
+                            }
+                            startActivity(intent);
                         }
-                        startActivity(intent);
+                        castDialogOpen = false;
+                        mp4sFound = new HashSet<>();
+                        mp4sFound.add(url);
+                        castDialog.close();
                     }
-                    castDialogOpen = false;
-                    mp4sFound = new HashSet<>();
-                    mp4sFound.add(url);
-                    castDialog.close();
-                }
-            });
-            map.put("CAST MORE", new CastDialog.OnClickListener() {
-                @Override
-                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                    castDialogOpen = false;
-                    mp4sFound = new HashSet<>();
-                    mp4sFound.add(url);
-                    castDialog.close();
-                }
-            });
-            map.put("MAIN MENU", new CastDialog.OnClickListener() {
-                @Override
-                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                    castDialogOpen = false;
-                    mp4sFound = new HashSet<>();
-                    mp4sFound.add(url);
-                    castDialog.close();
-                    finish();
-                }
-            });
+                });
+                map.put("CAST MORE", new CastDialog.OnClickListener() {
+                    @Override
+                    public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
+                        castDialogOpen = false;
+                        mp4sFound = new HashSet<>();
+                        mp4sFound.add(url);
+                        castDialog.close();
+                    }
+                });
+                map.put("MAIN MENU", new CastDialog.OnClickListener() {
+                    @Override
+                    public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
+                        castDialogOpen = false;
+                        mp4sFound = new HashSet<>();
+                        mp4sFound.add(url);
+                        castDialog.close();
+                        finish();
+                    }
+                });
 
-            CastDialog castDialog = new CastDialog(animeTitle, requestUrl, map, data);
-            castDialog.show(getSupportFragmentManager(), "CastDialog");
-            notFoundMP4 = true;
+                CastDialog castDialog = new CastDialog(animeTitle, requestUrl, map, data);
+                castDialog.show(getSupportFragmentManager(), "CastDialog");
+                notFoundMP4 = true;
+            }
         }
 
     }

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -136,12 +138,12 @@ public class AnimePaheExtractor extends AnimeScrapper{
 
             if(animeTitle != null) {
                 AnimePaheSearch animePaheSearch = new AnimePaheSearch();
-                JSONArray searchArray = animePaheSearch.search(animeTitle.replace("(AnimePahe.com)", ""));
-                JSONObject result = searchArray.getJSONObject(0);
-                this.animeUrl = result.getString(AnimeSearch.LINK);
-                setData("imageUrl", result.getString(AnimeSearch.IMAGE));
+                ArrayList<AnimeLinkData> searchArray = animePaheSearch.search(animeTitle.replace("(AnimePahe.com)", ""));
+                AnimeLinkData result = searchArray.get(0);
+                this.animeUrl = result.getUrl();
+                setData("imageUrl", result.getData().get(AnimeLinkData.AnimeLinkDataContract.DATA_IMAGE_URL));
                 foundImage = true;
-                setData("animeTitle", result.getString(AnimeSearch.TITLE));
+                setData("animeTitle", result.getTitle());
                 foundTitle = true;
             }
 

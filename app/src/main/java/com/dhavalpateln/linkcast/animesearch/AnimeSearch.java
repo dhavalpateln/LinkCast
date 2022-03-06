@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.animesearch;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,6 +13,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public abstract class AnimeSearch {
 
@@ -36,6 +39,6 @@ public abstract class AnimeSearch {
         return result;
     }
 
-    public abstract JSONArray search(String term);
+    public abstract ArrayList<AnimeLinkData> search(String term);
     public abstract String getName();
 }

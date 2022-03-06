@@ -21,7 +21,7 @@
             android:name=".ui.status.StatusActivity"
             android:exported="false" />
         <activity
-            android:name=".animesearch.AnimeSearchActivity"
+            android:name=".AnimeSearchActivity"
             android:exported="false" />
 
         <meta-data

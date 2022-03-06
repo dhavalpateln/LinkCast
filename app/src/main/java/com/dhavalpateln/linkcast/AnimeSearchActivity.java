@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +19,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -30,6 +32,9 @@ import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
+import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
@@ -42,14 +47,18 @@ import java.util.Map;
 
 public class AnimeSearchActivity extends AppCompatActivity {
 
-    private Map<String, AnimeSearch> searchers;
-    private AnimeSearch animeSearch;
-    private String TAG = "AnimeSearch";
-    private ArrayList<AnimeLinkData> data;
-    private ArrayList<AnimeLinkData> filteredData;
     private RecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
     private EditText searchEditText;
+    private Spinner sourceSpinner;
+
+    private Map<String, AnimeSearch> searchers;
+    private AnimeSearch animeSearch;
+    private String TAG = "AnimeSearch";
+    private BookmarkedSearch bookmarkedSearch;
+    private ArrayList<AnimeLinkData> filteredData;
+
+    private String currentSource = "SAVED";
 
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
 
@@ -152,11 +161,20 @@ public class AnimeSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anime_search);
 
-        data = new ArrayList<>();
+        sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
+        searchEditText = findViewById(R.id.editTextSearchBar);
+
+        ArrayAdapter<CharSequence> sourceSpinnerAdapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.source_list, android.R.layout.simple_spinner_item);
+        sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sourceSpinner.setAdapter(sourceSpinnerAdapter);
+
+        bookmarkedSearch = new BookmarkedSearch();
         filteredData = new ArrayList<>();
 
         searchers = new HashMap<>();
         searchers.put("animepahe.com", new AnimePaheSearch());
+        searchers.put("Bookmarked", bookmarkedSearch);
 
         String source = getIntent().getStringExtra("source");
 
@@ -165,35 +183,23 @@ public class AnimeSearchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
 
-        searchEditText = findViewById(R.id.editTextSearchBar);
 
-        if(searchers.containsKey(source)) {
-            animeSearch = searchers.get(source);
-        }
-        else if(source.equals("SAVED")) {
-            SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
-            viewModel.getData().observe(this, new Observer<Map<String, AnimeLinkData>>() {
-                @Override
-                public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
-                    Log.d(TAG, "Data changed");
-                    data.clear();
-                    filteredData.clear();
-                    for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                        AnimeLinkData animeLinkData = entry.getValue();
-                        animeLinkData.setId(entry.getKey());
-                        data.add(entry.getValue());
-                        filteredData.add(entry.getValue());
-                    }
-                    adapter.notifyDataSetChanged();
+
+        SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
+        viewModel.getData().observe(this, new Observer<Map<String, AnimeLinkData>>() {
+            @Override
+            public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
+                Log.d(TAG, "Data changed");
+                ArrayList<AnimeLinkData> bookmarkedData = new ArrayList<>();
+                for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
+                    AnimeLinkData animeLinkData = entry.getValue();
+                    animeLinkData.setId(entry.getKey());
+                    bookmarkedData.add(entry.getValue());
                 }
-            });
+                bookmarkedSearch.updateData(bookmarkedData);
+            }
+        });
 
-
-
-        }
-        else {
-            finish();
-        }
 
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -203,13 +209,9 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                filteredData.clear();
-                for(AnimeLinkData animeLinkData: data) {
-                    if(animeLinkData.getTitle().toLowerCase().contains(charSequence)) {
-                        filteredData.add(animeLinkData);
-                    }
+                if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
+                    updateRecyclerData(bookmarkedSearch.search(charSequence.toString()));
                 }
-                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -220,28 +222,36 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
     }
 
+    private void updateRecyclerData(ArrayList<AnimeLinkData> animeLinkDataList) {
+        filteredData.clear();
+        for(AnimeLinkData animeLinkData: animeLinkDataList) {
+            filteredData.add(animeLinkData);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
     private class ExtractSearchResult extends AsyncTask<String, Integer, ArrayList<AnimeLinkData>> {
 
         @Override
         protected void onPostExecute(ArrayList<AnimeLinkData> animeLinkDataList) {
             super.onPostExecute(animeLinkDataList);
-            filteredData.clear();
-            for(AnimeLinkData animeLinkData: animeLinkDataList) {
-                filteredData.add(animeLinkData);
-            }
-            adapter.notifyDataSetChanged();
+            updateRecyclerData(animeLinkDataList);
         }
 
         @Override
         protected ArrayList<AnimeLinkData> doInBackground(String... strings) {
-            ArrayList<AnimeLinkData> filteredData = new ArrayList<>();
             String searchTerm = strings[0];
             String source = strings[1];
-
-
-
-            return null;
+            ArrayList<AnimeLinkData> result;
+            AnimeSearch animeSearcher = searchers.get(source);
+            result = animeSearcher.search(searchTerm);
+            return result;
         }
+    }
+
+    public void search(View view) {
+        ExtractSearchResult extractSearchResult = new ExtractSearchResult();
+        extractSearchResult.execute(searchEditText.getText().toString(), sourceSpinner.getSelectedItem().toString());
     }
 
 }
