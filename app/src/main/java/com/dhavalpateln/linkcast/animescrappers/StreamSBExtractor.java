@@ -1,8 +1,8 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import android.util.Log;
-import android.widget.Toast;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.utils.Utils;
 
@@ -101,7 +101,7 @@ public class StreamSBExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         return null;
     }
 

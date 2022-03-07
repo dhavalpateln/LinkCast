@@ -15,6 +15,7 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:hint="Search"
         android:text="" />
 
 
@@ -31,8 +32,9 @@
         <Spinner
             android:id="@+id/sourceSelectorSpinner"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            />
 
         <ImageView
             android:id="@+id/imageView"

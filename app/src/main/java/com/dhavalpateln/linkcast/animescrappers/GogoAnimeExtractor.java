@@ -3,6 +3,8 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.net.Uri;
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,7 +148,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         return null;
     }
 

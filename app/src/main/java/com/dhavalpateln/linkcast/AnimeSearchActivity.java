@@ -13,18 +13,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -32,9 +35,12 @@ import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
+import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.AnimixPlaySearch;
 import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
+import com.dhavalpateln.linkcast.animesearch.MangaFourLife;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
@@ -59,6 +65,14 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private ArrayList<AnimeLinkData> filteredData;
 
     private String currentSource = "SAVED";
+
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            search(true);
+        }
+    };
 
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
 
@@ -101,18 +115,34 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 intent.putExtra("title", recyclerData.getTitle());
                 startActivity(intent);
             });
-            holder.deleteButton.setOnClickListener(v -> {
-                FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
+            holder.openButton.setOnLongClickListener(v -> {
+                Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
+                for(Map.Entry<String, String> entry: recyclerData.getData().entrySet()) {
+                    intent.putExtra("data-" + entry.getKey(), entry.getValue());
+                }
+                intent.putExtra("url", recyclerData.getUrl());
+                intent.putExtra("search", recyclerData.getUrl());
+                intent.putExtra("source", "saved");
+                intent.putExtra("id", recyclerData.getId());
+                intent.putExtra("title", recyclerData.getTitle());
+                startActivity(intent);
+                return false;
             });
-            holder.editButton.setOnClickListener(v -> {
-                // TODO: add more fields to edit
-                BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
-                dialog.show(getSupportFragmentManager(), "bookmarkEdit");
-            });
-            if(recyclerData.getTitle().contains("Chuuni") || recyclerData.getTitle().contains("Boku no Hero Academia 3")) {
-                Log.d(TAG, "fk");
-
+            if(recyclerData.getId() != null) {
+                holder.deleteButton.setOnClickListener(v -> {
+                    FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
+                });
+                holder.editButton.setOnClickListener(v -> {
+                    // TODO: add more fields to edit
+                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
+                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
+                });
             }
+            else {
+                holder.deleteButton.setVisibility(View.GONE);
+                holder.editButton.setVisibility(View.GONE);
+            }
+
             if(recyclerData.getData().containsKey("imageUrl")) {
                 Glide.with(getApplicationContext())
                         .load(recyclerData.getData().get("imageUrl"))
@@ -164,26 +194,31 @@ public class AnimeSearchActivity extends AppCompatActivity {
         sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
         searchEditText = findViewById(R.id.editTextSearchBar);
 
-        ArrayAdapter<CharSequence> sourceSpinnerAdapter = ArrayAdapter.createFromResource(getApplicationContext(),
-                R.array.source_list, android.R.layout.simple_spinner_item);
-        sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sourceSpinner.setAdapter(sourceSpinnerAdapter);
-
         bookmarkedSearch = new BookmarkedSearch();
         filteredData = new ArrayList<>();
 
-        searchers = new HashMap<>();
-        searchers.put("animepahe.com", new AnimePaheSearch());
-        searchers.put("Bookmarked", bookmarkedSearch);
+        ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_item);
+        sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sourceSpinnerAdapter.add(bookmarkedSearch.getName());
 
-        String source = getIntent().getStringExtra("source");
+        searchers = new HashMap<>();
+        searchers.put("animekisa.tv", new AnimeKisaSearch());
+        searchers.put("animepahe.com", new AnimePaheSearch());
+        searchers.put("animixplay.to", new AnimixPlaySearch());
+        searchers.put("manga4life", new MangaFourLife());
+
+        String[] order = new String[] {"animekisa.tv", "animepahe.com", "animixplay.to", "manga4life"};
+
+        for(String searchSourceName: order) {
+            sourceSpinnerAdapter.add(searchSourceName);
+        }
+        sourceSpinner.setAdapter(sourceSpinnerAdapter);
+        searchers.put("Bookmarked", bookmarkedSearch);
 
         recyclerView = findViewById(R.id.search_recycler_view);
         adapter = new RecyclerViewAdapter(filteredData, getApplicationContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
-
-
 
         SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
         viewModel.getData().observe(this, new Observer<Map<String, AnimeLinkData>>() {
@@ -197,6 +232,9 @@ public class AnimeSearchActivity extends AppCompatActivity {
                     bookmarkedData.add(entry.getValue());
                 }
                 bookmarkedSearch.updateData(bookmarkedData);
+                if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
+                    updateRecyclerData(bookmarkedSearch.search(searchEditText.getText().toString()));
+                }
             }
         });
 
@@ -209,13 +247,32 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
+                handler.removeCallbacks(runnable);
+                /*if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
                     updateRecyclerData(bookmarkedSearch.search(charSequence.toString()));
-                }
+                }*/
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
+                handler.postDelayed(runnable, 300);
+
+            }
+        });
+
+        sourceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                search(true);
+                if(!searchers.get(sourceSpinner.getSelectedItem().toString()).hasQuickSearch()) {
+                    Toast.makeText(getApplicationContext(), "Use Search button for this source", Toast.LENGTH_LONG).show();
+                    filteredData.clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
         });
@@ -249,9 +306,34 @@ public class AnimeSearchActivity extends AppCompatActivity {
         }
     }
 
+    public void search() {
+        search(false);
+    }
+
+    public void search(boolean skipIfNoQuickSearch) {
+        AnimeSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
+        if(searcher.hasQuickSearch()) {
+            ExtractSearchResult extractSearchResult = new ExtractSearchResult();
+            extractSearchResult.execute(searchEditText.getText().toString(), sourceSpinner.getSelectedItem().toString());
+        }
+        else if(!skipIfNoQuickSearch){
+            Intent intent;
+            if(searcher.isMangeSource()) {
+                intent = new Intent(AnimeSearchActivity.this, MangaWebExplorer.class);
+            }
+            else {
+                intent = new Intent(AnimeSearchActivity.this, AnimeWebExplorer.class);
+            }
+            intent.putExtra("source", searcher.getName());
+            intent.putExtra("search", searchEditText.getText().toString());
+            intent.putExtra("advancedMode", true);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     public void search(View view) {
-        ExtractSearchResult extractSearchResult = new ExtractSearchResult();
-        extractSearchResult.execute(searchEditText.getText().toString(), sourceSpinner.getSelectedItem().toString());
+        search();
     }
 
 }

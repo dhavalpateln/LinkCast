@@ -2,6 +2,8 @@ package com.dhavalpateln.linkcast.animescrappers;
 
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -191,7 +193,7 @@ public class AnimixPlayTOExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         try {
             boolean foundImage = getData("imageUrl") != null;
             boolean foundTitle = false;

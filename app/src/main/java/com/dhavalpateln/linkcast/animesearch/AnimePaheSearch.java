@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AnimePaheSearch extends AnimeSearch {
+
     public AnimePaheSearch(){
 
     }
@@ -33,7 +34,10 @@ public class AnimePaheSearch extends AnimeSearch {
                 AnimeLinkData animeLinkData = new AnimeLinkData();
                 animeLinkData.setUrl("https://animepahe.com/anime/" + searchElement.getString("session"));
                 animeLinkData.setTitle(searchElement.getString("title"));
-                data.put("imageUrl", searchElement.getString("poster"));
+                data.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, searchElement.getString("poster"));
+                data.put(AnimeLinkData.DataContract.DATA_MODE, "advanced");
+                data.put(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SEARCH_ID, searchElement.getString("id"));
+                data.put(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION, searchElement.getString("session"));
                 animeLinkData.setData(data);
                 /*resultElement.put(ID, searchElement.getString("id"));
                 resultElement.put(IMAGE, searchElement.getString("poster"));
@@ -50,5 +54,10 @@ public class AnimePaheSearch extends AnimeSearch {
     @Override
     public String getName() {
         return "AnimePahe.com";
+    }
+
+    @Override
+    public boolean hasQuickSearch() {
+        return true;
     }
 }

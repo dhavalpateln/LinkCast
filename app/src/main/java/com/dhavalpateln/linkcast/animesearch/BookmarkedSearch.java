@@ -29,4 +29,9 @@ public class BookmarkedSearch extends AnimeSearch {
     public String getName() {
         return "Bookmarked";
     }
+
+    @Override
+    public boolean hasQuickSearch() {
+        return true;
+    }
 }

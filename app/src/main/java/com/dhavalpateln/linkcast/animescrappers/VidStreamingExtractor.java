@@ -2,6 +2,8 @@ package com.dhavalpateln.linkcast.animescrappers;
 
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -164,7 +166,7 @@ public class VidStreamingExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         try {
             boolean foundImage = getData("imageUrl") != null;
             boolean foundTitle = false;

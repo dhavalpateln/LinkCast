@@ -3,6 +3,8 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.net.Uri;
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -148,12 +150,12 @@ public class VidStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         return null;
     }
 
     @Override
     public String getDisplayName() {
-        return null;
+        return "Vidstream";
     }
 }

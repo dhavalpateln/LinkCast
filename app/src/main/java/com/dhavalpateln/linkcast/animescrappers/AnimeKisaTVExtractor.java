@@ -1,37 +1,15 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
-import android.webkit.WebView;
 
-import androidx.annotation.RequiresApi;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 
 public class AnimeKisaTVExtractor extends AnimeScrapper {
 
@@ -57,7 +35,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
         return episodeList.get(episodeListUrl);
     }
 
-    private void getEpisodeList(String episodeListUrl, String[] lines, int startLineNum) {
+    private Map<String, String> getEpisodeList(String episodeListUrl, String[] lines, int startLineNum) {
         episodeList.put(episodeListUrl, new HashMap<>());
         for(int linenum = startLineNum; linenum < lines.length; linenum++) {
             String line = lines[linenum].trim();
@@ -72,6 +50,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
             }
         }
+        return episodeList.get(episodeListUrl);
     }
 
     private String pad(String s) {
@@ -222,7 +201,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         try {
             boolean foundImage = getData("imageUrl") != null;
             boolean foundTitle = false;
@@ -257,7 +236,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                     foundEpisodeListStartLineNum = true;
                 }
             }
-            getEpisodeList(this.baseUrl, lines, episodeListStartLineNum);
+            return getEpisodeList(this.baseUrl, lines, episodeListStartLineNum);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -10,7 +10,7 @@ public class AnimeLinkData {
     private String url;
     private Map<String, String> data;
 
-    public static class AnimeLinkDataContract {
+    public static class DataContract {
         public static final String TITLE = "title";
         public static final String URL = "url";
         public static final String DATA = "data";
@@ -18,6 +18,8 @@ public class AnimeLinkData {
         public static final String DATA_STATUS = "status";
         public static final String DATA_IMAGE_URL = "imageUrl";
         public static final String DATA_EPISODE_NUM = "episodenumtext";
+        public static final String DATA_ANIMEPAHE_SEARCH_ID = "pahesearchid";
+        public static final String DATA_ANIMEPAHE_SESSION = "pahesession";
     }
 
     public String getTitle() {

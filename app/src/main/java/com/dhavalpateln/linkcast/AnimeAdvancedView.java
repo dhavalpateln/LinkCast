@@ -35,6 +35,7 @@ import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
@@ -75,7 +76,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private int totalEpisode = 0;
     private boolean saveProgress = true;
     private boolean episodeUpdateMode = false;
-
+    private AnimeLinkData animeData;
 
 
 
@@ -186,6 +187,18 @@ public class AnimeAdvancedView extends AppCompatActivity {
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), findViewById(R.id.mediaRouteButton));
 
         Intent calledIntent = getIntent();
+
+        Bundle intentBundle = getIntent().getExtras();
+        animeData = new AnimeLinkData();
+        animeData.setUrl(intentBundle.getString(AnimeLinkData.DataContract.URL));
+        Map<String, String> data = new HashMap<>();
+        for(String intentKey: intentBundle.keySet()) {
+            if(intentKey.startsWith("data-")) {
+                data.put(intentKey.replace("data-", ""), intentBundle.getString(intentKey));
+            }
+        }
+        animeData.setData(data);
+
         if(calledIntent.hasExtra("data-episodenumtext") && !calledIntent.getStringExtra("data-episodenumtext").equals("")) {
             animeEpisodeNumTextView.setText(calledIntent.getStringExtra("data-episodenumtext"));
             currentEpisode = Integer.valueOf(calledIntent.getStringExtra("data-episodenumtext").split("-")[1].trim());
@@ -220,7 +233,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractors.put("animekisa.tv", new AnimeKisaTVExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animekisa.cc", new AnimeKisaCCExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
-        extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url") + ":::" + calledIntent.getStringExtra("title") + ":::dummy"));
+        extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
 
         Log.d("ADV_VIEW", "URL=" + calledIntent.getStringExtra("url"));
 
@@ -542,7 +555,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
     }
 
-    public class ExtractDataTask extends AsyncTask<String, Integer, String> {
+    public class ExtractDataTask extends AsyncTask<String, Integer, Map<String, String>> {
 
         String baseURL;
 
@@ -555,7 +568,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(Map<String, String> episodeList) {
             AnimeScrapper extractor = sourceExtractor;
             if(extractor.getData("imageUrl") != null) {
                 Glide.with(getApplicationContext())
@@ -573,17 +586,13 @@ public class AnimeAdvancedView extends AppCompatActivity {
             if(extractor.getData("animeTitle") != null) {
                 animeTitleTextView.setText(extractor.getData("animeTitle"));
             }
-            try {
-                Map<String, String> episodeList = extractor.getEpisodeList(baseURL);
-                episodeListData.clear();
 
-                for(int i = 1; i <= episodeList.size(); i++) {
-                    episodeListData.add(new EpisodeData(episodeList.get(String.valueOf(i)), String.valueOf(i)));
-                }
-                adapter.notifyDataSetChanged();
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            episodeListData.clear();
+            for(int i = 1; i <= episodeList.size(); i++) {
+                episodeListData.add(new EpisodeData(episodeList.get(String.valueOf(i)), String.valueOf(i)));
             }
+            adapter.notifyDataSetChanged();
 
             totalEpisode = episodeListData.size();
             updateEpisodeProgress();
@@ -599,13 +608,24 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected Map<String, String> doInBackground(String... strings) {
             try {
                 String urlString = strings[0];
                 this.baseURL = strings[0];
+                AnimeLinkData animeLinkData = new AnimeLinkData();
+                Map<String, String> intentData = new HashMap<>();
+                Bundle intentBundle = getIntent().getExtras();
+                for(String key: intentBundle.keySet()) {
+                    if(key.startsWith("data-")) {
+                        intentData.put(key.replace("data-", ""), intentBundle.getString(key));
+                    }
+                }
+                animeLinkData.setData(intentData);
+                animeLinkData.setUrl(intentBundle.getString(AnimeLinkData.DataContract.URL));
+                animeLinkData.setTitle(intentBundle.getString(AnimeLinkData.DataContract.TITLE));
 
-                sourceExtractor.extractData();
-                return null;
+                Map<String, String> episodeList = sourceExtractor.extractData(animeLinkData);
+                return episodeList;
             } catch (Exception e) {
                 return null;
             }
@@ -626,6 +646,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
         Map<String, Object> update = new HashMap<>();
         update.put(id + "/title", animeTitleTextView.getText().toString() + "(" + sourceExtractor.getDisplayName() + ")");
         update.put(id + "/url", calledIntent.getStringExtra("url"));
+
+        for(String key: animeData.getData().keySet()) {
+            update.put(id + "/data/" + key, animeData.getData().get(key));
+        }
+
         update.put(id + "/data/mode", "advanced");
         update.put(id + "/data/episodenumtext", animeEpisodeNumTextView.getText().toString());
         update.put(id + "/data/status", statusButton.getText().toString());

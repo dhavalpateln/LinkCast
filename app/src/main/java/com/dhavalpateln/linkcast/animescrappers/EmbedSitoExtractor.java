@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +45,7 @@ public class EmbedSitoExtractor extends AnimeScrapper {
     }
 
     @Override
-    public String extractData() {
+    public Map<String, String> extractData(AnimeLinkData data) {
         return null;
     }
     @Override

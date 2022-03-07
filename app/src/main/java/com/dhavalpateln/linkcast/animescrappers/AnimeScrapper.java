@@ -1,8 +1,6 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -10,11 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AnimeScrapper {
@@ -122,6 +118,6 @@ public abstract class AnimeScrapper {
     public abstract boolean isCorrectURL(String url);
     public abstract Map<String, String> getEpisodeList(String episodeListUrl) throws IOException;
     public abstract Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException;
-    public abstract String extractData();
+    public abstract Map<String, String> extractData(AnimeLinkData data);
     public abstract String getDisplayName();
 }
