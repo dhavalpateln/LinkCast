@@ -35,7 +35,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
+    public Map<String, String> getEpisodeList(String episodeListUrl) {
         Map<String, String> map = new HashMap<>();
         try {
             //String basePageUrl = episodeListUrl.split("&sort=")[0] + "&sort=episode_asc";
@@ -49,15 +49,15 @@ public class AnimePaheExtractor extends AnimeScrapper{
                 String episodePageUrl = episodeListUrl + "&page=" + pageNum;
                 map.put(String.valueOf(episodeNum + 1), episodePageUrl + ":::" + (episodeNum + startEpisodeNum));
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
         return map;
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
-        Map<String, String> result = new HashMap<>();
+    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
+        Map<String, VideoURLData> result = new HashMap<>();
         String order = "dummy";
         try {
             String episodeInfoUrl = null;
@@ -80,27 +80,18 @@ public class AnimePaheExtractor extends AnimeScrapper{
                         String res = it.next();
                         String fansub = episodeInfo.getJSONObject(res).getString("fansub");
                         String kwikUrl = episodeInfo.getJSONObject(res).getString("kwik_pahewin");
-                        result.put(fansub + " - " + res, kwikUrl);
+                        VideoURLData videoURLData = new VideoURLData(fansub + " - " + res, kwikUrl, null);
+                        result.put(videoURLData.getTitle(), videoURLData);
                         order += "," + fansub + " - " + res;
                         Log.d(TAG, fansub + " - " + res + " : " + kwikUrl);
-                        //String kwikContent = getHttpContent(kwikUrl, "https://kwik.cx/");
-                        /*for(String kwikContentLine: kwikContent.split("\n")) {
-                            if(kwikContentLine.startsWith("<script>eval(function")) {
-                                String response = getHttpContent("https://dnpatel.pythonanywhere.com/unpack?data=" + Uri.encode(kwikContentLine));
-                                String url = new JSONObject(response).getString("url");
-                                result.put(fansub + " - " + res, url);
-                                order += "," + fansub + " - " + res;
-                                Log.d(TAG, fansub + " - " + res + " : " + url);
-                            }
-                        }*/
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        if(!order.equals("dummpy")) {
-            result.put("order", order);
+        if(!order.equals("dummy")) {
+            result.put("order", new VideoURLData("order", order, null));
         }
         return result;
     }

@@ -29,7 +29,7 @@ public class AnimixPlayTOExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
+    public Map<String, String> getEpisodeList(String episodeListUrl) {
         if(!episodeList.containsKey(episodeListUrl)) {
             return null;
         }
@@ -59,136 +59,9 @@ public class AnimixPlayTOExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
+    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
 
-        Map<String, String> result = new HashMap<>();
-        String order = "dummy";
-
-        String downloadEpisodeLink = episodeUrl;
-        if(downloadEpisodeLink != null) {
-            String downloadHtmlContent = getHttpContent(downloadEpisodeLink.replace("streaming.php", "download").replace("load.php", "download"));
-            String[] lines = downloadHtmlContent.split("\n");
-            for(int linenum = 0; linenum < lines.length; linenum++) {
-                String line = lines[linenum].trim();
-                if(line.startsWith("<div class=\"dowload\">")) {
-                    Pattern pattern = Pattern.compile("href=\"(.*?)\".*Download (.*?)</a></div>");
-                    Matcher matcher = pattern.matcher(lines[linenum + 1]);
-                    if (matcher.find()) {
-                        String url = matcher.group(1);
-                        String source = matcher.group(2);
-                        //
-                        if(source.toLowerCase().equals("streamsb")) {
-                            Log.d(TAG, "StreamSB src");
-                            if(url.contains("/e/")) {
-                                url = url.replace("/e/", "/d/") + ".html";
-                            }
-                            String streamsbContent = getHttpContent(url);
-                            for(String streamsbLine: streamsbContent.split("\n")) {
-                                streamsbLine = streamsbLine.trim();
-                                if(streamsbLine.startsWith("<tr><td><a href=\"#\"")) {
-                                    Log.d(TAG, "Found Table row");
-                                    Pattern sbpattern = Pattern.compile("<tr><td><a href=\"#\" onclick=\"download_video\\((.*?)\\).*</a></td><td>(.*x.*?),");
-                                    Matcher sbmatcher = sbpattern.matcher(streamsbLine);
-                                    if (sbmatcher.find()) {
-                                        String[] downloadVideoParams = sbmatcher.group(1).replace("'", "").split(",");
-                                        String res = sbmatcher.group(2);
-                                        String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
-                                                "&hash=" + downloadVideoParams[2];
-                                        Log.d(TAG, lastDownloadUrl);
-
-                                        String lastHTMLContent = getHttpContent(lastDownloadUrl);
-                                        for(String lastHTMLLine: lastHTMLContent.split("\n")) {
-                                            lastHTMLLine = lastHTMLLine.trim();
-                                            if(lastHTMLLine.startsWith("<a href=\"") && lastHTMLLine.contains("Direct Download Link")) {
-                                                result.put("StreamSB - " + res, lastHTMLLine.split("\"")[1]);
-                                                order += ",StreamSB - " + res;
-                                                Log.d(TAG, "StreamSB - " + res + " : " + lastHTMLLine.split("\"")[1]);
-                                            }
-                                        }
-                                        if(!result.containsKey("StreamSB - " + res)) {
-                                            Log.d(TAG, "error: sleeping and retrying");
-                                            try {
-                                                Thread.sleep(1000);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            lastHTMLContent = getHttpContent(lastDownloadUrl);
-                                            for(String lastHTMLLine: lastHTMLContent.split("\n")) {
-                                                lastHTMLLine = lastHTMLLine.trim();
-                                                if(lastHTMLLine.startsWith("<a href=\"") && lastHTMLLine.contains("Direct Download Link")) {
-                                                    result.put("StreamSB - " + res, lastHTMLLine.split("\"")[1]);
-                                                    order += ",StreamSB - " + res;
-                                                    Log.d(TAG, "StreamSB - " + res + " : " + lastHTMLLine.split("\"")[1]);
-                                                }
-                                            }
-                                            Log.d(TAG, "retry complete");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if(source.toLowerCase().equals("xstreamcdn")) {
-                            try {
-                                EmbedSitoExtractor extractor = new EmbedSitoExtractor(url);
-                                Map<String, String> episodeUrls = extractor.extractEpisodeUrls(url);
-                                for(String res: episodeUrls.keySet()) {
-                                    result.put("XstreamCDN - " + res, episodeUrls.get(res));
-                                    order += ",XstreamCDN - " + res;
-                                }
-                            } catch (Exception e) {
-
-                            }
-
-                        }
-                        else if(source.toLowerCase().equals("doodstream")) {
-                            String doodStreamHtmlContent = getHttpContent(url);
-                            String downloadUrl = null;
-                            for(String doodStreamline: doodStreamHtmlContent.split("\n")) {
-                                if(doodStreamline.trim().startsWith("<a href=\"")) {
-                                    Pattern doodDownloadLinkPattern = Pattern.compile("<a href=\"(/download/.*?)\"");
-                                    Matcher doodmatcher = doodDownloadLinkPattern.matcher(doodStreamline);
-                                    if (doodmatcher.find()) {
-                                        downloadUrl = "https://dood.la" + doodmatcher.group(1);
-                                        break;
-                                    }
-                                }
-                            }
-                            if(downloadUrl != null) {
-                                String mainContent = getHttpContent(downloadUrl);
-                                for(String httpLine: mainContent.split("\n")) {
-                                    if(httpLine.trim().startsWith("<a onclick=\"window.open")) {
-                                        Pattern doodDownloadLinkPattern = Pattern.compile("<a onclick=\"window.open\\('(.*?)', '_self'\\)\"");
-                                        Matcher doodmatcher = doodDownloadLinkPattern.matcher(httpLine);
-                                        if (doodmatcher.find()) {
-                                            downloadUrl = doodmatcher.group(1);
-                                            result.put("DOODSTREAM", downloadUrl);
-                                            order += ",DOODSTREAM";
-                                            Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            continue;
-                        }
-                        else {
-                            if(getHttpResponseCode(url) != 200) { continue; }
-                            while(result.containsKey(source)) {
-                                source = source + "+";
-                            }
-                            result.put(source, url);
-                            order += "," + source;
-                        }
-                    }
-                }
-            }
-        }
-
-
-        if(!order.equals("dummpy")) {
-            result.put("order", order);
-        }
-
+        Map<String, VideoURLData> result = new HashMap<>();
         return result;
     }
 

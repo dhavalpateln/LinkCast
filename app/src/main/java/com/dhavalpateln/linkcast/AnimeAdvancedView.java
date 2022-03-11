@@ -35,6 +35,8 @@ import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
+import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
@@ -49,7 +51,6 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,6 +59,7 @@ import java.util.Map;
 public class AnimeAdvancedView extends AppCompatActivity {
 
     private static final int WEB_VIEW_REQUEST_CODE = 1;
+    private static final String TAG = "AdvanceView";
 
     private Map<String, AnimeScrapper> extractors;
     private ProgressDialog progressDialog;
@@ -234,6 +236,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractors.put("animekisa.cc", new AnimeKisaCCExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
+        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(calledIntent.getStringExtra("url")));
 
         Log.d("ADV_VIEW", "URL=" + calledIntent.getStringExtra("url"));
 
@@ -384,7 +387,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         episodeProgressButton.setText(currentEpisode + "/" + totalEpisode);
     }
 
-    public class ExtractEpisodeTask extends AsyncTask<String, Integer, Map<String, String>> {
+    public class ExtractEpisodeTask extends AsyncTask<String, Integer, Map<String, VideoURLData>> {
 
         private String episodeNum;
 
@@ -397,17 +400,23 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Map<String, String> stringStringMap) {
+        protected void onPostExecute(Map<String, VideoURLData> stringStringMap) {
             super.onPostExecute(stringStringMap);
             progressDialog.dismiss();
-            if(stringStringMap != null && stringStringMap.size() > 1) {
+            if(stringStringMap != null && stringStringMap.size() > 0) {
                 AdvancedSourceSelector dialog = new AdvancedSourceSelector(stringStringMap, new AdvancedSourceSelector.OnClickListener() {
                     @Override
-                    public void onClick(AdvancedSourceSelector dialog, String source, String url) {
+                    public void onClick(AdvancedSourceSelector dialog, VideoURLData videoURLData) {
+
+                        String source = videoURLData.getTitle();
+                        String url = videoURLData.getUrl();
 
                         boolean openCastDialog = true;
                         boolean canCast = true;
                         HashMap<String, String> headers = new HashMap<>();
+                        if(videoURLData.hasReferer()) {
+                            headers.put("Referer", videoURLData.getReferer());
+                        }
                         if(source.toLowerCase().startsWith("doodstream")) {
                             headers.put("Referer", "https://dood.la/");
                             //startPlayer(url, episodeNum, headers, true);
@@ -452,88 +461,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
                         if(openCastDialog) {
                             openCastDialog(url, episodeNum, headers, canCast);
                         }
-
-
-                        /*Map<String, CastDialog.OnClickListener> map = new HashMap<>();
-
-                        map.put("PLAY", new CastDialog.OnClickListener() {
-                            @Override
-                            public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-
-                                if(source.toLowerCase().startsWith("doodstream")) {
-                                    HashMap<String, String> headers = new HashMap<>();
-                                    headers.put("Referer", "https://dood.la/");
-                                    startPlayer(url, episodeNum, headers, true);
-                                }
-                                else if(source.toLowerCase().startsWith("vidstream")) {
-                                    HashMap<String, String> headers = new HashMap<>();
-                                    headers.put("Referer", "https://gogoplay.io/");
-                                    startPlayer(url, episodeNum, headers, true);
-                                }
-                                else if(url.contains(".m3u8") || url.replace(".mp4upload", "").contains(".mp4")) {
-                                    HashMap<String, String> headers = new HashMap<>();
-                                    if(sourceExtractor.getDisplayName().equals("AnimePahe.com")) {
-                                        headers.put("Referer", "https://kwik.cx/");
-                                    }
-                                    startPlayer(url, episodeNum, headers, true);
-                                }
-                                else if(source.toLowerCase().startsWith("xstreamcdn")) {
-                                    startPlayer(url, episodeNum, null, false);
-                                }
-                                else {
-                                    Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                                    intent.putExtra("search", animeTitleTextView.getText().toString());
-                                    if(url.contains("sbplay")) {
-                                        intent.putExtra("source", "sbplay.org");
-                                        intent.putExtra("search", url);
-                                    }
-                                    else {
-                                        intent.putExtra("source", "generic");
-                                        intent.putExtra("generic_url", url);
-                                    }
-
-                                    intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, episodeNum);
-                                    intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
-                                    intent.putExtra("scrapper", sourceExtractor.getDisplayName());
-
-                                    startActivityForResult(intent, WEB_VIEW_REQUEST_CODE);
-                                    //startActivity(intent);
-                                }
-                                castDialog.close();
-                            }
-                        });
-                        map.put("WEB CAST", new CastDialog.OnClickListener() {
-                            @Override
-                            public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                                String id = getCurrentTime();
-                                Map<String, Object> update = new HashMap<>();
-                                update.put(id + "/title", animeTitleTextView.getText().toString() + " - " + animeEpisodeNumTextView.getText().toString());
-                                update.put(id + "/url", url);
-                                if(data != null) {
-                                    for (Map.Entry<String, String> entry : data.entrySet()) {
-                                        update.put(id + "/data/" + entry.getKey(), entry.getValue());
-                                    }
-                                }
-                                FirebaseDBHelper.getUserLinkRef().updateChildren(update);
-                                castDialog.close();
-                            }
-                        });
-                        map.put("DOWNLOAD", new CastDialog.OnClickListener() {
-                            @Override
-                            public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                                LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, animeTitleTextView.getText().toString() + " - " + animeEpisodeNumTextView.getText().toString() + ".mp4", new LinkDownloadManagerDialog.LinkDownloadListener() {
-                                    @Override
-                                    public void onDownloadComplete() {
-                                        Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                                linkDownloadManagerDialog.show(getSupportFragmentManager(), "Download");
-                                castDialog.close();
-                            }
-                        });
-                        dialog.close();
-                        CastDialog castDialog = new CastDialog(source, url, map, null);
-                        castDialog.show(getSupportFragmentManager(), "CastDialog");*/
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "SourceSelector");
@@ -541,16 +468,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected Map<String, String> doInBackground(String... strings) {
+        protected Map<String, VideoURLData> doInBackground(String... strings) {
             String url = strings[0];
             episodeNum = strings[1];
             AnimeScrapper extractor = sourceExtractor;
-            Map<String, String> extractedEpisodes = null;
-            try {
-                extractedEpisodes = extractor.extractEpisodeUrls(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Map<String, VideoURLData> extractedEpisodes = extractor.extractEpisodeUrls(url);
             return extractedEpisodes;
         }
     }
@@ -589,8 +511,13 @@ public class AnimeAdvancedView extends AppCompatActivity {
 
 
             episodeListData.clear();
-            for(int i = 1; i <= episodeList.size(); i++) {
-                episodeListData.add(new EpisodeData(episodeList.get(String.valueOf(i)), String.valueOf(i)));
+            if(episodeList != null) {
+                for (int i = 1; i <= episodeList.size(); i++) {
+                    episodeListData.add(new EpisodeData(episodeList.get(String.valueOf(i)), String.valueOf(i)));
+                }
+            }
+            else {
+                Log.e(TAG, "No episodes found");
             }
             adapter.notifyDataSetChanged();
 

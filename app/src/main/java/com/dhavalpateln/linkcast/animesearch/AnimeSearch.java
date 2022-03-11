@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -22,11 +23,14 @@ public abstract class AnimeSearch {
     public static final String LINK = "link";
     public static final String TITLE = "title";
 
+    public void configConnection(HttpURLConnection urlConnection) {
+        return;
+    }
 
     public String getHttpContent(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        //urlConnection.setConnectTimeout(connectionTimeout);
+        configConnection(urlConnection);
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];

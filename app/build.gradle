@@ -40,7 +40,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
-
+    implementation 'org.jsoup:jsoup:1.14.3'
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.android.exoplayer:exoplayer:2.15.1'

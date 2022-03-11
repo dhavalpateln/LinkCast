@@ -13,16 +13,17 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Map;
 
 public class AdvancedSourceSelector extends DialogFragment {
 
-    private Map<String, String> sources;
+    private Map<String, VideoURLData> sources;
     private OnClickListener listener;
 
-    public AdvancedSourceSelector(Map<String, String> sources, AdvancedSourceSelector.OnClickListener adClickListener) {
+    public AdvancedSourceSelector(Map<String, VideoURLData> sources, AdvancedSourceSelector.OnClickListener adClickListener) {
         this.sources = sources;
         this.listener = adClickListener;
     }
@@ -32,7 +33,7 @@ public class AdvancedSourceSelector extends DialogFragment {
     }
 
     public interface OnClickListener {
-        void onClick(AdvancedSourceSelector dialog, String source, String url);
+        void onClick(AdvancedSourceSelector dialog, VideoURLData videoURLData);
     }
 
 
@@ -44,12 +45,18 @@ public class AdvancedSourceSelector extends DialogFragment {
         final LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.advanced_source_selector_dialog, null);
         LinearLayout layout = view.findViewById(R.id.advancedSourceSelectorDialogLinearLayout);
-        String order = sources.get("order");
-        for(String source: order.split(",")) {
+        String[] order;
+        if(sources.containsKey("order")) {
+            order = sources.get("order").getUrl().split(",");
+        }
+        else {
+            order = sources.keySet().toArray(new String[0]);
+        }
+
+        for(String source: order) {
             if(source.equals("dummy")) {
                 continue;
             }
-            String url = sources.get(source);
             MaterialButton button = new MaterialButton(getContext());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -62,7 +69,7 @@ public class AdvancedSourceSelector extends DialogFragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listener.onClick(AdvancedSourceSelector.this, source, url);
+                    listener.onClick(AdvancedSourceSelector.this, sources.get(source));
                 }
             });
             layout.addView(button);

@@ -26,10 +26,14 @@ public abstract class AnimeScrapper {
         dataMap = new HashMap<>();
     }
 
+    public void configConnection(HttpURLConnection urlConnection) {
+        return;
+    }
+
     public String getHttpContent(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        //urlConnection.setConnectTimeout(connectionTimeout);
+        configConnection(urlConnection);
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];
@@ -46,6 +50,7 @@ public abstract class AnimeScrapper {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         //urlConnection.setConnectTimeout(connectionTimeout);
         urlConnection.setRequestProperty("Referer", referer);
+        configConnection(urlConnection);
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];
@@ -65,7 +70,7 @@ public abstract class AnimeScrapper {
         for(String header: headers.keySet()) {
             urlConnection.setRequestProperty(header, headers.get(header));
         }
-
+        configConnection(urlConnection);
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
         int bufferSize = 1024;
         char[] buffer = new char[bufferSize];
@@ -81,7 +86,7 @@ public abstract class AnimeScrapper {
     public int getHttpResponseCode(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        //urlConnection.setConnectTimeout(connectionTimeout);
+        configConnection(urlConnection);
         return urlConnection.getResponseCode();
     }
 
@@ -89,7 +94,7 @@ public abstract class AnimeScrapper {
 
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        //urlConnection.setConnectTimeout(connectionTimeout);
+        configConnection(urlConnection);
         urlConnection.setRequestMethod("POST");
 
         InputStream in = new BufferedInputStream(urlConnection.getInputStream());
@@ -116,8 +121,8 @@ public abstract class AnimeScrapper {
     }
 
     public abstract boolean isCorrectURL(String url);
-    public abstract Map<String, String> getEpisodeList(String episodeListUrl) throws IOException;
-    public abstract Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException;
+    public abstract Map<String, String> getEpisodeList(String episodeListUrl);
+    public abstract Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl);
     public abstract Map<String, String> extractData(AnimeLinkData data);
     public abstract String getDisplayName();
 }

@@ -14,7 +14,7 @@ public class AnimixPlaySearch extends AnimeSearch {
 
     @Override
     public String getName() {
-        return ProvidersData.AnimixPlay.NAME;
+        return ProvidersData.ANIMIXPLAY.NAME;
     }
 
     @Override

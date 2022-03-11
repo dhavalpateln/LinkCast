@@ -26,11 +26,15 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
-        if(!episodeList.containsKey(episodeListUrl)) {
-            String baseHtmlContent = getHttpContent(episodeListUrl);
-            String lines[] = baseHtmlContent.split("\n");
-            getEpisodeList(episodeListUrl, lines, 0);
+    public Map<String, String> getEpisodeList(String episodeListUrl) {
+        try {
+            if(!episodeList.containsKey(episodeListUrl)) {
+                String baseHtmlContent = getHttpContent(episodeListUrl);
+                String lines[] = baseHtmlContent.split("\n");
+                getEpisodeList(episodeListUrl, lines, 0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return episodeList.get(episodeListUrl);
     }
@@ -61,140 +65,141 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
+    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
 
-        Map<String, String> result = new HashMap<>();
-        String order = "dummy";
+        Map<String, VideoURLData> result = new HashMap<>();
+        try {
+            String order = "dummy";
 
-        Log.d(TAG, "Episode Link:" + episodeUrl);
-
-
-        String baseHtmlContent = getHttpContent(episodeUrl);
-        String downloadEpisodeLink = null;
-        for(String line: baseHtmlContent.split("\n")) {
-            if(line.contains("var VidStreaming =")) {
-                Pattern pattern = Pattern.compile("var VidStreaming = \"(.*?)\";");
-                Matcher matcher = pattern.matcher(baseHtmlContent);
-                if (matcher.find()) {
-                    downloadEpisodeLink = matcher.group(1);
-                    break;
-                }
-            }
-        }
-
-        if(downloadEpisodeLink != null) {
-            downloadEpisodeLink = downloadEpisodeLink.replace("load.php", "download");
-            downloadEpisodeLink = downloadEpisodeLink.replace("download", "streaming.php");
-            downloadEpisodeLink = downloadEpisodeLink.replace("https://gogoplay1.com/", "https://gogoplay.io/");
-            Log.d(TAG, "Download Link:" + downloadEpisodeLink);
+            Log.d(TAG, "Episode Link:" + episodeUrl);
 
 
-            try {
-                VidStreamExtractor extractor = new VidStreamExtractor(downloadEpisodeLink);
-                Map<String, String> episodeUrls = extractor.extractEpisodeUrls(downloadEpisodeLink);
-                for(String res: episodeUrls.keySet()) {
-                    result.put("VidStream - " + res, episodeUrls.get(res));
-                    order += ",VidStream - " + res;
-                    Log.d(TAG, "VidStream - " + res + " : " + episodeUrls.get(res));
-                }
-            } catch (Exception e) {
-
-            }
-
-
-            String downloadHtmlContent = getHttpContent(downloadEpisodeLink);
-            String[] lines = downloadHtmlContent.split("\n");
-            for(int linenum = 0; linenum < lines.length; linenum++) {
-                String line = lines[linenum].trim();
-                if(line.startsWith("<li class=\"")) {
-                    Pattern pattern = Pattern.compile("data-video=\"(.*?)\">(.*?)</li>");
-                    Matcher matcher = pattern.matcher(line);
+            String baseHtmlContent = getHttpContent(episodeUrl);
+            String downloadEpisodeLink = null;
+            for (String line : baseHtmlContent.split("\n")) {
+                if (line.contains("var VidStreaming =")) {
+                    Pattern pattern = Pattern.compile("var VidStreaming = \"(.*?)\";");
+                    Matcher matcher = pattern.matcher(baseHtmlContent);
                     if (matcher.find()) {
-                        String url = matcher.group(1);
-                        String source = matcher.group(2);
-                        Log.d(TAG, "Url: " + url + ", Source: " + source);
-                        //
-                        if(source.toLowerCase().equals("streamsb")) {
-                            StreamSBExtractor extractor = new StreamSBExtractor(url);
-                            Map<String, String> episodeUrls = extractor.extractEpisodeUrls(url);
-                            for(String res: episodeUrls.keySet()) {
-                                result.put("StreamSB - " + res, episodeUrls.get(res));
-                                order += ",StreamSB - " + res;
-                                Log.d(TAG, "StreamSB - " + res + " : " + episodeUrls.get(res));
-                            }
-                        }
-                        else if(source.equalsIgnoreCase("xstreamcdn")) {
-                            try {
-                                XStreamExtractor extractor = new XStreamExtractor(url);
-                                Map<String, String> episodeUrls = extractor.extractEpisodeUrls(url);
-                                for(String res: episodeUrls.keySet()) {
-                                    result.put("XstreamCDN - " + res, episodeUrls.get(res));
-                                    order += ",XstreamCDN - " + res;
-                                    Log.d(TAG, "XstreamCDN - " + res + " : " + episodeUrls.get(res));
-                                }
-                            } catch (Exception e) {
-                                Log.d(TAG, "XstreamCDN - ERROR: " + url);
-                            }
+                        downloadEpisodeLink = matcher.group(1);
+                        break;
+                    }
+                }
+            }
 
-                        }
-                        else if(source.toLowerCase().equals("doodstream")) {
-                            Log.d(TAG, "DOODSTREAM base url: " + url);
-                            String doodStreamHtmlContent = getHttpContent(url);
-                            String downloadUrl = null;
-                            for(String doodStreamline: doodStreamHtmlContent.split("\n")) {
-                                if(doodStreamline.trim().startsWith("<a href=\"")) {
-                                    Pattern doodDownloadLinkPattern = Pattern.compile("<a href=\"(/download/.*?)\"");
-                                    Matcher doodmatcher = doodDownloadLinkPattern.matcher(doodStreamline);
-                                    if (doodmatcher.find()) {
-                                        String hostName = Uri.parse(url).getHost();
-                                        downloadUrl = "https://" + hostName + doodmatcher.group(1);
-                                        break;
-                                    }
+            if (downloadEpisodeLink != null) {
+                downloadEpisodeLink = downloadEpisodeLink.replace("load.php", "download");
+                downloadEpisodeLink = downloadEpisodeLink.replace("download", "streaming.php");
+                downloadEpisodeLink = downloadEpisodeLink.replace("https://gogoplay1.com/", "https://gogoplay.io/");
+                Log.d(TAG, "Download Link:" + downloadEpisodeLink);
+
+
+                try {
+                    VidStreamExtractor extractor = new VidStreamExtractor(downloadEpisodeLink);
+                    Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(downloadEpisodeLink);
+                    for (String res : episodeUrls.keySet()) {
+                        result.put(res, episodeUrls.get(res));
+                        order += "," + res;
+                        //Log.d(TAG, res + " : " + episodeUrls.get(res));
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error extracting vidstream");
+                }
+
+
+                String downloadHtmlContent = getHttpContent(downloadEpisodeLink);
+                String[] lines = downloadHtmlContent.split("\n");
+                for (int linenum = 0; linenum < lines.length; linenum++) {
+                    String line = lines[linenum].trim();
+                    if (line.startsWith("<li class=\"")) {
+                        Pattern pattern = Pattern.compile("data-video=\"(.*?)\">(.*?)</li>");
+                        Matcher matcher = pattern.matcher(line);
+                        if (matcher.find()) {
+                            String url = matcher.group(1);
+                            String source = matcher.group(2);
+                            Log.d(TAG, "Url: " + url + ", Source: " + source);
+                            //
+                            if (source.toLowerCase().equals("streamsb")) {
+                                StreamSBExtractor extractor = new StreamSBExtractor(url);
+                                Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(url);
+                                for (String res : episodeUrls.keySet()) {
+                                    result.put(res, episodeUrls.get(res));
+                                    order += "," + res;
+                                    //Log.d(TAG, "StreamSB - " + res + " : " + episodeUrls.get(res));
                                 }
-                            }
-                            if(downloadUrl != null) {
-                                Log.d(TAG, "DOODSTREAM download url: " + downloadUrl);
-                                String mainContent = getHttpContent(downloadUrl);
-                                for(String httpLine: mainContent.split("\n")) {
-                                    if(httpLine.trim().startsWith("<a onclick=\"window.open")) {
-                                        Pattern doodDownloadLinkPattern = Pattern.compile("<a onclick=\"window.open\\('(.*?)', '_self'\\)\"");
-                                        Matcher doodmatcher = doodDownloadLinkPattern.matcher(httpLine);
+                            } else if (source.equalsIgnoreCase("xstreamcdn")) {
+                                try {
+                                    XStreamExtractor extractor = new XStreamExtractor(url);
+                                    Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(url);
+                                    for (String res : episodeUrls.keySet()) {
+                                        result.put(res, episodeUrls.get(res));
+                                        order += "," + res;
+                                    }
+                                } catch (Exception e) {
+                                    Log.d(TAG, "XstreamCDN - ERROR: " + url);
+                                }
+
+                            } else if (source.toLowerCase().equals("doodstream")) {
+                                Log.d(TAG, "DOODSTREAM base url: " + url);
+                                String doodStreamHtmlContent = getHttpContent(url);
+                                String downloadUrl = null;
+                                for (String doodStreamline : doodStreamHtmlContent.split("\n")) {
+                                    if (doodStreamline.trim().startsWith("<a href=\"")) {
+                                        Pattern doodDownloadLinkPattern = Pattern.compile("<a href=\"(/download/.*?)\"");
+                                        Matcher doodmatcher = doodDownloadLinkPattern.matcher(doodStreamline);
                                         if (doodmatcher.find()) {
-                                            downloadUrl = doodmatcher.group(1);
-                                            result.put("DOODSTREAM", downloadUrl);
-                                            order += ",DOODSTREAM";
-                                            Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
+                                            String hostName = Uri.parse(url).getHost();
+                                            downloadUrl = "https://" + hostName + doodmatcher.group(1);
                                             break;
                                         }
                                     }
                                 }
-                            }
-                            continue;
-                        }
-                        else if(source.equalsIgnoreCase("mp4upload")) {
-                            continue;
-                        }
-                        else {
-                            try {
-                                if (getHttpResponseCode(url) != 200) {continue;}
-                            }
-                            catch (Exception e) {
+                                if (downloadUrl != null) {
+                                    Log.d(TAG, "DOODSTREAM download url: " + downloadUrl);
+                                    String mainContent = getHttpContent(downloadUrl);
+                                    for (String httpLine : mainContent.split("\n")) {
+                                        if (httpLine.trim().startsWith("<a onclick=\"window.open")) {
+                                            Pattern doodDownloadLinkPattern = Pattern.compile("<a onclick=\"window.open\\('(.*?)', '_self'\\)\"");
+                                            Matcher doodmatcher = doodDownloadLinkPattern.matcher(httpLine);
+                                            if (doodmatcher.find()) {
+                                                downloadUrl = doodmatcher.group(1);
+                                                VideoURLData videoURLData = new VideoURLData("DOODSTREAM", downloadUrl, null);
+                                                result.put("DOODSTREAM", videoURLData);
+                                                order += ",DOODSTREAM";
+                                                Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
                                 continue;
+                            } else if (source.equalsIgnoreCase("mp4upload")) {
+                                continue;
+                            } else {
+                                try {
+                                    if (getHttpResponseCode(url) != 200) {
+                                        continue;
+                                    }
+                                } catch (Exception e) {
+                                    continue;
+                                }
+                                while (result.containsKey(source)) {
+                                    source = source + "+";
+                                }
+                                result.put(source, new VideoURLData(source, url, null));
+                                order += "," + source;
                             }
-                            while(result.containsKey(source)) {
-                                source = source + "+";
-                            }
-                            result.put(source, url);
-                            order += "," + source;
                         }
                     }
                 }
             }
-        }
 
 
-        if(!order.equals("dummpy")) {
-            result.put("order", order);
+            if (!order.equals("dummy")) {
+                result.put("order", new VideoURLData("order", order, null));
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Error: " + e.toString());
         }
 
         return result;

@@ -44,7 +44,7 @@ public class VidStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
+    public Map<String, String> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
@@ -94,8 +94,8 @@ public class VidStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
-        Map<String, String> result = new HashMap<>();
+    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
+        Map<String, VideoURLData> result = new HashMap<>();
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             try {
@@ -134,8 +134,9 @@ public class VidStreamExtractor extends AnimeScrapper {
                             for (int i = 0; i < vidSources.length(); i++) {
                                 JSONObject vidSource = vidSources.getJSONObject(i);
                                 if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                                    result.put(vidSource.getString("label"), vidSource.getString("file"));
-                                    Log.d(TAG, "VidStream - " + vidSource.getString("label") + " : " + vidSource.getString("file"));
+                                    VideoURLData videoURLData = new VideoURLData("VidStream - " + vidSource.getString("label"), vidSource.getString("file"), null);
+                                    result.put(videoURLData.getTitle(), videoURLData);
+                                    Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
                                 }
                             }
                         }
