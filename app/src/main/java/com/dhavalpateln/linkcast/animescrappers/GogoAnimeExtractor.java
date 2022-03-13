@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,34 +89,22 @@ public class GogoAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
-        Map<String, VideoURLData> result = new HashMap<>();
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
             Document html = Jsoup.parse(getHttpContent(episodeUrl));
-            String order = "dummy";
-
             try {
                 Element iframeElement = html.getElementsByTag("iframe").get(0);
                 String videStreamUrl = "https:" + iframeElement.attr("src");
                 VidStreamExtractor extractor = new VidStreamExtractor(videStreamUrl);
-                Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(videStreamUrl);
-                for (String title : episodeUrls.keySet()) {
-                    result.put(title, episodeUrls.get(title));
-                    order += "," + title;
-                    //Log.d(TAG, title + " : " + episodeUrls.get(res));
-                }
+                extractor.extractEpisodeUrls(videStreamUrl, result);
             } catch (Exception e) {
                 Log.e(TAG, "error fetching vidstream urls");
             }
 
             Log.d(TAG, "Episode extraction complete. Found " + result.size() + " urls");
-            if (!order.equals("dummy")) {
-                result.put("order", new VideoURLData("order", order, null));
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     @Override

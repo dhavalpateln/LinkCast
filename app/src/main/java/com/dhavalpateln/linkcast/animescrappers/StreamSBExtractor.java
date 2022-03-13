@@ -8,6 +8,7 @@ import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,8 +31,7 @@ public class StreamSBExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String url) {
-        Map<String, VideoURLData> result = new HashMap<>();
+    public void extractEpisodeUrls(String url, List<VideoURLData> result) {
         try {
             Log.d(TAG, "StreamSB src");
             if (url.contains("/e/")) {
@@ -53,7 +53,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                                     "&hash=" + downloadVideoParams[2];
                             Log.d(TAG, lastDownloadUrl);
                             VideoURLData urlData = new VideoURLData("Stream SB - " + res, lastDownloadUrl, null);
-                            result.put(urlData.getTitle(), urlData);
+                            result.add(urlData);
 
                         /*Log.d(TAG, "error: initial sleep");
                         try {
@@ -68,7 +68,6 @@ public class StreamSBExtractor extends AnimeScrapper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     @Override

@@ -42,6 +42,7 @@ import com.dhavalpateln.linkcast.animesearch.AnimixPlaySearch;
 import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLife;
+import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
@@ -205,13 +206,15 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers = new HashMap<>();
         searchers.put("animekisa.tv", new AnimeKisaSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
+        searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch());
         searchers.put("animepahe.com", new AnimePaheSearch());
-        searchers.put("animixplay.to", new AnimixPlaySearch());
+        //searchers.put("animixplay.to", new AnimixPlaySearch());
         searchers.put("manga4life", new MangaFourLife());
 
         String[] order = new String[] {
                 "animekisa.tv",
                 ProvidersData.GOGOANIME.NAME,
+                ProvidersData.NINEANIME.NAME,
                 "animepahe.com",
                 "animixplay.to",
                 "manga4life"
@@ -305,7 +308,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<AnimeLinkData> doInBackground(String... strings) {
-            String searchTerm = strings[0];
+            String searchTerm = strings[0].trim();
             String source = strings[1];
             ArrayList<AnimeLinkData> result;
             AnimeSearch animeSearcher = searchers.get(source);

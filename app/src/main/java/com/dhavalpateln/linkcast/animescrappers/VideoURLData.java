@@ -36,6 +36,6 @@ public class VideoURLData {
     }
 
     public boolean hasReferer() {
-        return this.referer == null;
+        return this.referer != null;
     }
 }

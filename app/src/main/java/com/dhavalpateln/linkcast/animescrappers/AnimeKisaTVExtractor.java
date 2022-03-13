@@ -7,6 +7,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,9 +66,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
-
-        Map<String, VideoURLData> result = new HashMap<>();
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
             String order = "dummy";
 
@@ -95,13 +94,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
 
                 try {
-                    VidStreamExtractor extractor = new VidStreamExtractor(downloadEpisodeLink);
-                    Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(downloadEpisodeLink);
-                    for (String res : episodeUrls.keySet()) {
-                        result.put(res, episodeUrls.get(res));
-                        order += "," + res;
-                        //Log.d(TAG, res + " : " + episodeUrls.get(res));
-                    }
+                    GogoPlayExtractor extractor = new GogoPlayExtractor(downloadEpisodeLink);
+                    extractor.extractEpisodeUrls(downloadEpisodeLink, result);
                 } catch (Exception e) {
                     Log.e(TAG, "Error extracting vidstream");
                 }
@@ -121,20 +115,11 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                             //
                             if (source.toLowerCase().equals("streamsb")) {
                                 StreamSBExtractor extractor = new StreamSBExtractor(url);
-                                Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(url);
-                                for (String res : episodeUrls.keySet()) {
-                                    result.put(res, episodeUrls.get(res));
-                                    order += "," + res;
-                                    //Log.d(TAG, "StreamSB - " + res + " : " + episodeUrls.get(res));
-                                }
+                                extractor.extractEpisodeUrls(url, result);
                             } else if (source.equalsIgnoreCase("xstreamcdn")) {
                                 try {
                                     XStreamExtractor extractor = new XStreamExtractor(url);
-                                    Map<String, VideoURLData> episodeUrls = extractor.extractEpisodeUrls(url);
-                                    for (String res : episodeUrls.keySet()) {
-                                        result.put(res, episodeUrls.get(res));
-                                        order += "," + res;
-                                    }
+                                    extractor.extractEpisodeUrls(url, result);
                                 } catch (Exception e) {
                                     Log.d(TAG, "XstreamCDN - ERROR: " + url);
                                 }
@@ -164,8 +149,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                                             if (doodmatcher.find()) {
                                                 downloadUrl = doodmatcher.group(1);
                                                 VideoURLData videoURLData = new VideoURLData("DOODSTREAM", downloadUrl, null);
-                                                result.put("DOODSTREAM", videoURLData);
-                                                order += ",DOODSTREAM";
+                                                result.add(videoURLData);
                                                 Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
                                                 break;
                                             }
@@ -176,33 +160,16 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                             } else if (source.equalsIgnoreCase("mp4upload")) {
                                 continue;
                             } else {
-                                try {
-                                    if (getHttpResponseCode(url) != 200) {
-                                        continue;
-                                    }
-                                } catch (Exception e) {
-                                    continue;
-                                }
-                                while (result.containsKey(source)) {
-                                    source = source + "+";
-                                }
-                                result.put(source, new VideoURLData(source, url, null));
-                                order += "," + source;
+
                             }
                         }
                     }
                 }
             }
-
-
-            if (!order.equals("dummy")) {
-                result.put("order", new VideoURLData("order", order, null));
-            }
         } catch (IOException e) {
             Log.e(TAG, "Error: " + e.toString());
         }
 
-        return result;
     }
 
     @Override

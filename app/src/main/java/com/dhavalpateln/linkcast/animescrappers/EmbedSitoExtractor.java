@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EmbedSitoExtractor extends AnimeScrapper {
@@ -27,8 +28,7 @@ public class EmbedSitoExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
-        Map<String, VideoURLData> result = new HashMap<>();
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
             String searchUrl = episodeUrl.replace("https://embedsito.com/f/", "https://embedsito.com/api/source/");
             String jsonSearchResultString = postHttpContent(searchUrl);
@@ -37,12 +37,11 @@ public class EmbedSitoExtractor extends AnimeScrapper {
             for(int i = 0; i < episodeList.length(); i++) {
                 JSONObject episode = episodeList.getJSONObject(i);
                 VideoURLData urlData = new VideoURLData("Embed - " + episode.getString("label"), episode.getString("file"), null);
-                result.put(urlData.getTitle(), urlData);
+                result.add(urlData);
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     @Override

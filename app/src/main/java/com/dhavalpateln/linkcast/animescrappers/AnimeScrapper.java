@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AnimeScrapper {
@@ -83,6 +84,15 @@ public abstract class AnimeScrapper {
         return result;
     }
 
+    public String getRedirectUrl(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setInstanceFollowRedirects(false);
+        configConnection(urlConnection);
+        String redirect = urlConnection.getHeaderField("Location");
+        return redirect;
+    }
+
     public int getHttpResponseCode(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -122,7 +132,7 @@ public abstract class AnimeScrapper {
 
     public abstract boolean isCorrectURL(String url);
     public abstract Map<String, String> getEpisodeList(String episodeListUrl);
-    public abstract Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl);
+    public abstract void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result);
     public abstract Map<String, String> extractData(AnimeLinkData data);
     public abstract String getDisplayName();
 }

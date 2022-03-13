@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,10 +60,8 @@ public class AnimixPlayTOExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
 
-        Map<String, VideoURLData> result = new HashMap<>();
-        return result;
     }
 
     @Override

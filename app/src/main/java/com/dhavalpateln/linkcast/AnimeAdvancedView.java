@@ -36,6 +36,7 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
@@ -54,6 +55,7 @@ import com.google.android.gms.cast.framework.CastState;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AnimeAdvancedView extends AppCompatActivity {
@@ -237,6 +239,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
         extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
         extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(calledIntent.getStringExtra("url")));
+        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(calledIntent.getStringExtra("url")));
 
         Log.d("ADV_VIEW", "URL=" + calledIntent.getStringExtra("url"));
 
@@ -387,7 +390,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         episodeProgressButton.setText(currentEpisode + "/" + totalEpisode);
     }
 
-    public class ExtractEpisodeTask extends AsyncTask<String, Integer, Map<String, VideoURLData>> {
+    public class ExtractEpisodeTask extends AsyncTask<String, Integer, List<VideoURLData>> {
 
         private String episodeNum;
 
@@ -400,11 +403,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Map<String, VideoURLData> stringStringMap) {
-            super.onPostExecute(stringStringMap);
+        protected void onPostExecute(List<VideoURLData> videoURLDataList) {
+            super.onPostExecute(videoURLDataList);
             progressDialog.dismiss();
-            if(stringStringMap != null && stringStringMap.size() > 0) {
-                AdvancedSourceSelector dialog = new AdvancedSourceSelector(stringStringMap, new AdvancedSourceSelector.OnClickListener() {
+            if(videoURLDataList != null && videoURLDataList.size() > 0) {
+                AdvancedSourceSelector dialog = new AdvancedSourceSelector(videoURLDataList, new AdvancedSourceSelector.OnClickListener() {
                     @Override
                     public void onClick(AdvancedSourceSelector dialog, VideoURLData videoURLData) {
 
@@ -468,12 +471,13 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
 
         @Override
-        protected Map<String, VideoURLData> doInBackground(String... strings) {
+        protected List<VideoURLData> doInBackground(String... strings) {
             String url = strings[0];
             episodeNum = strings[1];
             AnimeScrapper extractor = sourceExtractor;
-            Map<String, VideoURLData> extractedEpisodes = extractor.extractEpisodeUrls(url);
-            return extractedEpisodes;
+            List<VideoURLData> result = new ArrayList<>();
+            extractor.extractEpisodeUrls(url, result);
+            return result;
         }
     }
 

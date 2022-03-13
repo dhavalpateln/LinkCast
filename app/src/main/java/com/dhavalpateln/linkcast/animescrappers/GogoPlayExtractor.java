@@ -8,7 +8,6 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,14 +27,13 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class VidStreamExtractor extends AnimeScrapper {
-
+public class GogoPlayExtractor extends AnimeScrapper {
     private String TAG = "VidStream";
     private String GOGOANIME_SECRET = "25716538522938396164662278833288";
     private String GOGOANIME_IV = "1285672985238393";
     private String CUSTOM_PADDER = "\u0008\u000e\u0003\u0008\t\u0003\u0004\t";
 
-    public VidStreamExtractor(String baseUrl) {
+    public GogoPlayExtractor(String baseUrl) {
         super(baseUrl);
     }
 
@@ -133,7 +131,7 @@ public class VidStreamExtractor extends AnimeScrapper {
                             for (int i = 0; i < vidSources.length(); i++) {
                                 JSONObject vidSource = vidSources.getJSONObject(i);
                                 if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                                    VideoURLData videoURLData = new VideoURLData("VidStream - " + vidSource.getString("label"), vidSource.getString("file"), null);
+                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://gogoplay.io/");
                                     result.add(videoURLData);
                                     Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
                                 }
@@ -154,6 +152,6 @@ public class VidStreamExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return "Vidstream";
+        return "GogoPlay";
     }
 }

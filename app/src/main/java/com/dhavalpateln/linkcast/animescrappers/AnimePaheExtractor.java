@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,9 +57,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
-        Map<String, VideoURLData> result = new HashMap<>();
-        String order = "dummy";
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
             String episodeInfoUrl = null;
             String[] episdoeUrlSplit = episodeUrl.split(":::");
@@ -71,7 +70,6 @@ public class AnimePaheExtractor extends AnimeScrapper{
                     episodeInfoUrl = "https://animepahe.com/api?m=links&id=" + episodeSession.getInt("anime_id") + "&session=" + episodeSession.getString("session");
                 }
             }
-
             if(episodeInfoUrl != null) {
                 JSONArray episodeUrlList = new JSONObject(getHttpContent(episodeInfoUrl)).getJSONArray("data");
                 for(int i = 0; i < episodeUrlList.length(); i++) {
@@ -81,8 +79,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
                         String fansub = episodeInfo.getJSONObject(res).getString("fansub");
                         String kwikUrl = episodeInfo.getJSONObject(res).getString("kwik_pahewin");
                         VideoURLData videoURLData = new VideoURLData(fansub + " - " + res, kwikUrl, null);
-                        result.put(videoURLData.getTitle(), videoURLData);
-                        order += "," + fansub + " - " + res;
+                        result.add(videoURLData);
                         Log.d(TAG, fansub + " - " + res + " : " + kwikUrl);
                     }
                 }
@@ -90,10 +87,6 @@ public class AnimePaheExtractor extends AnimeScrapper{
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        if(!order.equals("dummy")) {
-            result.put("order", new VideoURLData("order", order, null));
-        }
-        return result;
     }
 
     @Override

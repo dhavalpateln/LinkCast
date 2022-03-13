@@ -16,14 +16,15 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.List;
 import java.util.Map;
 
 public class AdvancedSourceSelector extends DialogFragment {
 
-    private Map<String, VideoURLData> sources;
+    private List<VideoURLData> sources;
     private OnClickListener listener;
 
-    public AdvancedSourceSelector(Map<String, VideoURLData> sources, AdvancedSourceSelector.OnClickListener adClickListener) {
+    public AdvancedSourceSelector(List<VideoURLData> sources, AdvancedSourceSelector.OnClickListener adClickListener) {
         this.sources = sources;
         this.listener = adClickListener;
     }
@@ -46,14 +47,14 @@ public class AdvancedSourceSelector extends DialogFragment {
         View view = inflater.inflate(R.layout.advanced_source_selector_dialog, null);
         LinearLayout layout = view.findViewById(R.id.advancedSourceSelectorDialogLinearLayout);
         String[] order;
-        if(sources.containsKey("order")) {
+        /*if(sources.containsKey("order")) {
             order = sources.get("order").getUrl().split(",");
         }
         else {
             order = sources.keySet().toArray(new String[0]);
-        }
+        }*/
 
-        for(String source: order) {
+        for(VideoURLData source: sources) {
             if(source.equals("dummy")) {
                 continue;
             }
@@ -65,11 +66,11 @@ public class AdvancedSourceSelector extends DialogFragment {
             layoutParams.setMargins(10, 0, 10, 0);
             button.setLayoutParams(layoutParams);
             button.setPadding(10, 10, 10, 10);
-            button.setText(source);
+            button.setText(source.getTitle());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listener.onClick(AdvancedSourceSelector.this, sources.get(source));
+                    listener.onClick(AdvancedSourceSelector.this, source);
                 }
             });
             layout.addView(button);

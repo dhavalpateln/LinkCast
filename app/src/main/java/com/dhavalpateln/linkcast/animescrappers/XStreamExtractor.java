@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class XStreamExtractor extends AnimeScrapper {
@@ -33,8 +34,7 @@ public class XStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, VideoURLData> extractEpisodeUrls(String episodeUrl) {
-        Map<String, VideoURLData> result = new HashMap<>();
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
             String searchUrl = episodeUrl.replace("/f/", "/api/source/");
             Log.d(TAG, searchUrl);
@@ -49,12 +49,11 @@ public class XStreamExtractor extends AnimeScrapper {
                 con.connect();
                 String realURL = con.getHeaderField("Location").toString();
                 VideoURLData videoURLData = new VideoURLData("XStream - " + episode.getString("label"), realURL, null);
-                result.put(videoURLData.getTitle(), videoURLData);
+                result.add(videoURLData);
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     @Override
