@@ -41,6 +41,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
     private LinkDownloadListener listener;
     private String fileName;
     private String source;
+    private String referer;
     private long downloadID;
     private EditText fileNameEditText;
     private Spinner downloadTypeSpinner;
@@ -66,6 +67,14 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         this.source = source;
         this.fileName = fileName.substring(0,1).toUpperCase() + fileName.substring(1);
         this.listener = listener;
+        this.referer = null;
+    }
+
+    public LinkDownloadManagerDialog(String source, String fileName, String referer, LinkDownloadListener listener) {
+        this.source = source;
+        this.fileName = fileName.substring(0,1).toUpperCase() + fileName.substring(1);
+        this.listener = listener;
+        this.referer = referer;
     }
 
     @NonNull
@@ -127,9 +136,14 @@ public class LinkDownloadManagerDialog extends DialogFragment {
                             //.setDestinationUri(Uri.parse("/Network storage/RASPBERRYPI/pidisk1/" + fileName))
                             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "LinkCast/" + fileName)// Uri of the destination file
                             .setTitle(fileName)// Title of the Download Notification
-                            .setDescription("Downloading " + fileName)// Description of the Download Notificatio
+                            .setDescription("Downloading " + fileName)// Description of the Download Notification
                             .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
                             .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+
+                    if(referer != null) {
+                        request.addRequestHeader("Referer", referer);
+                    }
+
 
                     DownloadManager downloadManager= (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
 

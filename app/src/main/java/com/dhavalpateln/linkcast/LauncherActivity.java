@@ -1,11 +1,15 @@
 package com.dhavalpateln.linkcast;
 
+import static com.dhavalpateln.linkcast.utils.Utils.isInternetConnected;
+import static com.dhavalpateln.linkcast.utils.Utils.isNetworkAvailable;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
@@ -86,6 +90,13 @@ public class LauncherActivity extends AppCompatActivity {
 
             }
         });
+
+        if(!isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "No connection", Toast.LENGTH_LONG).show();
+            Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
+            startActivity(mainActivity);
+            finish();
+        }
     }
 
     @Override

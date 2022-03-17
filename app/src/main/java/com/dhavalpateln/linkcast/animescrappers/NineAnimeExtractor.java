@@ -180,21 +180,27 @@ public class NineAnimeExtractor extends AnimeScrapper {
                 );
 
                 String url = decryptURL(response.getString("url"), 6);
-                switch (dataSource) {
-                    case "41":
-                        break;
-                    case "28":
-                        break;
-                    case "43":
-                        break;
-                    case "40":
-                        StreamTapeExtractor extractor = new StreamTapeExtractor(url);
-                        extractor.extractEpisodeUrls(url, result);
-                        break;
-                    case "35":
-                        break;
-                    default:
-                        break;
+                AnimeScrapper extractor;
+                try {
+                    switch (dataSource) {
+                        case "41": // VIDSTREAM
+                        case "28": // MCLOUD
+                            extractor = new VidStreamExtractor(url);
+                            extractor.extractEpisodeUrls(url, result);
+                            break;
+                        case "43":
+                            break;
+                        case "40": // STREAMTAPE
+                            extractor = new StreamTapeExtractor(url);
+                            extractor.extractEpisodeUrls(url, result);
+                            break;
+                        case "35":
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } catch (JSONException | IOException e) {

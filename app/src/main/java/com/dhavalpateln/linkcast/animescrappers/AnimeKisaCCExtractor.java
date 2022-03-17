@@ -77,7 +77,7 @@ public class AnimeKisaCCExtractor extends AnimeScrapper {
 
 
                 try {
-                    VidStreamExtractor extractor = new VidStreamExtractor(downloadEpisodeLink);
+                    GogoPlayExtractor extractor = new GogoPlayExtractor(downloadEpisodeLink);
                     extractor.extractEpisodeUrls(downloadEpisodeLink, result);
                 } catch (Exception e) {
                     Log.e(TAG, "Error extracting vidstream");

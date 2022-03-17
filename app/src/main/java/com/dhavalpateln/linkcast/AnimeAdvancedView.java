@@ -324,7 +324,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
         map.put("DOWNLOAD", new CastDialog.OnClickListener() {
             @Override
             public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, animeTitleTextView.getText().toString() + " - " + animeEpisodeNumTextView.getText().toString() + ".mp4", new LinkDownloadManagerDialog.LinkDownloadListener() {
+                String referer = data.containsKey("Referer") ? data.get("Referer") : null;
+                LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, animeTitleTextView.getText().toString() + " - " + animeEpisodeNumTextView.getText().toString() + ".mp4", referer, new LinkDownloadManagerDialog.LinkDownloadListener() {
                     @Override
                     public void onDownloadComplete() {
                         Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
@@ -334,7 +335,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
                 castDialog.close();
             }
         });
-        CastDialog castDialog = new CastDialog("", url, map, null);
+        CastDialog castDialog = new CastDialog("", url, map, headers);
         castDialog.show(getSupportFragmentManager(), "CastDialog");
     }
 

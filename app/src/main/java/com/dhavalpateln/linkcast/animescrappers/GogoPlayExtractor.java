@@ -107,7 +107,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
                             String cryptoDataValue = decrypt(matcher.group(1));
                             String id = cryptoDataValue.split("&")[0];
                             String hostName = "https://" + uri.getHost();
-                            //hostName = "https://gogoplay.io";
+                            //hostName = "https://gogoplay4.com";
 
                             Uri vidStreamUri = new Uri.Builder()
                                     .appendPath("encrypt-ajax.php")
@@ -131,7 +131,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
                             for (int i = 0; i < vidSources.length(); i++) {
                                 JSONObject vidSource = vidSources.getJSONObject(i);
                                 if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://gogoplay.io/");
+                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://gogoplay4.com/");
                                     result.add(videoURLData);
                                     Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
                                 }

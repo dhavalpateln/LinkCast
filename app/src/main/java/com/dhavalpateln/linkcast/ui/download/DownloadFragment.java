@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DownloadFragment extends Fragment {
+
+    private String TAG = "DownloadFragment";
 
     private Map<String, MaterialCardView> viewMap;
 
@@ -63,7 +66,11 @@ public class DownloadFragment extends Fragment {
                 card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
                     @Override
                     public void onClick(String id, String title, String url, Map<String, String> data) {
-                        new File(url).delete();
+                        File fileToDelete = new File(url);
+                        fileToDelete.setWritable(true);
+                        boolean deleted = fileToDelete.delete();
+                        Log.d(TAG, "Deleted: " + deleted);
+                        Log.d(TAG, "IsFile: " + fileToDelete.isFile());
                         //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
                         linearLayout.removeView(viewMap.get(id));
                     }

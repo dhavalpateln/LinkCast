@@ -89,7 +89,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
             if (downloadEpisodeLink != null) {
                 downloadEpisodeLink = downloadEpisodeLink.replace("load.php", "download");
                 downloadEpisodeLink = downloadEpisodeLink.replace("download", "streaming.php");
-                downloadEpisodeLink = downloadEpisodeLink.replace("https://gogoplay1.com/", "https://gogoplay.io/");
+                downloadEpisodeLink = downloadEpisodeLink.replace("https://gogoplay1.com/", "https://gogoplay4.com/");
+                downloadEpisodeLink = downloadEpisodeLink.replace(Uri.parse(downloadEpisodeLink).getHost(), "gogoplay4.com");
                 Log.d(TAG, "Download Link:" + downloadEpisodeLink);
 
 

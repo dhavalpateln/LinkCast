@@ -95,7 +95,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
             try {
                 Element iframeElement = html.getElementsByTag("iframe").get(0);
                 String videStreamUrl = "https:" + iframeElement.attr("src");
-                VidStreamExtractor extractor = new VidStreamExtractor(videStreamUrl);
+                GogoPlayExtractor extractor = new GogoPlayExtractor(videStreamUrl);
                 extractor.extractEpisodeUrls(videStreamUrl, result);
             } catch (Exception e) {
                 Log.e(TAG, "error fetching vidstream urls");
