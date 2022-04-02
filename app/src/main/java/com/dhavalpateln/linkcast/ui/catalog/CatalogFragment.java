@@ -19,7 +19,16 @@ public class CatalogFragment extends Fragment {
 
     CatalogCollectionAdapter catalogCollectionAdapter;
     ViewPager2 viewPager;
-    public static final String[] CATALOG_TYPE = new String[] {"Watching", "Planned", "Completed", "All"};
+
+    public static class Catalogs {
+        public static final String WATCHING = "Watching";
+        public static final String PLANNED = "Planned";
+        public static final String COMPLETED = "Completed";
+        public static final String FAVORITE = "Fav";
+        public static final String ALL = "All";
+        public static final String[] BASIC_TYPES = {WATCHING, PLANNED, COMPLETED};
+        public static final String[] ALL_TYPES = {WATCHING, PLANNED, FAVORITE, COMPLETED, ALL};
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -35,7 +44,7 @@ public class CatalogFragment extends Fragment {
 
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
         new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> tab.setText(CATALOG_TYPE[position])
+                (tab, position) -> tab.setText(Catalogs.ALL_TYPES[position])
         ).attach();
     }
 
@@ -48,13 +57,13 @@ public class CatalogFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            CatalogObjectFragment fragment = CatalogObjectFragment.newInstance(CATALOG_TYPE[position]);
+            CatalogObjectFragment fragment = CatalogObjectFragment.newInstance(Catalogs.ALL_TYPES[position]);
             return fragment;
         }
 
         @Override
         public int getItemCount() {
-            return CATALOG_TYPE.length;
+            return Catalogs.ALL_TYPES.length;
         }
     }
 

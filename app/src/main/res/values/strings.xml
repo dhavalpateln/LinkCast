@@ -30,12 +30,9 @@
 
     <string-array name="source_list">
         <item>animekisa.tv</item>
-        <item>animekisa.cc</item>
-        <item>animixplay.to</item>
+        <item>gogoanime</item>
         <item>animepahe.com</item>
-        <item>streamani.net</item>
         <item>manga4life</item>
-        <item>mangadex</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

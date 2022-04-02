@@ -20,6 +20,9 @@ public class AnimeLinkData {
         public static final String DATA_EPISODE_NUM = "episodenumtext";
         public static final String DATA_ANIMEPAHE_SEARCH_ID = "pahesearchid";
         public static final String DATA_ANIMEPAHE_SESSION = "pahesession";
+        public static final String DATA_FAVORITE = "fav";
+        public static final String DATA_SOURCE = "source";
+        public static final String DATA_MYANIMELIST_ID = "malid";
     }
 
     public String getTitle() {
@@ -44,6 +47,44 @@ public class AnimeLinkData {
             this.data.put("status", "Planned");
         }
         return data;
+    }
+
+    public String getAnimeMetaData(String key) {
+        if(getData().containsKey(key))  return getData().get(key);
+        switch (key) {
+            case DataContract.DATA_FAVORITE:
+                return "false";
+            case DataContract.DATA_STATUS:
+                return "Planned";
+            case DataContract.DATA_SOURCE:
+                return "";
+            case DataContract.DATA_EPISODE_NUM:
+                return "Episode - 0";
+            default:
+                return null;
+        }
+    }
+
+    public void updateData(String key, String value) {
+        updateData(key, value, true);
+    }
+
+    public void updateData(String key, String value, boolean updateFirebase) {
+        getData().put(key, value);
+        if(updateFirebase && getId() != null) {
+            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(getId()).child("data").child(key).setValue(value);
+        }
+    }
+
+    public void updateAll() {
+        Map<String, Object> update = new HashMap<>();
+        update.put(id + "/title", getTitle());
+        update.put(id + "/url", getUrl());
+
+        for(String key: getData().keySet()) {
+            update.put(id + "/data/" + key, getData().get(key));
+        }
+        FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().updateChildren(update);
     }
 
     public void setData(Map<String, String> data) {

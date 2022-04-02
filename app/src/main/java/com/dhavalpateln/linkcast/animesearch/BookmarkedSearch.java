@@ -13,7 +13,7 @@ public class BookmarkedSearch extends AnimeSearch {
         ArrayList<AnimeLinkData> result = new ArrayList<>();
         if(this.data != null) {
             for (AnimeLinkData animeLinkData : this.data) {
-                if (animeLinkData.getTitle().toLowerCase().contains(term)) {
+                if ((animeLinkData.getTitle() + " (" + animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE) + ")").toLowerCase().contains(term)) {
                     result.add(animeLinkData);
                 }
             }

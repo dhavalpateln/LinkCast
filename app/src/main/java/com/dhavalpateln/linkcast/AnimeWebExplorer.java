@@ -14,6 +14,7 @@ import com.dhavalpateln.linkcast.animesources.AnimeUltima;
 import com.dhavalpateln.linkcast.animesources.Animixplay;
 import com.dhavalpateln.linkcast.animesources.FourAnime;
 import com.dhavalpateln.linkcast.animesources.GenericSource;
+import com.dhavalpateln.linkcast.animesources.GogoAnime;
 import com.dhavalpateln.linkcast.animesources.KwikCX;
 import com.dhavalpateln.linkcast.animesources.NineAnime;
 import com.dhavalpateln.linkcast.animesources.StreamAni;
@@ -171,6 +172,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         animeSourceMap.put("streamani.net", new StreamAni());
         animeSourceMap.put("kwik.cx", new KwikCX());
         animeSourceMap.put("sbplay.org", new StreamSB());
+        animeSourceMap.put(ProvidersData.GOGOANIME.NAME, new GogoAnime());
 
 
 
@@ -296,11 +298,13 @@ public class AnimeWebExplorer extends AppCompatActivity {
                     finish();
                     return true;
                 }
+                if(!animeSource.shouldOverrideURL(url)) return true;
                 // This is my website, so do not override; let my WebView load the page
                 currentWebViewURI = url;
                 view.loadUrl(url);
                 mp4sFound = new HashSet<>();
                 return false;
+
             }
             if(getIntent().hasExtra("scrapper") && getIntent().getStringExtra("scrapper").equals("AnimePahe.com")) {
                 currentWebViewURI = url;

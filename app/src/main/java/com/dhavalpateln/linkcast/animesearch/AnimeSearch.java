@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +42,18 @@ public abstract class AnimeSearch {
         }
         String result = out.toString();
         return result;
+    }
+
+    public int getHttpResponseCode(String urlString) throws IOException {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(3000);
+            configConnection(urlConnection);
+            return urlConnection.getResponseCode();
+        } catch (SocketTimeoutException e) {
+            return 408;
+        }
     }
 
     public boolean isMangeSource() {return false;}

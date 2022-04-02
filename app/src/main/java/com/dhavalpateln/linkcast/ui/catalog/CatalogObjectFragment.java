@@ -27,13 +27,11 @@ import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +48,7 @@ public class CatalogObjectFragment extends Fragment {
 
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
+    private String tabName;
     private ArrayList<AnimeLinkData> data;
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
@@ -97,7 +95,9 @@ public class CatalogObjectFragment extends Fragment {
         public void onBindViewHolder(@NonNull RecyclerViewAdapter.RecyclerViewHolder holder, int position) {
             // Set the data to textview and imageview.
             AnimeLinkData recyclerData = episodeDataArrayList.get(position);
-            holder.episodeNumTextView.setText(recyclerData.getTitle());
+            String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
+            holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
+            //holder.sourceTextView.setText(recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
             holder.openButton.setOnClickListener(v -> {
                 Intent intent = new Intent(getContext(), AnimeWebExplorer.class);
                 if(recyclerData.getData() != null) {
@@ -153,6 +153,7 @@ public class CatalogObjectFragment extends Fragment {
         public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
             private TextView episodeNumTextView;
+            private TextView sourceTextView;
             private ImageView animeImageView;
             private Button openButton;
             private Button deleteButton;
@@ -163,6 +164,7 @@ public class CatalogObjectFragment extends Fragment {
                 super(itemView);
                 this.mainLayout = (ConstraintLayout) itemView;
                 this.episodeNumTextView = itemView.findViewById(R.id.catalog_recycler_object_text_view);
+                this.sourceTextView = itemView.findViewById(R.id.catalog_recycler_object_source_text_view);
                 this.animeImageView = itemView.findViewById(R.id.anime_image_view);
                 this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
                 this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);
@@ -175,7 +177,7 @@ public class CatalogObjectFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            tabName = getArguments().getString(ARG_PARAM1);
         }
     }
 
@@ -206,13 +208,25 @@ public class CatalogObjectFragment extends Fragment {
                 for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
                     AnimeLinkData animeLinkData = entry.getValue();
                     animeLinkData.setId(entry.getKey());
-                    if (!animeLinkData.getData().containsKey("status")) {
-                        animeLinkData.getData().put("status", "Planned");
+                    if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_STATUS)) {
+                        animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_STATUS, "Planned");
+                    }
+                    if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_FAVORITE)) {
+                        animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_FAVORITE, "false");
                     }
 
-                    if (mParam1.equals("All") || mParam1.equalsIgnoreCase(animeLinkData.getData().get("status"))) {
+                    if(tabName.equals(CatalogFragment.Catalogs.ALL) ||
+                        tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
+                        (tabName.equals(CatalogFragment.Catalogs.FAVORITE) &&
+                                animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
                         data.add(entry.getValue());
                     }
+
+                    /*if (tabName.equals("All") ||
+                            tabName.equalsIgnoreCase(animeLinkData.getData().get("status")) ||
+                            (tabName.equals("FAV") && animeLinkData.getData().get(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
+                        data.add(entry.getValue());
+                    }*/
 
                 }
                 adapter.notifyDataSetChanged();

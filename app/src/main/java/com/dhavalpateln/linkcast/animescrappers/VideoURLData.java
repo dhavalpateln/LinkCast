@@ -1,14 +1,20 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VideoURLData {
     private String title;
     private String url;
     private String referer;
+    private Map<String, String> headers;
 
     public VideoURLData(String title, String url, String referer) {
         this.title = title;
         this.url = url;
         this.referer = referer;
+        headers = new HashMap<>();
+        if(hasReferer()) headers.put("Referer", this.referer);
     }
 
     public String getTitle() {
@@ -38,4 +44,8 @@ public class VideoURLData {
     public boolean hasReferer() {
         return this.referer != null;
     }
+
+    public void addHeader(String key, String value) { this.headers.put(key, value); }
+
+    public Map<String, String> getHeaders() { return this.headers; }
 }

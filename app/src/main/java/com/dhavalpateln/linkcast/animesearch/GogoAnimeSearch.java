@@ -46,6 +46,7 @@ public class GogoAnimeSearch extends AnimeSearch {
                 Map<String, String> data = new HashMap<>();
                 data.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, imgTag.attr("src"));
                 data.put(AnimeLinkData.DataContract.DATA_MODE, "advanced");
+                data.put(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.GOGOANIME.NAME);
                 animeLinkData.setData(data);
                 result.add(animeLinkData);
             }

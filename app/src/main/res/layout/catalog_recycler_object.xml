@@ -38,40 +38,56 @@
         <TextView
             android:id="@+id/catalog_recycler_object_text_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintBottom_toTopOf="@id/catalog_recycler_object_source_text_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/catalog_recycler_object_source_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintTop_toBottomOf="@+id/catalog_recycler_object_text_view"
+            tools:layout_editor_absoluteX="4dp" />
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="@+id/catalog_recycler_object_text_view"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="4dp">
 
             <Button
                 android:id="@+id/open_button_catalog_recycler"
-                android:text="OPEN"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="OPEN" />
 
             <Button
                 android:id="@+id/delete_button_catalog_recycler"
-                android:text="DELETE"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="DELETE" />
 
             <Button
                 android:id="@+id/edit_button_catalog_recycler"
-                android:text="EDIT"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="EDIT" />
 
         </LinearLayout>
 

@@ -47,7 +47,7 @@ public class BookmarkLinkDialog extends DialogFragment {
         bookmarkEditText.setText(bookmarkLinkTitle);
 
         ArrayAdapter<String> spinnerContent = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item);
-        for(String status: CatalogFragment.CATALOG_TYPE) {
+        for(String status: CatalogFragment.Catalogs.BASIC_TYPES) {
             if(!status.toLowerCase().equals("all")) {
                 spinnerContent.add(status);
             }

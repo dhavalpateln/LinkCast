@@ -33,6 +33,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
     private final String BASE64_TABLE = "0wMrYU+ixjJ4QdzgfN2HlyIVAt3sBOZnCT9Lm7uFDovkb/EaKpRWhqXS5168ePcG";
     private final String NORMAL_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private Map<Character, Character> tableMap;
+    private String nineAnimeBaseUrl;
 
     public NineAnimeExtractor(String baseUrl) {
         super(baseUrl);
@@ -137,6 +138,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
 
     @Override
     public Map<String, String> getEpisodeList(String episodeListUrl) {
+        updateBaseUrl();
         Map<String, String> result = new HashMap<>();
         try {
             Pattern slugPattern = Pattern.compile("/watch/[^&?/]+\\.(.*?)$");
@@ -149,7 +151,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
                         .build();
 
                 JSONObject responseContent = new JSONObject(getHttpContent(
-                        ProvidersData.NINEANIME.URL + "/ajax/anime/servers" + uri.toString()));
+                        nineAnimeBaseUrl + "/ajax/anime/servers" + uri.toString()));
 
                 Document html = Jsoup.parse(responseContent.getString("html"));
                 Elements episodes = html.select("a[title][data-sources][data-base]");
@@ -165,8 +167,28 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return result;
     }
 
+    public void updateBaseUrl() {
+        try {
+            if(nineAnimeBaseUrl == null) {
+                nineAnimeBaseUrl = ProvidersData.NINEANIME.URL;
+                if(getHttpResponseCode(nineAnimeBaseUrl) != 200) {
+                    for(String url: ProvidersData.NINEANIME.ALTERNATE_URLS) {
+                        if(getHttpResponseCode(url) == 200) {
+                            Log.d(TAG, "Using alternate url: " + url);
+                            nineAnimeBaseUrl = url;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
+        updateBaseUrl();
         try {
             Document doc = Jsoup.parse(episodeUrl);
             JSONObject dataSources = new JSONObject(doc.getElementsByTag("a").get(0).attr("data-sources"));
@@ -176,7 +198,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
                 String dataHash = dataSources.getString(dataSource);
 
                 JSONObject response = new JSONObject(
-                        getHttpContent(ProvidersData.NINEANIME.URL + "/ajax/anime/episode?id=" + Uri.encode(dataHash))
+                        getHttpContent(nineAnimeBaseUrl + "/ajax/anime/episode?id=" + Uri.encode(dataHash))
                 );
 
                 String url = decryptURL(response.getString("url"), 6);

@@ -20,6 +20,7 @@ public abstract class AnimeSource {
         return animeSource;
     }
     public String getLastCheckedUrl() { return null; }
+    public boolean shouldOverrideURL(String url) {return true;}
 
     public void updateLastTitle(String title) { this.lastTitle = title; }
     public String getLastTitle() { return this.lastTitle; }

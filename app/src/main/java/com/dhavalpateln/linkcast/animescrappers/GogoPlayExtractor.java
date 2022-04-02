@@ -29,8 +29,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class GogoPlayExtractor extends AnimeScrapper {
     private String TAG = "VidStream";
-    private String GOGOANIME_SECRET = "25716538522938396164662278833288";
-    private String GOGOANIME_IV = "1285672985238393";
+    private String GOGOANIME_SECRET = "63976882873559819639988080820907";
+    private String GOGOANIME_IV = "4770478969418267";
     private String CUSTOM_PADDER = "\u0008\u000e\u0003\u0008\t\u0003\u0004\t";
 
     public GogoPlayExtractor(String baseUrl) {
@@ -48,10 +48,14 @@ public class GogoPlayExtractor extends AnimeScrapper {
     }
 
     private String pad(String s) {
-        int lastChars = CUSTOM_PADDER.length() - (s.length() % 16);
+        /*int lastChars = CUSTOM_PADDER.length() - (s.length() % 16);
         if(lastChars < 0) lastChars *= -1;
         if(s.length() == 8) lastChars = CUSTOM_PADDER.length();
-        return s + CUSTOM_PADDER.substring(CUSTOM_PADDER.length() - lastChars);
+        return s + CUSTOM_PADDER.substring(CUSTOM_PADDER.length() - lastChars);*/
+        char padChar = (char) (s.length() % 16);
+        int padLength = 16 - (s.length() % 16);
+        for(int i = 0; i < padLength; i++) s += padChar;
+        return s;
     }
 
     private String encrypt(String data) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
@@ -98,10 +102,10 @@ public class GogoPlayExtractor extends AnimeScrapper {
             try {
                 Uri uri = Uri.parse(episodeUrl);
                 String htmlContent = getHttpContent(episodeUrl);
-                Pattern dataValuePattern = Pattern.compile("data-name=\"crypto\" data-value=\"(.*)\"");
+                Pattern dataValuePattern = Pattern.compile("data-name=\"episode\" data-value=\"(.*)\"");
 
                 for(String line: htmlContent.split("\n")) {
-                    if(line.contains("data-name=\"crypto\"")) {
+                    if(line.contains("data-name=\"episode\"")) {
                         Matcher matcher = dataValuePattern.matcher(line);
                         if (matcher.find()) {
                             String cryptoDataValue = decrypt(matcher.group(1));
@@ -131,7 +135,8 @@ public class GogoPlayExtractor extends AnimeScrapper {
                             for (int i = 0; i < vidSources.length(); i++) {
                                 JSONObject vidSource = vidSources.getJSONObject(i);
                                 if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://gogoplay4.com/");
+                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(baseUrl).getHost() + "/");
+                                    videoURLData.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
                                     result.add(videoURLData);
                                     Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
                                 }

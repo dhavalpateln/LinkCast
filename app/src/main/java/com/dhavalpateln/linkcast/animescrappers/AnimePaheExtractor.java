@@ -78,7 +78,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
                         String res = it.next();
                         String fansub = episodeInfo.getJSONObject(res).getString("fansub");
                         String kwikUrl = episodeInfo.getJSONObject(res).getString("kwik_pahewin");
-                        VideoURLData videoURLData = new VideoURLData(fansub + " - " + res, kwikUrl, null);
+                        VideoURLData videoURLData = new VideoURLData(fansub + " - " + res, kwikUrl, "https://kwik.cx/");
                         result.add(videoURLData);
                         Log.d(TAG, fansub + " - " + res + " : " + kwikUrl);
                     }

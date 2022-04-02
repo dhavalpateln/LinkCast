@@ -36,6 +36,7 @@ import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
+import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimixPlaySearch;
@@ -65,6 +66,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private String TAG = "AnimeSearch";
     private BookmarkedSearch bookmarkedSearch;
     private ArrayList<AnimeLinkData> filteredData;
+    private ExtractSearchResult extractSearchResult;
 
     private String currentSource = "SAVED";
 
@@ -99,6 +101,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
             // Set the data to textview and imageview.
             AnimeLinkData recyclerData = episodeDataArrayList.get(position);
             holder.episodeNumTextView.setText(recyclerData.getTitle());
+            if(recyclerData.getId() != null) {
+                String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
+                holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
+            }
             holder.openButton.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
                 if(recyclerData.getData() != null) {
@@ -205,6 +211,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         searchers = new HashMap<>();
         searchers.put("animekisa.tv", new AnimeKisaSearch());
+        searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
         searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch());
         searchers.put("animepahe.com", new AnimePaheSearch());
@@ -212,11 +219,12 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put("manga4life", new MangaFourLife());
 
         String[] order = new String[] {
-                "animekisa.tv",
+                //ProvidersData.ANIMEKISASITE.NAME,
                 ProvidersData.GOGOANIME.NAME,
                 ProvidersData.NINEANIME.NAME,
                 "animepahe.com",
                 "animixplay.to",
+                "animekisa.tv",
                 "manga4life"
         };
 
@@ -315,6 +323,12 @@ public class AnimeSearchActivity extends AppCompatActivity {
             result = animeSearcher.search(searchTerm);
             return result;
         }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            updateRecyclerData(new ArrayList<>());
+        }
     }
 
     public void search() {
@@ -324,7 +338,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
     public void search(boolean skipIfNoQuickSearch) {
         AnimeSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
         if(searcher.hasQuickSearch()) {
-            ExtractSearchResult extractSearchResult = new ExtractSearchResult();
+            if(extractSearchResult != null) {
+                extractSearchResult.cancel(true);
+            }
+            extractSearchResult = new ExtractSearchResult();
             extractSearchResult.execute(searchEditText.getText().toString(), sourceSpinner.getSelectedItem().toString());
         }
         else if(!skipIfNoQuickSearch){

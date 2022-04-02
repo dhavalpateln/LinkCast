@@ -9,6 +9,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -93,10 +94,31 @@ public class GogoAnimeExtractor extends AnimeScrapper {
         try {
             Document html = Jsoup.parse(getHttpContent(episodeUrl));
             try {
-                Element iframeElement = html.getElementsByTag("iframe").get(0);
-                String videStreamUrl = "https:" + iframeElement.attr("src");
-                GogoPlayExtractor extractor = new GogoPlayExtractor(videStreamUrl);
-                extractor.extractEpisodeUrls(videStreamUrl, result);
+                //Element iframeElement = html.getElementsByTag("iframe").get(0);
+                //String videStreamUrl = "https:" + iframeElement.attr("src");
+                //GogoPlayExtractor extractor = new GogoPlayExtractor(videStreamUrl);
+                //extractor.extractEpisodeUrls(videStreamUrl, result);
+
+                Elements sources = html.select("a[data-video]");
+                for(Element sourceLink: sources) {
+                    String sourceName = sourceLink.text()
+                            .replace(sourceLink.getElementsByTag("span").get(0).text(), "")
+                            .toLowerCase();
+                    String link = sourceLink.attr("data-video");
+                    AnimeScrapper extractor = null;
+                    switch (sourceName) {
+                        case "vidstreaming":
+                            link = "https:" + link;
+                            extractor = new GogoPlayExtractor(link);
+                            break;
+                        case "streamsb":
+                            extractor = new StreamSBExtractor(link);
+                            break;
+                    }
+                    if(extractor != null) {
+                        extractor.extractEpisodeUrls(link, result);
+                    }
+                }
             } catch (Exception e) {
                 Log.e(TAG, "error fetching vidstream urls");
             }
@@ -109,6 +131,10 @@ public class GogoAnimeExtractor extends AnimeScrapper {
 
     @Override
     public Map<String, String> extractData(AnimeLinkData data) {
+        if(data.getTitle() == null) {
+            String[] urlsplit = data.getUrl().split("/");
+            data.setTitle(urlsplit[urlsplit.length - 1].replace("-", " "));
+        }
         data.setTitle(data.getTitle().replace("(" + getDisplayName() + ")", ""));
         setData("animeTitle", data.getTitle());
         setData(AnimeLinkData.DataContract.DATA_IMAGE_URL, data.getData().get(AnimeLinkData.DataContract.DATA_IMAGE_URL));
