@@ -18,8 +18,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.status.StatusActivity"
-            android:exported="false" />
+            android:name=".myanimelist.MyAnimelistInfoActivity"
+            android:exported="false"
+            android:label="@string/title_activity_my_animelist_info"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AnimeSearchActivity"
             android:exported="false" />

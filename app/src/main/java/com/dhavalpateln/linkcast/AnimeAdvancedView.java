@@ -45,6 +45,7 @@ import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
 import com.google.android.exoplayer2.MediaItem;
@@ -666,6 +667,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Match not found", Toast.LENGTH_LONG).show();
             return;
         }
-
+        Intent intent = new Intent(this, MyAnimelistInfoActivity.class);
+        intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, selectedMyAnimelistAnimeData);
+        startActivity(intent);
     }
 }
