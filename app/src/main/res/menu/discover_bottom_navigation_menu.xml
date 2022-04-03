@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/discover_seasonal"
+        android:enabled="true"
+        android:icon="@drawable/ic_calendar"
+        android:title="Seasonal" />
+
+    <item
+        android:id="@+id/discover_popular"
+        android:enabled="true"
+        android:icon="@drawable/ic_star"
+        android:title="Popular" />
+</menu>

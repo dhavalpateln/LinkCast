@@ -22,8 +22,15 @@ public class MyAnimelistAnimeData implements Serializable {
         this.images = new ArrayList<>();
     }
 
+    public MyAnimelistAnimeData() {
+        this(0);
+    }
+
     public int getId() {
         return id;
+    }
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -40,6 +47,12 @@ public class MyAnimelistAnimeData implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+        if(getId() <= 0) {
+            try {
+                String[] urlSplit = url.split("/");
+                setId(Integer.valueOf(urlSplit[urlSplit.length - 2]));
+            } catch (Exception e) {}
+        }
     }
 
     public String[] getAlternateTitles() {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -205,9 +206,9 @@ public class AnimeSearchActivity extends AppCompatActivity {
         bookmarkedSearch = new BookmarkedSearch();
         filteredData = new ArrayList<>();
 
-        ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_item);
-        sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item);
         sourceSpinnerAdapter.add(bookmarkedSearch.getName());
+        sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         searchers = new HashMap<>();
         searchers.put("animekisa.tv", new AnimeKisaSearch());
@@ -282,6 +283,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
         sourceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView selectedText = (TextView) adapterView.getChildAt(0);
+                if (selectedText != null) {
+                    selectedText.setTextColor(Color.WHITE);
+                }
                 search(true);
                 if(!searchers.get(sourceSpinner.getSelectedItem().toString()).hasQuickSearch()) {
                     Toast.makeText(getApplicationContext(), "Use Search button for this source", Toast.LENGTH_LONG).show();

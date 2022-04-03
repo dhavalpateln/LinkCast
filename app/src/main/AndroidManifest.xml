@@ -37,14 +37,19 @@
             android:name=".AnimeAdvancedView"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".manga.MangaReaderActivity" />
-        <activity android:name=".MangaWebExplorer" />
-        <activity android:name=".ui.RemoteCodeActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false"/>
+        <activity android:name=".manga.MangaReaderActivity"
+            android:exported="false"/>
+        <activity android:name=".MangaWebExplorer"
+            android:exported="false"/>
+        <activity android:name=".ui.RemoteCodeActivity"
+            android:exported="false"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -60,8 +65,10 @@
         <activity
             android:name=".AnimeWebExplorer"
             android:label="@string/title_activity_anime_web_explorer"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MALReceiverActivity">
+        <activity android:name=".MALReceiverActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -70,7 +77,8 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".UpdateActivity" />
+        <activity android:name=".UpdateActivity"
+            android:exported="false"/>
 
         <service
             android:name=".services.FirebaseNotificationService"
@@ -81,7 +89,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".LauncherActivity">
+        <activity android:name=".LauncherActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -91,8 +100,10 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MediaReceiver">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false"/>
+        <activity android:name=".MediaReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

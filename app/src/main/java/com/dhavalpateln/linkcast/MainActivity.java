@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView displayNameTextView;
     private TextView emailTextView;
     private ImageView profileImageView;
-    private SearchDialog searchDialog;
-    private Set<String> mangaSourceList;
-    private Set<String> advancedSearchSourceList;
 
     private void checkAndRequestPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(
@@ -77,66 +74,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
 
         checkAndRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, 100);
         checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, 101);
 
         FirebaseDBHelper.getAppMetricsLastAccessedLinkRef().setValue(Utils.getCurrentTime());
 
-        mangaSourceList = new HashSet<>();//;
-        mangaSourceList.add("mangadex");
-        mangaSourceList.add("manga4life");
-
-        advancedSearchSourceList = new HashSet<>();
-        advancedSearchSourceList.add("animepahe.com");
-
-        searchDialog = new SearchDialog();
-        searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
-            @Override
-            public void onSearchButtonClicked(String searchString, String source, boolean advancedMode) {
-                Intent searchIntent;
-                if(mangaSourceList.contains(source)) {
-                    searchIntent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-                }
-                else if(false && advancedMode && advancedSearchSourceList.contains(source)) {
-                    searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
-                }
-                else {
-                    searchIntent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                }
-                searchIntent.putExtra("search", searchString);
-                searchIntent.putExtra("source", source);
-                searchIntent.putExtra("advancedMode", advancedMode);
-                startActivity(searchIntent);
-            }
-        });
-
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                //Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
-                Intent searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
-                searchIntent.putExtra("search", "");
-                searchIntent.putExtra("source", "SAVED");
-                searchIntent.putExtra("advancedMode", true);
-                startActivity(searchIntent);
-                return false;
-            }
-        });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                searchDialog.show(getSupportFragmentManager(), "Search");
-            }
-        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
+                R.id.nav_home, R.id.nav_discover, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
                 /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();
