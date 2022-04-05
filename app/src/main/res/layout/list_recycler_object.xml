@@ -14,7 +14,7 @@
     >
 
     <ImageView
-        android:id="@+id/anime_image_view"
+        android:id="@+id/list_object_image_view"
         android:layout_width="99dp"
         android:layout_height="match_parent"
         android:padding="2dp"
@@ -32,63 +32,38 @@
         android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/anime_image_view"
+        app:layout_constraintStart_toEndOf="@+id/list_object_image_view"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/catalog_recycler_object_text_view"
+            android:id="@+id/list_object_title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/catalog_recycler_object_source_text_view"
+            app:layout_constraintBottom_toTopOf="@id/list_object_subtext_text_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/catalog_recycler_object_source_text_view"
+            android:id="@+id/list_object_subtext_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-            app:layout_constraintTop_toBottomOf="@+id/catalog_recycler_object_text_view"
+            app:layout_constraintBottom_toTopOf="@+id/list_object_buttons_holder_linearlayout"
+            app:layout_constraintTop_toBottomOf="@+id/list_object_title_text_view"
             tools:layout_editor_absoluteX="4dp" />
 
         <LinearLayout
-            android:id="@+id/linearLayout"
+            android:id="@+id/list_object_buttons_holder_linearlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="4dp">
-
-            <Button
-                android:id="@+id/open_button_catalog_recycler"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="OPEN" />
-
-            <Button
-                android:id="@+id/delete_button_catalog_recycler"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="DELETE" />
-
-            <Button
-                android:id="@+id/edit_button_catalog_recycler"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="EDIT" />
-
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

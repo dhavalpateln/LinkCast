@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+
 public class MyAnimelistAnimeData implements Serializable {
     private int id;
     private String title;
@@ -87,5 +89,13 @@ public class MyAnimelistAnimeData implements Serializable {
 
     public void addImage(String imageURL) {
         if(!this.images.contains(imageURL))  this.images.add(imageURL);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(obj != null && obj instanceof MyAnimelistAnimeData) {
+            return ((MyAnimelistAnimeData) obj).getId() == getId();
+        }
+        return false;
     }
 }

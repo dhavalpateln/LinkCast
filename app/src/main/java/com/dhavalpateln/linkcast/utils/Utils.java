@@ -16,6 +16,13 @@ public class Utils {
         return formattedDate;
     }
 
+    public static String getCurrentTime(String pattern) {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat(pattern);
+        String formattedDate = df.format(c.getTime());
+        return formattedDate;
+    }
+
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();

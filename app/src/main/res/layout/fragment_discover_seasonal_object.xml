@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.discover.ui.popular.DiscoverPopularFragmentObject">
+    tools:context=".ui.discover.ui.seasonal.DiscoverSeasonalFragmentObject">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,37 +15,24 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/discover_popular_prev_button"
-                android:text="PREV"
+                android:id="@+id/discover_seasonal_type_button"
+                android:text="TV"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.Button.TextButton" />
 
             <TextView
-                android:id="@+id/discover_popular_current_list_text_view"
+                android:id="@+id/discover_seasonal_season_text_view"
                 android:textAlignment="center"
-                android:text="1 - 50"
-                android:layout_width="0dp"
+                android:text="Season YYYY"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
-            <ProgressBar
-                android:id="@+id/discover_popular_load_progress_bar"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content" />
-            <Button
-                android:id="@+id/discover_popular_next_button"
-                android:text="NEXT"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton" />
 
         </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/discover_popular_recycler_view"
+            android:id="@+id/discover_seasonal_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

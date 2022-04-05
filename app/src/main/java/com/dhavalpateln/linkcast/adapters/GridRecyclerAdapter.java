@@ -16,17 +16,17 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAdapter.ListRecyclerViewHolder> {
+public class GridRecyclerAdapter<T> extends RecyclerView.Adapter<GridRecyclerAdapter.GridRecyclerViewHolder> {
 
     public interface RecyclerInterface<T> {
-        void onBindView(ListRecyclerAdapter.ListRecyclerViewHolder holder, int position, T data);
+        void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, T data);
     }
 
     private List<T> dataArrayList;
     private Context mcontext;
     private RecyclerInterface recyclerInterface;
 
-    public ListRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext, RecyclerInterface recyclerInterface) {
+    public GridRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext, RecyclerInterface recyclerInterface) {
         this.dataArrayList = recyclerDataArrayList;
         this.mcontext = mcontext;
         this.recyclerInterface = recyclerInterface;
@@ -34,14 +34,14 @@ public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAda
 
     @NonNull
     @Override
-    public ListRecyclerAdapter.ListRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public GridRecyclerAdapter.GridRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_recycler_object, parent, false);
-        return new ListRecyclerAdapter.ListRecyclerViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_recycler_object, parent, false);
+        return new GridRecyclerAdapter.GridRecyclerViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListRecyclerAdapter.ListRecyclerViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull GridRecyclerAdapter.GridRecyclerViewHolder holder, int position) {
         // Set the data to textview and imageview.
         this.recyclerInterface.onBindView(holder, position, dataArrayList.get(position));
     }
@@ -53,21 +53,19 @@ public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAda
     }
 
     // View Holder Class to handle Recycler View.
-    public class ListRecyclerViewHolder extends RecyclerView.ViewHolder {
+    public class GridRecyclerViewHolder extends RecyclerView.ViewHolder {
 
         public TextView subTextTextView;
         public TextView titleTextView;
         public ImageView imageView;
-        public LinearLayout buttonHolder;
         public ConstraintLayout mainLayout;
 
-        public ListRecyclerViewHolder(@NonNull View itemView) {
+        public GridRecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             this.mainLayout = (ConstraintLayout) itemView;
-            this.subTextTextView = itemView.findViewById(R.id.list_object_subtext_text_view);
-            this.titleTextView = itemView.findViewById(R.id.list_object_title_text_view);
-            this.buttonHolder = itemView.findViewById(R.id.list_object_buttons_holder_linearlayout);
-            this.imageView = itemView.findViewById(R.id.list_object_image_view);
+            this.subTextTextView = itemView.findViewById(R.id.grid_object_subtext_text_view);
+            this.titleTextView = itemView.findViewById(R.id.grid_object_title_text_view);
+            this.imageView = itemView.findViewById(R.id.grid_object_image_view);
         }
     }
 }

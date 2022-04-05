@@ -22,8 +22,22 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class DiscoverPopularFragment extends Fragment {
 
-    private PopularViewModel.TYPE[] tabs = {PopularViewModel.TYPE.TOP_AIRING, PopularViewModel.TYPE.TOP_UPCOMING};
-    private String[] tabTitles = {"Airing", "Upcoming"};
+    private PopularViewModel.TYPE[] tabs = {
+            PopularViewModel.TYPE.TOP_AIRING,
+            PopularViewModel.TYPE.TOP_UPCOMING,
+            PopularViewModel.TYPE.TOP_TV_SERIES,
+            PopularViewModel.TYPE.TOP_MOVIES,
+            PopularViewModel.TYPE.POPULAR,
+            PopularViewModel.TYPE.FAVORITE
+    };
+    private String[] tabTitles = {
+            "Airing",
+            "Upcoming",
+            "TV",
+            "Movies",
+            "Popular",
+            "Favorite"
+    };
 
     public DiscoverPopularFragment() {
         // Required empty public constructor

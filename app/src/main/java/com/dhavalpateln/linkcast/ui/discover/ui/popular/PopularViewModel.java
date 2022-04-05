@@ -26,7 +26,11 @@ public class PopularViewModel extends ViewModel {
 
     public enum TYPE {
         TOP_AIRING,
-        TOP_UPCOMING
+        TOP_UPCOMING,
+        TOP_TV_SERIES,
+        TOP_MOVIES,
+        POPULAR,
+        FAVORITE
     }
 
     Map<TYPE, MutableLiveData<List<MyAnimelistAnimeData>>> liveDataMap;
@@ -51,6 +55,14 @@ public class PopularViewModel extends ViewModel {
                 malURL += "airing"; break;
             case TOP_UPCOMING:
                 malURL += "upcoming"; break;
+            case TOP_MOVIES:
+                malURL += "movie"; break;
+            case TOP_TV_SERIES:
+                malURL += "tv"; break;
+            case POPULAR:
+                malURL += "bypopularity"; break;
+            case FAVORITE:
+                malURL += "favorite"; break;
         }
         malURL += "&limit=" + limit;
         return malURL;
