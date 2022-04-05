@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.ui.discover.ui.genre.DiscoverGenreFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.DiscoverPopularFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.DiscoverSeasonalFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -22,6 +23,7 @@ public class DiscoverFragment extends Fragment {
     private NavigationBarView bottomNavigationView;
     private DiscoverSeasonalFragment discoverSeasonalFragment = DiscoverSeasonalFragment.newInstance();
     private DiscoverPopularFragment discoverPopularFragment = DiscoverPopularFragment.newInstance();
+    private DiscoverGenreFragment discoverGenreFragment = DiscoverGenreFragment.newInstance();
 
     public DiscoverFragment() {
         // Required empty public constructor
@@ -52,6 +54,9 @@ public class DiscoverFragment extends Fragment {
                         return true;
                     case R.id.discover_popular:
                         getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverPopularFragment).commit();
+                        return true;
+                    case R.id.discover_genre:
+                        getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverGenreFragment).commit();
                         return true;
                 }
                 return false;

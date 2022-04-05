@@ -222,6 +222,13 @@ public class AnimeAdvancedView extends AppCompatActivity {
             animeData.setTitle(calledIntent.getStringExtra("title").split("\\(")[0]);
         }
 
+        if(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_URL) != null) {
+            selectedMyAnimelistAnimeData = new MyAnimelistAnimeData();
+            selectedMyAnimelistAnimeData.setUrl(animeData.getAnimeMetaData(
+                    AnimeLinkData.DataContract.DATA_MYANIMELIST_URL
+            ));
+        }
+
         episodeListData = new ArrayList<>();
         adapter = new RecyclerViewAdapter(episodeListData,this);
 
@@ -569,6 +576,16 @@ public class AnimeAdvancedView extends AppCompatActivity {
                             selectedMyAnimelistAnimeData = myAnimelistAnimeData;
                             break;
                         }
+                    }
+                    if(selectedMyAnimelistAnimeData != null) {
+                        animeData.updateData(
+                                AnimeLinkData.DataContract.DATA_MYANIMELIST_ID,
+                                String.valueOf(selectedMyAnimelistAnimeData.getId())
+                        );
+                        animeData.updateData(
+                                AnimeLinkData.DataContract.DATA_MYANIMELIST_URL,
+                                String.valueOf(selectedMyAnimelistAnimeData.getUrl())
+                        );
                     }
                 }
                 return episodeList;

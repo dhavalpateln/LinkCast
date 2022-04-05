@@ -11,4 +11,11 @@
         android:enabled="true"
         android:icon="@drawable/ic_star"
         android:title="Popular" />
+
+    <item
+        android:id="@+id/discover_genre"
+        android:enabled="true"
+        android:icon="@drawable/ic_star"
+        android:title="Genre" />
+
 </menu>

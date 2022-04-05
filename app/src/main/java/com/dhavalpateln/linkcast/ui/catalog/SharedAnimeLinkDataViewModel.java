@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.firebase.database.ChildEventListener;
@@ -52,6 +53,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
 
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
+                StoredAnimeLinkData.getInstance().updateCache(map);
             }
 
             @Override
@@ -59,6 +61,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 Map<String, AnimeLinkData> map = data.getValue();
                 map.put(snapshot.getKey(), snapshot.getValue(AnimeLinkData.class));
                 data.setValue(map);
+                StoredAnimeLinkData.getInstance().updateCache(map);
             }
 
             @Override
@@ -66,6 +69,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 Map<String, AnimeLinkData> map = data.getValue();
                 map.remove(snapshot.getKey());
                 data.setValue(map);
+                StoredAnimeLinkData.getInstance().updateCache(map);
             }
 
             @Override

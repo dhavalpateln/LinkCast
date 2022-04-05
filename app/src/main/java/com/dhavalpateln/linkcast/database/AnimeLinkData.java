@@ -23,6 +23,7 @@ public class AnimeLinkData {
         public static final String DATA_FAVORITE = "fav";
         public static final String DATA_SOURCE = "source";
         public static final String DATA_MYANIMELIST_ID = "malid";
+        public static final String DATA_MYANIMELIST_URL = "malurl";
     }
 
     public String getTitle() {
