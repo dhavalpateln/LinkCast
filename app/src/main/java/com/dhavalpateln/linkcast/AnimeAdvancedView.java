@@ -43,6 +43,7 @@ import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
+import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
@@ -635,13 +636,15 @@ public class AnimeAdvancedView extends AppCompatActivity {
 
     public void showOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(getApplicationContext(), view);
-        popupMenu.getMenuInflater().inflate(R.menu.advanced_view_menu, popupMenu.getMenu());
+        //popupMenu.getMenuInflater().inflate(R.menu.advanced_view_menu, popupMenu.getMenu());
+        popupMenu.getMenu().add("Bookmark");
         if(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true")) {
             popupMenu.getMenu().add("Unfavorite");
         }
         else {
             popupMenu.getMenu().add("Favorite");
         }
+        popupMenu.getMenu().add("Reselect MAL Info");
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -650,15 +653,21 @@ public class AnimeAdvancedView extends AppCompatActivity {
                     case "Favorite":
                         item.setTitle("Unfavorite");
                         animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "true");
-                        break;
+                        return true;
                     case "Unfavorite":
                         item.setTitle("Favorite");
                         animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false");
-                        break;
+                        return true;
+                    case "Reselect MAL Info":
+                        selectFromSearchDialog();
+                        return true;
+                    case "Bookmark":
+                        saveProgress();
+                        return true;
                     default:
-                        break;
+                        return true;
                 }
-                switch (item.getItemId()) {
+                /*switch (item.getItemId()) {
                     case R.id.av_bookmark:
                         saveProgress();
                         return true;
@@ -673,19 +682,40 @@ public class AnimeAdvancedView extends AppCompatActivity {
                         return true;
                     default:
                         return true;
-                }
+                }*/
             }
         });
         popupMenu.show();
     }
 
+    private void startAnimeInfoActivity(MyAnimelistAnimeData myAnimelistAnimeData) {
+        Intent intent = new Intent(this, MyAnimelistInfoActivity.class);
+        intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, myAnimelistAnimeData);
+        startActivity(intent);
+    }
+
+    private void selectFromSearchDialog() {
+        MyAnimeListSearchDialog myAnimeListSearchDialog = new MyAnimeListSearchDialog(animeData.getTitle(), myAnimelistAnimeData -> {
+            selectedMyAnimelistAnimeData = myAnimelistAnimeData;
+            animeData.updateData(
+                    AnimeLinkData.DataContract.DATA_MYANIMELIST_ID,
+                    String.valueOf(selectedMyAnimelistAnimeData.getId())
+            );
+            animeData.updateData(
+                    AnimeLinkData.DataContract.DATA_MYANIMELIST_URL,
+                    String.valueOf(selectedMyAnimelistAnimeData.getUrl())
+            );
+            startAnimeInfoActivity(selectedMyAnimelistAnimeData);
+        });
+        myAnimeListSearchDialog.show(getSupportFragmentManager(), "MALSearch");
+    }
+
     public void animeInfo(View view) {
         if(selectedMyAnimelistAnimeData == null) {
+            selectFromSearchDialog();
             Toast.makeText(getApplicationContext(), "Match not found", Toast.LENGTH_LONG).show();
             return;
         }
-        Intent intent = new Intent(this, MyAnimelistInfoActivity.class);
-        intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, selectedMyAnimelistAnimeData);
-        startActivity(intent);
+        startAnimeInfoActivity(selectedMyAnimelistAnimeData);
     }
 }

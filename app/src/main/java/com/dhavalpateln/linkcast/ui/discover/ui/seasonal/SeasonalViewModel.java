@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.ui.discover.ui.seasonal;
 
 import android.os.AsyncTask;
 
+import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -184,34 +185,40 @@ public class SeasonalViewModel  extends ViewModel {
 
         @Override
         protected List<MyAnimelistAnimeData> doInBackground(Season... seasons) {
-            List<MyAnimelistAnimeData> result = new ArrayList<>();
             season = seasons[0];
             String url = "https://myanimelist.net/anime/season/" + season.getYear() + "/" + season.getQuater().toLowerCase();
-            try {
-                HttpURLConnection httpURLConnection = SimpleHttpClient.getURLConnection(url);
-                SimpleHttpClient.setBrowserUserAgent(httpURLConnection);
-                Document html = Jsoup.parse(SimpleHttpClient.getResponse(httpURLConnection));
-                Elements seasonalTypes = html.select("div.seasonal-anime-list");
-                for(Element seasonalType: seasonalTypes) {
-                    String type = seasonalType.selectFirst("div.anime-header").text();
-                    Elements animeElements = seasonalType.select("div.seasonal-anime");
-                    for(Element animeElement: animeElements) {
-                        MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
-                        Element titleElement = animeElement.selectFirst("div.title");
-                        Element imageElement = animeElement.selectFirst("div.image");
-                        myAnimelistAnimeData.setTitle(titleElement.selectFirst("h2").text());
-                        myAnimelistAnimeData.setUrl(imageElement.selectFirst("a").attr("href"));
-                        String imageUrl = imageElement.selectFirst("img").attr("src");
-                        if(imageUrl.equals("")) {
-                            imageUrl = imageElement.selectFirst("img").attr("data-src");
+            List<MyAnimelistAnimeData> result = MyAnimeListCache.getInstance().getQueryResult(url);
+            if(result == null) {
+                result = new ArrayList<>();
+                try {
+                    HttpURLConnection httpURLConnection = SimpleHttpClient.getURLConnection(url);
+                    SimpleHttpClient.setBrowserUserAgent(httpURLConnection);
+                    Document html = Jsoup.parse(SimpleHttpClient.getResponse(httpURLConnection));
+                    Elements seasonalTypes = html.select("div.seasonal-anime-list");
+                    for (Element seasonalType : seasonalTypes) {
+                        String type = seasonalType.selectFirst("div.anime-header").text();
+                        Elements animeElements = seasonalType.select("div.seasonal-anime");
+                        for (Element animeElement : animeElements) {
+                            MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
+                            Element titleElement = animeElement.selectFirst("div.title");
+                            Element imageElement = animeElement.selectFirst("div.image");
+                            myAnimelistAnimeData.setTitle(titleElement.selectFirst("h2").text());
+                            myAnimelistAnimeData.setUrl(imageElement.selectFirst("a").attr("href"));
+                            String imageUrl = imageElement.selectFirst("img").attr("src");
+                            if (imageUrl.equals("")) {
+                                imageUrl = imageElement.selectFirst("img").attr("data-src");
+                            }
+                            myAnimelistAnimeData.addImage(imageUrl);
+                            myAnimelistAnimeData.putInfo("type", type);
+                            result.add(myAnimelistAnimeData);
                         }
-                        myAnimelistAnimeData.addImage(imageUrl);
-                        myAnimelistAnimeData.putInfo("type", type);
-                        result.add(myAnimelistAnimeData);
                     }
+                    if(result.size() > 0) {
+                        MyAnimeListCache.getInstance().storeCache(url, result);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
             return result;
         }

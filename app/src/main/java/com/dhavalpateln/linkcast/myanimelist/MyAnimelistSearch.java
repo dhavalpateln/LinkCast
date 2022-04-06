@@ -26,6 +26,7 @@ public class MyAnimelistSearch {
                 MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData(animeData.getInt("id"));
                 myAnimelistAnimeData.setTitle(animeData.getString("name"));
                 myAnimelistAnimeData.setUrl(animeData.getString("url"));
+                myAnimelistAnimeData.addImage(animeData.getString("image_url"));
                 result.add(myAnimelistAnimeData);
             }
         } catch (IOException | JSONException e) {
