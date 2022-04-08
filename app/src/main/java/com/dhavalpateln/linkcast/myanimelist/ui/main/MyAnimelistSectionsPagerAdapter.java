@@ -29,7 +29,8 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
         // Return a PlaceholderFragment (defined as a static inner class below).
         switch (position) {
             case 0: return AnimeInfoFragment.newInstance();
-            case 1: return AnimeSynopsisFragment.newInstance();
+            case 1: return CharacterInfoFragment.newInstance();
+            case 2: return AnimeSynopsisFragment.newInstance();
         }
         return AnimeInfoFragment.newInstance();
     }
@@ -39,7 +40,8 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0: return "Info";
-            case 1: return "Synopsis";
+            case 1: return "Characters";
+            case 2: return "Synopsis";
         }
         return "Info";
         //return mContext.getResources().getString(TAB_TITLES[position]);
@@ -47,6 +49,6 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return 3;
     }
 }

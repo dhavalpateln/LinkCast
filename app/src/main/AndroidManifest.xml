@@ -18,6 +18,11 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".myanimelist.MyAnimelistCharacterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_my_animelist_character"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".myanimelist.MyAnimelistInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_my_animelist_info"
@@ -36,20 +41,23 @@
         <activity
             android:name=".AnimeAdvancedView"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false"/>
-        <activity android:name=".manga.MangaReaderActivity"
-            android:exported="false"/>
-        <activity android:name=".MangaWebExplorer"
-            android:exported="false"/>
-        <activity android:name=".ui.RemoteCodeActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".manga.MangaReaderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MangaWebExplorer"
+            android:exported="false" />
+        <activity
+            android:name=".ui.RemoteCodeActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -64,10 +72,11 @@
         <activity android:name=".ui.feedback.CrashReportActivity" />
         <activity
             android:name=".AnimeWebExplorer"
-            android:label="@string/title_activity_anime_web_explorer"
             android:exported="false"
+            android:label="@string/title_activity_anime_web_explorer"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MALReceiverActivity"
+        <activity
+            android:name=".MALReceiverActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -77,8 +86,9 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".UpdateActivity"
-            android:exported="false"/>
+        <activity
+            android:name=".UpdateActivity"
+            android:exported="false" />
 
         <service
             android:name=".services.FirebaseNotificationService"
@@ -89,7 +99,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".LauncherActivity"
+        <activity
+            android:name=".LauncherActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -99,10 +110,11 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:exported="false"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false"/>
-        <activity android:name=".MediaReceiver"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MediaReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

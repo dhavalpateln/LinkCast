@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -140,6 +141,29 @@ public class MyAnimelistDataViewModel extends ViewModel {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        // Get Characters
+                        try {
+                            Elements characterElements = html.selectFirst("div.detail-characters-list").select("tr");
+                            for(Element characterElement: characterElements) {
+                                try {
+                                    MyAnimelistCharacterData characterData = new MyAnimelistCharacterData();
+                                    Elements infoTdElements = characterElement.select("td");
+
+                                    Element nameElement = infoTdElements.get(1).selectFirst("a");
+                                    characterData.setName(nameElement.text());
+                                    characterData.setUrl(nameElement.attr("href"));
+                                    characterData.setType(infoTdElements.get(1).selectFirst("small").text());
+
+                                    String imageUrl = infoTdElements.get(0).selectFirst("img").attr("data-src");
+                                    imageUrl = imageUrl.replaceAll("r/\\d+x\\d+/", "");
+                                    characterData.addImage(imageUrl);
+
+                                    myAnimelistAnimeData.addCharacter(characterData);
+                                } catch (Exception e) {e.printStackTrace();}
+                            }
+                        } catch (Exception e) {e.printStackTrace();}
+
                         MyAnimeListCache.getInstance().storeCache(myAnimelistAnimeData.getUrl(), myAnimelistAnimeData);
                     } catch (IOException e) {
                         e.printStackTrace();

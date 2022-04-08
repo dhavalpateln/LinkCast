@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 public class MyAnimelistCharacterData {
     private int id;
     private String url;
+    private String name;
     private List<String> images;
     private String type;
     private String about;
@@ -18,6 +19,14 @@ public class MyAnimelistCharacterData {
     public MyAnimelistCharacterData() {
         images = new ArrayList<>();
         animeography = new HashSet<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUrl() {
