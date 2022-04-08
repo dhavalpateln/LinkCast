@@ -10,6 +10,7 @@ public class BookmarkedSearch extends AnimeSearch {
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
+        term = term.toLowerCase();
         ArrayList<AnimeLinkData> result = new ArrayList<>();
         if(this.data != null) {
             for (AnimeLinkData animeLinkData : this.data) {

@@ -200,37 +200,34 @@ public class CatalogObjectFragment extends Fragment {
         adapter = new RecyclerViewAdapter(data, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
-        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<Map<String, AnimeLinkData>>() {
-            @Override
-            public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
-                Log.d(TAG, "Data changed");
-                data.clear();
-                for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                    AnimeLinkData animeLinkData = entry.getValue();
-                    animeLinkData.setId(entry.getKey());
-                    if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_STATUS)) {
-                        animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_STATUS, "Planned");
-                    }
-                    if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_FAVORITE)) {
-                        animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_FAVORITE, "false");
-                    }
-
-                    if(tabName.equals(CatalogFragment.Catalogs.ALL) ||
-                        tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
-                        (tabName.equals(CatalogFragment.Catalogs.FAVORITE) &&
-                                animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                        data.add(entry.getValue());
-                    }
-
-                    /*if (tabName.equals("All") ||
-                            tabName.equalsIgnoreCase(animeLinkData.getData().get("status")) ||
-                            (tabName.equals("FAV") && animeLinkData.getData().get(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                        data.add(entry.getValue());
-                    }*/
-
+        viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
+            Log.d(TAG, "Data changed");
+            data.clear();
+            for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
+                AnimeLinkData animeLinkData = entry.getValue();
+                animeLinkData.setId(entry.getKey());
+                if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_STATUS)) {
+                    animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_STATUS, "Planned");
                 }
-                adapter.notifyDataSetChanged();
+                if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_FAVORITE)) {
+                    animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_FAVORITE, "false");
+                }
+
+                if(tabName.equals(CatalogFragment.Catalogs.ALL) ||
+                    tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
+                    (tabName.equals(CatalogFragment.Catalogs.FAVORITE) &&
+                            animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
+                    data.add(entry.getValue());
+                }
+
+                /*if (tabName.equals("All") ||
+                        tabName.equalsIgnoreCase(animeLinkData.getData().get("status")) ||
+                        (tabName.equals("FAV") && animeLinkData.getData().get(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
+                    data.add(entry.getValue());
+                }*/
+
             }
+            adapter.notifyDataSetChanged();
         });
     }
 

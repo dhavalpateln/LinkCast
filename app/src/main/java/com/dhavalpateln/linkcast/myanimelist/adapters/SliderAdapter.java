@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.myanimelist.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.ArrayList;
@@ -18,11 +20,17 @@ public class SliderAdapter extends SliderViewAdapter<SliderAdapter.SliderAdapter
     // list for storing urls of images.
     private final List<String> mSliderItems;
     private Context context;
+    private ImageClickListener imageClickListener;
+
+    public interface ImageClickListener {
+        void onClick(List<String> images, int position);
+    }
 
     // Constructor
-    public SliderAdapter(Context context, ArrayList<String> sliderDataArrayList) {
+    public SliderAdapter(Context context, ArrayList<String> sliderDataArrayList, ImageClickListener imageClickListener) {
         this.mSliderItems = sliderDataArrayList;
         this.context = context;
+        this.imageClickListener = imageClickListener;
     }
 
     // We are inflating the slider_layout
@@ -47,6 +55,10 @@ public class SliderAdapter extends SliderViewAdapter<SliderAdapter.SliderAdapter
                 //.fitCenter()
                 .centerCrop()
                 .into(viewHolder.imageViewBackground);
+
+        viewHolder.imageViewBackground.setOnClickListener(v -> {
+            imageClickListener.onClick(mSliderItems, position);
+        });
     }
 
     // this method will return

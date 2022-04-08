@@ -3,17 +3,24 @@ package com.dhavalpateln.linkcast.myanimelist;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import androidx.annotation.Nullable;
 
 public class MyAnimelistAnimeData implements Serializable {
     private int id;
     private String title;
+    private String englishTitle;
     private String url;
     private String[] alternateTitles;
     private List<String> images;
+    private Set<MyAnimelistAnimeData> prequels;
+    private Set<MyAnimelistAnimeData> sequels;
+    private Set<MyAnimelistAnimeData> sideStory;
+    private List<MyAnimelistCharacterData> characters;
 
     String synopsis;
     private Map<String, String> infos;
@@ -22,6 +29,10 @@ public class MyAnimelistAnimeData implements Serializable {
         this.id = id;
         infos = new HashMap<>();
         this.images = new ArrayList<>();
+        prequels = new HashSet<>();
+        sequels = new HashSet<>();
+        sideStory = new HashSet<>();
+        characters = new ArrayList<>();
     }
 
     public MyAnimelistAnimeData() {
@@ -43,11 +54,20 @@ public class MyAnimelistAnimeData implements Serializable {
         this.title = title;
     }
 
+    public String getEnglishTitle() {
+        return englishTitle;
+    }
+
+    public void setEnglishTitle(String englishTitle) {
+        this.englishTitle = englishTitle;
+    }
+
     public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
+        if(url.startsWith("/")) url = "https://myanimelist.net" + url;
         this.url = url;
         if(getId() <= 0) {
             try {
@@ -91,11 +111,46 @@ public class MyAnimelistAnimeData implements Serializable {
         if(!this.images.contains(imageURL))  this.images.add(imageURL);
     }
 
+    public void addPrequel(MyAnimelistAnimeData data) {
+        prequels.add(data);
+    }
+    public void addSequel(MyAnimelistAnimeData data) {
+        sequels.add(data);
+    }
+    public void addSideStory(MyAnimelistAnimeData data) {
+        sideStory.add(data);
+    }
+
+    public Set<MyAnimelistAnimeData> getPrequels() {
+        return prequels;
+    }
+
+    public Set<MyAnimelistAnimeData> getSequels() {
+        return sequels;
+    }
+
+    public Set<MyAnimelistAnimeData> getSideStory() {
+        return sideStory;
+    }
+
+    public List<MyAnimelistCharacterData> getCharacters() {
+        return characters;
+    }
+
+    public void addCharacter(MyAnimelistCharacterData character) {
+        this.characters.add(character);
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if(obj != null && obj instanceof MyAnimelistAnimeData) {
             return ((MyAnimelistAnimeData) obj).getId() == getId();
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getId();
     }
 }

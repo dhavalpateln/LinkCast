@@ -71,19 +71,6 @@
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/anime_info_button"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="10dp"
-                android:onClick="animeInfo"
-                android:text="INFO"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/advanced_view_anime_title_text_view" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -115,13 +102,13 @@
         </Button>
 
         <Button
-            android:id="@+id/advanced_view_save_button"
+            android:id="@+id/anime_info_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="SAVE"
+            android:text="INFO"
             style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:onClick="save"/>
+            android:onClick="animeInfo"/>
 
     </LinearLayout>
 

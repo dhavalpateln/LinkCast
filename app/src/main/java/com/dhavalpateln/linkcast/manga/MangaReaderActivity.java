@@ -13,6 +13,10 @@ import com.dhavalpateln.linkcast.R;
 public class MangaReaderActivity extends AppCompatActivity {
 
     private static final String TAG = "MangaReaderActivity";
+    public static final String INTENT_REVERSE = "reverse";
+    public static final String INTENT_IMAGE_ARRAY = "images";
+    public static final String INTENT_START_POSITION = "startpos";
+
     ViewPager mViewPager;
 
     // Creating Object of ViewPagerAdapter
@@ -24,22 +28,32 @@ public class MangaReaderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manga_reader);
 
         Intent intent = getIntent();
-        String[] images = intent.getStringArrayExtra("images");
+        String[] images = intent.getStringArrayExtra(INTENT_IMAGE_ARRAY);
+
 
         mViewPager = (ViewPager)findViewById(R.id.mangaViewPager);
         mViewPager.setOffscreenPageLimit(5);
 
-        String[] imagesReverse = new String[images.length];
-        for(int i = imagesReverse.length - 1; i >= 0; i--) {
-            Log.d(TAG, "onCreate: " + images[i]);
-            imagesReverse[imagesReverse.length - 1 - i] = images[i];
+        int initialPosition = intent.getIntExtra(INTENT_START_POSITION, -1);
+
+        if(intent.getBooleanExtra(INTENT_REVERSE, true)) {
+            String[] imagesReverse = new String[images.length];
+            for (int i = imagesReverse.length - 1; i >= 0; i--) {
+                Log.d(TAG, "onCreate: " + images[i]);
+                imagesReverse[imagesReverse.length - 1 - i] = images[i];
+            }
+            images = imagesReverse;
+            if(initialPosition == -1)   initialPosition = images.length - 1;
+        }
+        else if(initialPosition == -1) {
+            initialPosition = 0;
         }
 
         // Initializing the ViewPagerAdapter
-        mViewPagerAdapter = new MangaPagerAdapter(MangaReaderActivity.this, imagesReverse);
+        mViewPagerAdapter = new MangaPagerAdapter(MangaReaderActivity.this, images);
 
         // Adding the Adapter to the ViewPager
         mViewPager.setAdapter(mViewPagerAdapter);
-        mViewPager.setCurrentItem(imagesReverse.length - 1, false);
+        mViewPager.setCurrentItem(initialPosition, false);
     }
 }

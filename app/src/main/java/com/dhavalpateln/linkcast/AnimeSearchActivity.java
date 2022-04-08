@@ -57,6 +57,8 @@ import java.util.Map;
 
 public class AnimeSearchActivity extends AppCompatActivity {
 
+    public static String INTENT_SEARCH_TERM = "search";
+
     private RecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
     private EditText searchEditText;
@@ -202,6 +204,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
         searchEditText = findViewById(R.id.editTextSearchBar);
+
+        if(getIntent().hasExtra(INTENT_SEARCH_TERM)) {
+            searchEditText.setText(getIntent().getStringExtra(INTENT_SEARCH_TERM));
+        }
 
         bookmarkedSearch = new BookmarkedSearch();
         filteredData = new ArrayList<>();

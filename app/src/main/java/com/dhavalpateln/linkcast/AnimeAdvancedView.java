@@ -77,7 +77,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private AnimeScrapper sourceExtractor;
     private Button statusButton;
     private Button episodeProgressButton;
-    private Button saveButton;
     private String id;
     private int currentEpisode = 0;
     private int totalEpisode = 0;
@@ -185,7 +184,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
         animeTitleTextView = findViewById(R.id.advanced_view_anime_title_text_view);
         statusButton = findViewById(R.id.advanced_view_status_button);
         episodeProgressButton = findViewById(R.id.advanced_view_episode_progress_button);
-        saveButton = findViewById(R.id.advanced_view_save_button);
         // TODO: implement update episode progress button
 
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), findViewById(R.id.mediaRouteButton));

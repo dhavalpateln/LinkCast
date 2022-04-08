@@ -1,24 +1,31 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.dhavalpateln.linkcast.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.adapters.SliderAdapter;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
+import com.google.android.material.divider.MaterialDivider;
+import com.google.android.material.textview.MaterialTextView;
 import com.smarteist.autoimageslider.SliderView;
 
 import org.jsoup.Jsoup;
@@ -28,7 +35,6 @@ import org.jsoup.select.Elements;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,7 +46,18 @@ public class AnimeInfoFragment extends Fragment {
     private final String TAG = "AnimeInfo";
     private SliderView sliderView;
     private ArrayList<String> sliderImageURLs;
-    private SliderAdapter adapter;
+    private SliderAdapter imageSliderAdapter;
+    private LinearLayout infosLinearLayout;
+    private LinearLayout infosContentLinearLayout;
+    private MaterialTextView titleTextView;
+    private LinearLayout relatedLinearLayout;
+    private LinearLayout relatedContentLinearLayout;
+    private MyAnimelistDataViewModel viewModel;
+    private TextView scoreTextView;
+    private TextView rankTextView;
+    private TextView popularityTextView;
+    private TextView englishTitleTextView;
+    private Button searchAnimeButton;
 
     public AnimeInfoFragment() {
         // Required empty public constructor
@@ -69,31 +86,141 @@ public class AnimeInfoFragment extends Fragment {
 
         sliderImageURLs = new ArrayList<>();
 
+        titleTextView = view.findViewById(R.id.mal_info_anime_title);
+        scoreTextView = view.findViewById(R.id.mal_score_text_view);
+        rankTextView = view.findViewById(R.id.mal_rank_text_view);
+        popularityTextView = view.findViewById(R.id.mal_popularity_text_view);
+        infosLinearLayout = view.findViewById(R.id.mal_info_stats_linear_layout);
+        infosContentLinearLayout = view.findViewById(R.id.mal_info_stats_content_linear_layout);
+        englishTitleTextView = view.findViewById(R.id.mal_info_anime_english_title);
+        searchAnimeButton = view.findViewById(R.id.mal_anime_search_button);
         sliderView = view.findViewById(R.id.anime_info_img_slider);
-        adapter = new SliderAdapter(getContext(), sliderImageURLs);
+        imageSliderAdapter = new SliderAdapter(getContext(), sliderImageURLs, (imageList, position) -> {
+            Intent intent = new Intent(getActivity(), MangaReaderActivity.class);
+            intent.putExtra(MangaReaderActivity.INTENT_REVERSE, false);
+            intent.putExtra(MangaReaderActivity.INTENT_START_POSITION, position);
+            intent.putExtra(MangaReaderActivity.INTENT_IMAGE_ARRAY, imageList.toArray(new String[0]));
+            startActivity(intent);
+        });
 
         sliderView.setAutoCycleDirection(SliderView.LAYOUT_DIRECTION_LTR);
-        sliderView.setSliderAdapter(adapter);
+        sliderView.setSliderAdapter(imageSliderAdapter);
         sliderView.setScrollTimeInSec(5);
         sliderView.setAutoCycle(true);
         sliderView.startAutoCycle();
 
-        MyAnimelistDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MyAnimelistDataViewModel.class);
-        viewModel.getData().observe(getViewLifecycleOwner(), new Observer<MyAnimelistAnimeData>() {
-            @Override
-            public void onChanged(MyAnimelistAnimeData myAnimelistAnimeData) {
-                if(myAnimelistAnimeData.getId() > 0) {
-                    for (String imageURL : myAnimelistAnimeData.getImages()) {
-                        if (!sliderImageURLs.contains(imageURL)) sliderImageURLs.add(imageURL);
-                    }
-                    adapter.notifyDataSetChanged();
-                    ExtractMoreInfo extractMoreInfoTask = new ExtractMoreInfo();
-                    extractMoreInfoTask.execute(myAnimelistAnimeData);
+        viewModel = new ViewModelProvider(getActivity()).get(MyAnimelistDataViewModel.class);
+        viewModel.getData().observe(getViewLifecycleOwner(), myAnimelistAnimeData -> {
+            if(myAnimelistAnimeData.getId() > 0) {
+                /*for (String imageURL : myAnimelistAnimeData.getImages()) {
+                    if (!sliderImageURLs.contains(imageURL)) sliderImageURLs.add(imageURL);
                 }
+
+                imageSliderAdapter.notifyDataSetChanged();*/
+                updateUI(myAnimelistAnimeData);
+                ExtractMoreInfo extractMoreInfoTask = new ExtractMoreInfo();
+                extractMoreInfoTask.execute(myAnimelistAnimeData);
             }
         });
 
 
+    }
+
+    private void updateUI(MyAnimelistAnimeData myAnimelistAnimeData) {
+        titleTextView.setText(myAnimelistAnimeData.getTitle());
+
+        searchAnimeButton.setOnClickListener(v -> {
+            Intent searchIntent = new Intent(getContext(), AnimeSearchActivity.class);
+            searchIntent.putExtra(AnimeSearchActivity.INTENT_SEARCH_TERM, myAnimelistAnimeData.getTitle());
+            startActivity(searchIntent);
+            getActivity().finish();
+        });
+
+        rankTextView.setText(myAnimelistAnimeData.getInfo("Ranked"));
+        scoreTextView.setText(myAnimelistAnimeData.getInfo("Score"));
+        popularityTextView.setText(myAnimelistAnimeData.getInfo("Popularity"));
+
+        if(myAnimelistAnimeData.getInfo("English").equals("N/A")) {
+            englishTitleTextView.setVisibility(View.GONE);
+        }
+        else {
+            englishTitleTextView.setVisibility(View.VISIBLE);
+            englishTitleTextView.setText(myAnimelistAnimeData.getInfo("English"));
+        }
+
+        infosContentLinearLayout.removeAllViews();
+
+        for (String imageURL : myAnimelistAnimeData.getImages()) {
+            if (!sliderImageURLs.contains(imageURL)) sliderImageURLs.add(imageURL);
+        }
+        imageSliderAdapter.notifyDataSetChanged();
+        String[] infoKeys = {
+                "Type",
+                "Episodes",
+                "Status",
+                "Aired",
+                "Premiered",
+                "Broadcast",
+                "Producers",
+                "Licensors",
+                "Studios",
+                "Source"
+        };
+
+        boolean initialView = true;
+        LinearLayout.LayoutParams dividerLayoutParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        dividerLayoutParams.setMargins(8,4,8,4);
+        for(String key: infoKeys) {
+            String value = myAnimelistAnimeData.getInfo(key);
+            if(value != null) {
+                if(!initialView) {
+                    MaterialDivider divider = new MaterialDivider(getContext());
+                    divider.setLayoutParams(dividerLayoutParams);
+                    infosContentLinearLayout.addView(divider);
+                }
+                else {
+                    initialView = false;
+                }
+                View keyValueTextView = getKeyValueView(key, value);
+                infosContentLinearLayout.addView(keyValueTextView);
+            }
+        }
+
+        for(MyAnimelistAnimeData prequel: myAnimelistAnimeData.getPrequels()) {
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setLayoutParams(dividerLayoutParams);
+            infosContentLinearLayout.addView(divider);
+
+            View keyValueView = getKeyValueView("Prequel", prequel.getTitle());
+            TextView valueTV = keyValueView.findViewById(R.id.kv_value_text_view);
+            valueTV.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+            valueTV.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), MyAnimelistInfoActivity.class);
+                intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, prequel);
+                startActivity(intent);
+                getActivity().finish();
+            });
+            infosContentLinearLayout.addView(keyValueView);
+        }
+        for(MyAnimelistAnimeData sequel: myAnimelistAnimeData.getSequels()) {
+            MaterialDivider divider = new MaterialDivider(getContext());
+            divider.setLayoutParams(dividerLayoutParams);
+            infosContentLinearLayout.addView(divider);
+
+            View keyValueView = getKeyValueView("Sequel", sequel.getTitle());
+            TextView valueTV = keyValueView.findViewById(R.id.kv_value_text_view);
+            valueTV.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+            valueTV.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), MyAnimelistInfoActivity.class);
+                intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, sequel);
+                startActivity(intent);
+                getActivity().finish();
+            });
+            infosContentLinearLayout.addView(keyValueView);
+        }
     }
 
     private class ExtractMoreInfo extends AsyncTask<MyAnimelistAnimeData, Void, MyAnimelistAnimeData> {
@@ -116,7 +243,7 @@ public class AnimeInfoFragment extends Fragment {
             for (String imageURL : myAnimelistAnimeData.getImages()) {
                 if (!sliderImageURLs.contains(imageURL)) sliderImageURLs.add(imageURL);
             }
-            adapter.notifyDataSetChanged();
+            imageSliderAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -127,5 +254,14 @@ public class AnimeInfoFragment extends Fragment {
             } catch (Exception e) { e.printStackTrace(); }
             return myAnimelistAnimeData;
         }
+    }
+
+    private View getKeyValueView(String key, String value) {
+        View view = getLayoutInflater().inflate(R.layout.layout_key_value, null, false);
+        TextView keyTextView = view.findViewById(R.id.kv_layout_key_text_view);
+        TextView valueTextView = view.findViewById(R.id.kv_value_text_view);
+        keyTextView.setText(key);
+        valueTextView.setText(value);
+        return view;
     }
 }

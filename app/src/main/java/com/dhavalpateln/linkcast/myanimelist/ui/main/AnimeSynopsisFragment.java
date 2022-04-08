@@ -58,7 +58,6 @@ public class AnimeSynopsisFragment extends Fragment {
             public void onChanged(MyAnimelistAnimeData myAnimelistAnimeData) {
                 if(myAnimelistAnimeData.getId() > 0) {
                     synopsisTextView.setText(myAnimelistAnimeData.getSynopsis());
-                    myAnimelistAnimeData.setTitle("something new");
                 }
                 Log.d("MyAnimeInfoFrag", "Changed");
             }
