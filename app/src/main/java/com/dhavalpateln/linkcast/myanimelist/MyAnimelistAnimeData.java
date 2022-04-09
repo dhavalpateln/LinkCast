@@ -21,6 +21,7 @@ public class MyAnimelistAnimeData implements Serializable {
     private Set<MyAnimelistAnimeData> sequels;
     private Set<MyAnimelistAnimeData> sideStory;
     private List<MyAnimelistCharacterData> characters;
+    private List<MyAnimelistAnimeData> recommendations;
 
     String synopsis;
     private Map<String, String> infos;
@@ -33,6 +34,7 @@ public class MyAnimelistAnimeData implements Serializable {
         sequels = new HashSet<>();
         sideStory = new HashSet<>();
         characters = new ArrayList<>();
+        recommendations = new ArrayList<>();
     }
 
     public MyAnimelistAnimeData() {
@@ -138,7 +140,19 @@ public class MyAnimelistAnimeData implements Serializable {
     }
 
     public void addCharacter(MyAnimelistCharacterData character) {
-        this.characters.add(character);
+        if(!this.characters.contains(character)) {
+            this.characters.add(character);
+        }
+    }
+
+    public List<MyAnimelistAnimeData> getRecommendations() {
+        return recommendations;
+    }
+
+    public void addRecommendation(MyAnimelistAnimeData data) {
+        if(!this.recommendations.contains(data)) {
+            this.recommendations.add(data);
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -35,5 +36,15 @@ public class SimpleHttpClient {
         return result;
     }
 
+    public static int getResponseCode(HttpURLConnection urlConnection){
+        try {
+            urlConnection.setConnectTimeout(3000);
+            return urlConnection.getResponseCode();
+        } catch (SocketTimeoutException e) {
+            return 408;
+        } catch (IOException e) {
+            return 500;
+        }
+    }
 
 }

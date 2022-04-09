@@ -95,25 +95,23 @@ public class DiscoverPopularFragmentObject extends Fragment {
         prevButton.setOnClickListener(v -> prev(v));
 
         dataList = new ArrayList<>();
-        gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), new GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>() {
+        gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), (GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>) (holder, position, data) -> {
+            holder.titleTextView.setText(data.getTitle());
+            holder.subTextTextView.setText(data.getInfo("Genres"));
+            try {
+                Glide.with(getContext())
+                        .load(data.getImages().get(0))
+                        .centerCrop()
+                        .crossFade()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imageView);
+            } catch (Exception e) {e.printStackTrace();}
 
-            @Override
-            public void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, MyAnimelistAnimeData data) {
-                holder.titleTextView.setText(data.getTitle());
-                try {
-                    Glide.with(getContext())
-                            .load(data.getImages().get(0))
-                            .centerCrop()
-                            .crossFade()
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .into(holder.imageView);
-                } catch (Exception e) {e.printStackTrace();}
-                holder.itemView.setOnClickListener(v -> {
-                    Intent intent = new Intent(getContext(), MyAnimelistInfoActivity.class);
-                    intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);
-                    startActivity(intent);
-                });
-            }
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), MyAnimelistInfoActivity.class);
+                intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);
+                startActivity(intent);
+            });
         });
 
         RecyclerView recyclerView = view.findViewById(R.id.discover_popular_recycler_view);
@@ -138,7 +136,7 @@ public class DiscoverPopularFragmentObject extends Fragment {
         dataList.addAll(myAnimelistAnimeData);
         gridRecyclerAdapter.notifyDataSetChanged();
         currentPageTextView.setVisibility(View.VISIBLE);
-        currentPageTextView.setText((currentLimit + 1) + " - " + (currentLimit + 50));
+        currentPageTextView.setText((currentLimit + 1) + " - " + (currentLimit + myAnimelistAnimeData.size()));
     }
 
     private void updateData() {
@@ -154,13 +152,13 @@ public class DiscoverPopularFragmentObject extends Fragment {
 
     public void next(View view) {
         if(dataList.size() == 0)    return;
-        currentLimit += 50;
+        currentLimit += dataList.size();
         updateData();
     }
 
     public void prev(View view) {
         if(currentLimit == 0)   return;
-        currentLimit -= 50;
+        currentLimit -= dataList.size();
         updateData();
     }
 }

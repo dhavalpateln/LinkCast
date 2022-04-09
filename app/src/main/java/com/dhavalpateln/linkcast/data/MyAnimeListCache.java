@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.data;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,10 +12,14 @@ public class MyAnimeListCache {
     private static MyAnimeListCache storedAnimeLinkData;
     private Map<String, List<MyAnimelistAnimeData>> queryCache;
     private Map<String, MyAnimelistAnimeData> infoCache;
+    private Map<String, MyAnimelistCharacterData> characterCache;
+    private Map<String, List<MyAnimelistCharacterData>> animeCharactersCache;
 
     private MyAnimeListCache() {
         queryCache = new HashMap<>();
         infoCache = new HashMap<>();
+        characterCache = new HashMap<>();
+        animeCharactersCache = new HashMap<>();
     }
 
     public static MyAnimeListCache getInstance() {
@@ -22,11 +27,17 @@ public class MyAnimeListCache {
         return storedAnimeLinkData;
     }
 
-    public void storeCache(String url, List<MyAnimelistAnimeData> data) {
+    public void storeAnimeCache(String url, List<MyAnimelistAnimeData> data) {
         queryCache.put(url, data);
     }
-    public void storeCache(String url, MyAnimelistAnimeData data) {
+    public void storeAnimeCache(String url, MyAnimelistAnimeData data) {
         infoCache.put(url, data);
+    }
+    public void storeCharacterCache(String url, MyAnimelistCharacterData data) {
+        characterCache.put(url, data);
+    }
+    public void storeCharacterCache(String url, List<MyAnimelistCharacterData> data) {
+        animeCharactersCache.put(url, data);
     }
 
     public MyAnimelistAnimeData getInfo(String url) {
@@ -39,6 +50,20 @@ public class MyAnimeListCache {
     public List<MyAnimelistAnimeData> getQueryResult(String url) {
         if(queryCache.containsKey(url)) {
             return queryCache.get(url);
+        }
+        return null;
+    }
+
+    public List<MyAnimelistCharacterData> getAnimeCharacterList(String url) {
+        if(animeCharactersCache.containsKey(url)) {
+            return animeCharactersCache.get(url);
+        }
+        return null;
+    }
+
+    public MyAnimelistCharacterData getCharacterData(String url) {
+        if(characterCache.containsKey(url)) {
+            return characterCache.get(url);
         }
         return null;
     }

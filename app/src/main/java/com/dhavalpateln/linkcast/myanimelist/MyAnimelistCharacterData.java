@@ -88,8 +88,8 @@ public class MyAnimelistCharacterData {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if(obj != null && obj instanceof MyAnimelistAnimeData) {
-            return ((MyAnimelistAnimeData) obj).getId() == getId();
+        if(obj != null && obj instanceof MyAnimelistCharacterData) {
+            return ((MyAnimelistCharacterData) obj).getId() == getId();
         }
         return false;
     }

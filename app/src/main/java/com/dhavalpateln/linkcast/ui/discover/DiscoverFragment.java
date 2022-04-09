@@ -15,6 +15,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.ui.discover.ui.genre.DiscoverGenreFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.DiscoverPopularFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.DiscoverSeasonalFragment;
+import com.dhavalpateln.linkcast.ui.discover.ui.suggested.SuggestedFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -24,6 +25,7 @@ public class DiscoverFragment extends Fragment {
     private DiscoverSeasonalFragment discoverSeasonalFragment = DiscoverSeasonalFragment.newInstance();
     private DiscoverPopularFragment discoverPopularFragment = DiscoverPopularFragment.newInstance();
     private DiscoverGenreFragment discoverGenreFragment = DiscoverGenreFragment.newInstance();
+    private SuggestedFragment discoverSuggestedFragment = SuggestedFragment.newInstance();
 
     public DiscoverFragment() {
         // Required empty public constructor
@@ -57,6 +59,9 @@ public class DiscoverFragment extends Fragment {
                         return true;
                     case R.id.discover_genre:
                         getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverGenreFragment).commit();
+                        return true;
+                    case R.id.discover_suggested:
+                        getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverSuggestedFragment).commit();
                         return true;
                 }
                 return false;

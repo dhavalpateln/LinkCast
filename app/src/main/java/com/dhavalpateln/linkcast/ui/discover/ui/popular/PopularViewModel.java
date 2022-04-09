@@ -1,9 +1,9 @@
 package com.dhavalpateln.linkcast.ui.discover.ui.popular;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
+import com.dhavalpateln.linkcast.database.JikanDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -14,7 +14,6 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.channels.AsynchronousChannelGroup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,35 +92,39 @@ public class PopularViewModel extends ViewModel {
         @Override
         protected List<MyAnimelistAnimeData> doInBackground(Void... voids) {
             String malURL = getMalUrl(type, limit);
-            List<MyAnimelistAnimeData> result = MyAnimeListCache.getInstance().getQueryResult(malURL);
-            if(result == null) {
-                result = new ArrayList<>();
-                try {
-                    HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(malURL);
-                    SimpleHttpClient.setBrowserUserAgent(urlConnection);
-                    Document html = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
-                    Elements animeElements = html.select("tr.ranking-list");
-                    for (Element animeElement : animeElements) {
-                        try {
-                            MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
+            List<MyAnimelistAnimeData> result = JikanDatabase.getInstance().getList(type, limit / 25 + 1);
+            if(result.size() == 0) {
+                result = MyAnimeListCache.getInstance().getQueryResult(malURL);
+                if (result == null) {
+                    result = new ArrayList<>();
+                    try {
+                        HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(malURL);
+                        SimpleHttpClient.setBrowserUserAgent(urlConnection);
+                        Document html = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+                        Elements animeElements = html.select("tr.ranking-list");
+                        for (Element animeElement : animeElements) {
+                            try {
+                                MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
 
-                            Element imageElement = animeElement.getElementsByTag("img").get(0);
-                            myAnimelistAnimeData.addImage(imageElement.attr("data-src").split("\\?")[0].replace("r/50x70/", ""));
+                                Element imageElement = animeElement.getElementsByTag("img").get(0);
+                                myAnimelistAnimeData.addImage(imageElement.attr("data-src").split("\\?")[0].replace("r/50x70/", ""));
 
-                            Element titleElement = animeElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0);
-                            myAnimelistAnimeData.setUrl(titleElement.attr("href"));
-                            myAnimelistAnimeData.setTitle(titleElement.text());
-                            result.add(myAnimelistAnimeData);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                                Element titleElement = animeElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0);
+                                myAnimelistAnimeData.setUrl(titleElement.attr("href"));
+                                myAnimelistAnimeData.setTitle(titleElement.text());
+
+                                result.add(myAnimelistAnimeData);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
+                        if (result.size() > 0)
+                            MyAnimeListCache.getInstance().storeAnimeCache(malURL, result);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    if(result.size() > 0)   MyAnimeListCache.getInstance().storeCache(malURL, result);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
-
             return result;
         }
     }

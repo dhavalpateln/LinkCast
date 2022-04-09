@@ -16,6 +16,12 @@
         android:id="@+id/discover_genre"
         android:enabled="true"
         android:icon="@drawable/ic_star"
-        android:title="Genre" />
+        android:title="Genres" />
+
+    <item
+        android:id="@+id/discover_suggested"
+        android:enabled="true"
+        android:icon="@drawable/ic_star"
+        android:title="Suggested" />
 
 </menu>

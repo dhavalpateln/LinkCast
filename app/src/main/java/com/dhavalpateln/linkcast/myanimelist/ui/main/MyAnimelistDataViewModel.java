@@ -1,14 +1,10 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.jsoup.Jsoup;
@@ -19,10 +15,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 public class MyAnimelistDataViewModel extends ViewModel {
@@ -164,7 +158,7 @@ public class MyAnimelistDataViewModel extends ViewModel {
                             }
                         } catch (Exception e) {e.printStackTrace();}
 
-                        MyAnimeListCache.getInstance().storeCache(myAnimelistAnimeData.getUrl(), myAnimelistAnimeData);
+                        MyAnimeListCache.getInstance().storeAnimeCache(myAnimelistAnimeData.getUrl(), myAnimelistAnimeData);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

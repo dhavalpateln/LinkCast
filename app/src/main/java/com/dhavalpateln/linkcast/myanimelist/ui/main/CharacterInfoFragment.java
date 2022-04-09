@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +21,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
+import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +40,9 @@ public class CharacterInfoFragment extends Fragment {
     private List<MyAnimelistCharacterData> dataList;
     private GridRecyclerAdapter<MyAnimelistCharacterData> recyclerAdapter;
     private RecyclerView characterRecyclerView;
+
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public CharacterInfoFragment() {
         // Required empty public constructor
@@ -84,6 +92,10 @@ public class CharacterInfoFragment extends Fragment {
         viewModel.getData().observe(getViewLifecycleOwner(), myAnimelistAnimeData -> {
             if(myAnimelistAnimeData.getId() > 0) {
                 updateCharactersRecyclerView(myAnimelistAnimeData.getCharacters());
+                executor.execute(() -> {
+                    MyAnimeListDatabase.getInstance().getAllCharacters(myAnimelistAnimeData);
+                    uiHandler.post(() -> updateCharactersRecyclerView(myAnimelistAnimeData.getCharacters()));
+                });
             }
             Log.d("MyAnimeCharacterFrag", "Changed");
         });

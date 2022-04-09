@@ -79,6 +79,7 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
             @Override
             public void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, MyAnimelistAnimeData data) {
                 holder.titleTextView.setText(data.getTitle());
+                holder.subTextTextView.setText(data.getInfo("Genres"));
                 try {
                     Glide.with(getContext())
                             .load(data.getImages().get(0))

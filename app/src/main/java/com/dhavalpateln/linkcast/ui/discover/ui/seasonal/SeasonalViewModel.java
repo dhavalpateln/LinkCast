@@ -210,11 +210,20 @@ public class SeasonalViewModel  extends ViewModel {
                             }
                             myAnimelistAnimeData.addImage(imageUrl);
                             myAnimelistAnimeData.putInfo("type", type);
+
+                            try {
+                                String genreString = "";
+                                Elements genreElements = animeElement.selectFirst("div.genres").select("a");
+                                for (Element genreElement : genreElements)
+                                    genreString += genreElement.text() + ",";
+                                genreString = genreString.substring(0, genreString.length() - 1);
+                                myAnimelistAnimeData.putInfo("Genres", genreString);
+                            }catch (Exception e) {e.printStackTrace();}
                             result.add(myAnimelistAnimeData);
                         }
                     }
                     if(result.size() > 0) {
-                        MyAnimeListCache.getInstance().storeCache(url, result);
+                        MyAnimeListCache.getInstance().storeAnimeCache(url, result);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
