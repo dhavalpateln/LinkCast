@@ -24,6 +24,7 @@ public class AnimeLinkData {
         public static final String DATA_SOURCE = "source";
         public static final String DATA_MYANIMELIST_ID = "malid";
         public static final String DATA_MYANIMELIST_URL = "malurl";
+        public static final String DATA_USER_SCORE = "userscore";
     }
 
     public String getTitle() {
@@ -61,6 +62,8 @@ public class AnimeLinkData {
                 return "";
             case DataContract.DATA_EPISODE_NUM:
                 return "Episode - 0";
+            case DataContract.DATA_USER_SCORE:
+                return "0";
             default:
                 return null;
         }

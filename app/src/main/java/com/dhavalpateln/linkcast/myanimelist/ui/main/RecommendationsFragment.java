@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +82,10 @@ public class RecommendationsFragment extends Fragment {
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
+                startActivity(intent);
+            });
         });
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));

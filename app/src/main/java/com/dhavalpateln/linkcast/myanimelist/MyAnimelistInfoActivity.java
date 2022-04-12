@@ -1,6 +1,8 @@
 package com.dhavalpateln.linkcast.myanimelist;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -60,5 +62,11 @@ public class MyAnimelistInfoActivity extends AppCompatActivity {
         myAnimelistDataViewModel.getData().observe(this, d-> {
             progressDialog.dismiss();
         });
+    }
+
+    public static Intent prepareIntent(Context context, MyAnimelistAnimeData data) {
+        Intent intent = new Intent(context, MyAnimelistInfoActivity.class);
+        intent.putExtra(INTENT_ANIMELIST_DATA_KEY, data);
+        return intent;
     }
 }

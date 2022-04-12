@@ -69,8 +69,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
                 android:textSize="18sp"
+                android:text="Title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -98,6 +100,16 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="0/0"
+            style="@style/Widget.MaterialComponents.Button.TextButton">
+        </Button>
+
+        <Button
+            android:id="@+id/anime_user_score_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="0"
+            android:onClick="updateScore"
             style="@style/Widget.MaterialComponents.Button.TextButton">
         </Button>
 

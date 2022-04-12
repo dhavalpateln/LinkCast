@@ -42,7 +42,6 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/catalog_recycler_object_source_text_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,8 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:layout_editor_absoluteX="4dp">
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <Button
                 android:id="@+id/open_button_catalog_recycler"

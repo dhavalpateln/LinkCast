@@ -77,6 +77,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private AnimeScrapper sourceExtractor;
     private Button statusButton;
     private Button episodeProgressButton;
+    private Button scoreButton;
     private String id;
     private int currentEpisode = 0;
     private int totalEpisode = 0;
@@ -85,7 +86,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private AnimeLinkData animeData;
     private List<MyAnimelistAnimeData> myAnimelistSearchResult;
     private MyAnimelistAnimeData selectedMyAnimelistAnimeData;
-
 
 
     private class EpisodeData {
@@ -184,7 +184,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         animeTitleTextView = findViewById(R.id.advanced_view_anime_title_text_view);
         statusButton = findViewById(R.id.advanced_view_status_button);
         episodeProgressButton = findViewById(R.id.advanced_view_episode_progress_button);
-        // TODO: implement update episode progress button
+        scoreButton = findViewById(R.id.anime_user_score_button);
 
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), findViewById(R.id.mediaRouteButton));
 
@@ -215,6 +215,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
         else {
             statusButton.setText("PLANNED");
         }
+
+        scoreButton.setText(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
 
         if(calledIntent.hasExtra("title")) {
             animeTitleTextView.setText(calledIntent.getStringExtra("title"));
@@ -715,5 +717,20 @@ public class AnimeAdvancedView extends AppCompatActivity {
             return;
         }
         startAnimeInfoActivity(selectedMyAnimelistAnimeData);
+    }
+
+    public void updateScore(View view) {
+        PopupMenu popupMenu = new PopupMenu(getApplicationContext(), view);
+        String[] scores = new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        for(String score: scores)   popupMenu.getMenu().add(score);
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                animeData.updateData(AnimeLinkData.DataContract.DATA_USER_SCORE, menuItem.getTitle().toString());
+                ((Button) view).setText(menuItem.getTitle().toString());
+                return false;
+            }
+        });
+        popupMenu.show();
     }
 }

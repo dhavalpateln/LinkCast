@@ -73,6 +73,7 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         seasonTextView = view.findViewById(R.id.discover_seasonal_season_text_view);
+        progressBar = view.findViewById(R.id.discover_seasonal_progress_bar);
         dataList = new ArrayList<>();
         gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), new GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>() {
 
@@ -111,6 +112,7 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
     }
 
     private void updateRecyclerData(List<MyAnimelistAnimeData> myAnimelistAnimeData) {
+        progressBar.setVisibility(View.GONE);
         dataList.clear();
         dataList.addAll(myAnimelistAnimeData);
         gridRecyclerAdapter.notifyDataSetChanged();

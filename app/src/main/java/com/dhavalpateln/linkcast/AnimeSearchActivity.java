@@ -35,6 +35,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
@@ -59,6 +60,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
     public static String INTENT_SEARCH_TERM = "search";
 
+    private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
     private RecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
     private EditText searchEditText;
@@ -243,6 +245,13 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.search_recycler_view);
         adapter = new RecyclerViewAdapter(filteredData, getApplicationContext());
+        recyclerAdapter = new ListRecyclerAdapter<>(filteredData, getApplicationContext(), new ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>() {
+            @Override
+            public void onBindView(ListRecyclerAdapter.ListRecyclerViewHolder holder, int position, AnimeLinkData data) {
+
+            }
+
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
 

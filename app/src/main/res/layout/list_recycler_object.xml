@@ -42,7 +42,6 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/list_object_subtext_text_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,8 +53,7 @@
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/list_object_buttons_holder_linearlayout"
-            app:layout_constraintTop_toBottomOf="@+id/list_object_title_text_view"
-            tools:layout_editor_absoluteX="4dp" />
+            app:layout_constraintTop_toBottomOf="@+id/list_object_title_text_view" />
 
         <LinearLayout
             android:id="@+id/list_object_buttons_holder_linearlayout"
