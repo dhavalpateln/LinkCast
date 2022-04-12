@@ -31,7 +31,7 @@ public class DiscoverSeasonalFragment extends Fragment {
     private SeasonalViewModel seasonalViewModel;
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
-    private String[] tabTitles = { "Current", "Last", "Next" };
+    private String[] tabTitles = { "Current", "Last", "Next", "Archive" };
 
     public DiscoverSeasonalFragment() {
         // Required empty public constructor
@@ -92,7 +92,8 @@ public class DiscoverSeasonalFragment extends Fragment {
                 case 1: return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.LAST);
                 case 0: return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.CURRENT);
                 case 2: return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.NEXT);
-                default:    return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.CUSTOM);
+                case 3: return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.ARCHIVE);
+                default:    return DiscoverSeasonalFragmentObject.newInstance(SeasonalViewModel.SeasonType.ARCHIVE);
             }
         }
 

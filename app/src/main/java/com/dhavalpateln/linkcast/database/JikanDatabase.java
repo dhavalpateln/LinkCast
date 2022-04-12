@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.database;
 import com.dhavalpateln.linkcast.data.JikanCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
+import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.SeasonalViewModel;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
@@ -90,6 +91,38 @@ public class JikanDatabase {
             cache.storeCache(url, result);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+        return result;
+    }
+
+    public List<String> getSeasonList() {
+        List<String> result = JikanCache.getInstance().getSeasonListCache();
+        String[] seasonOrder = new String[] {
+                SeasonalViewModel.Quater.WINTER,
+                SeasonalViewModel.Quater.SPRING,
+                SeasonalViewModel.Quater.SUMMER,
+                SeasonalViewModel.Quater.FALL
+        };
+        if(result == null) {
+            result = new ArrayList<>();
+            try {
+                result.add("Later");
+                String url = "https://api.jikan.moe/v4/seasons";
+                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+                JSONObject jsonResult = new JSONObject(SimpleHttpClient.getResponse(urlConnection));
+                JSONArray seasonList = jsonResult.getJSONArray("data");
+                for (int yearIndex = 0; yearIndex < seasonList.length(); yearIndex++) {
+                    JSONObject yearJsonObj = seasonList.getJSONObject(yearIndex);
+                    String year = yearJsonObj.getString("year");
+                    JSONArray seasons = yearJsonObj.getJSONArray("seasons");
+                    for (int seasonIndex = seasons.length() - 1; seasonIndex >= 0; seasonIndex--) {
+                        result.add(seasonOrder[seasonIndex] + " " + year);
+                    }
+                }
+                JikanCache.getInstance().setSeasonListCache(result);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
         }
         return result;
     }
