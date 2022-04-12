@@ -112,6 +112,7 @@ public class PopularViewModel extends ViewModel {
                                 Element titleElement = animeElement.getElementsByTag("h3").get(0).getElementsByTag("a").get(0);
                                 myAnimelistAnimeData.setUrl(titleElement.attr("href"));
                                 myAnimelistAnimeData.setTitle(titleElement.text());
+                                myAnimelistAnimeData.setMalScoreString(animeElement.selectFirst("td.score").text().trim());
 
                                 result.add(myAnimelistAnimeData);
                             } catch (Exception e) {

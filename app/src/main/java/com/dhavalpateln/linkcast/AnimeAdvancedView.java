@@ -556,17 +556,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
             try {
                 String urlString = strings[0];
                 this.baseURL = strings[0];
-                /*AnimeLinkData animeLinkData = new AnimeLinkData();
-                Map<String, String> intentData = new HashMap<>();
-                Bundle intentBundle = getIntent().getExtras();
-                for(String key: intentBundle.keySet()) {
-                    if(key.startsWith("data-")) {
-                        intentData.put(key.replace("data-", ""), intentBundle.getString(key));
-                    }
-                }
-                animeLinkData.setData(intentData);
-                animeLinkData.setUrl(intentBundle.getString(AnimeLinkData.DataContract.URL));
-                animeLinkData.setTitle(intentBundle.getString(AnimeLinkData.DataContract.TITLE));*/
 
                 Map<String, String> episodeList = sourceExtractor.extractData(animeData);
 
@@ -576,6 +565,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
                         if (myAnimelistAnimeData.getTitle().equals(animeData.getTitle())) {
                             selectedMyAnimelistAnimeData = myAnimelistAnimeData;
                             break;
+                        }
+                    }
+                    if(selectedMyAnimelistAnimeData == null && myAnimelistSearchResult.size() > 1) {
+                        if (myAnimelistSearchResult.get(0).getSearchScore() - myAnimelistSearchResult.get(1).getSearchScore() > 10) {
+                            selectedMyAnimelistAnimeData = myAnimelistSearchResult.get(0);
                         }
                     }
                     if(selectedMyAnimelistAnimeData != null) {

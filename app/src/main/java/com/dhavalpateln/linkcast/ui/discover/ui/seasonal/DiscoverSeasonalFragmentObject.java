@@ -105,6 +105,10 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.imageView);
                 } catch (Exception e) {e.printStackTrace();}
+                if(data.getMalScoreString() != null) {
+                    holder.scoreTextView.setVisibility(View.VISIBLE);
+                    holder.scoreTextView.setText(data.getMalScoreString());
+                }
                 holder.itemView.setOnClickListener(v -> {
                     Intent intent = new Intent(getContext(), MyAnimelistInfoActivity.class);
                     intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);

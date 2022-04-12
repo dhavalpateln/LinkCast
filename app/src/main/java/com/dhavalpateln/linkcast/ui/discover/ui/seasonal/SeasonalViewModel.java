@@ -218,6 +218,7 @@ public class SeasonalViewModel  extends ViewModel {
                                 genreString = genreString.substring(0, genreString.length() - 1);
                                 myAnimelistAnimeData.putInfo("Genres", genreString);
                             }catch (Exception e) {e.printStackTrace();}
+                            myAnimelistAnimeData.setMalScoreString(animeElement.selectFirst("div.scormem-item.score").text().trim());
                             result.add(myAnimelistAnimeData);
                         }
                     }
@@ -234,65 +235,4 @@ public class SeasonalViewModel  extends ViewModel {
             });
         });
     }
-
-    private class LoadDataTask extends AsyncTask<Season, Void, List<MyAnimelistAnimeData>> {
-
-        private Season season;
-
-        @Override
-        protected void onPostExecute(List<MyAnimelistAnimeData> myAnimelistAnimeData) {
-            super.onPostExecute(myAnimelistAnimeData);
-            getData(season.toString()).setValue(myAnimelistAnimeData);
-        }
-
-        @Override
-        protected List<MyAnimelistAnimeData> doInBackground(Season... seasons) {
-            season = seasons[0];
-            String url = "https://myanimelist.net/anime/season/" + season.getYear() + "/" + season.getQuater().toLowerCase();
-            List<MyAnimelistAnimeData> result = MyAnimeListCache.getInstance().getQueryResult(url);
-            if(result == null) {
-                result = new ArrayList<>();
-                try {
-                    HttpURLConnection httpURLConnection = SimpleHttpClient.getURLConnection(url);
-                    SimpleHttpClient.setBrowserUserAgent(httpURLConnection);
-                    Document html = Jsoup.parse(SimpleHttpClient.getResponse(httpURLConnection));
-                    Elements seasonalTypes = html.select("div.seasonal-anime-list");
-                    for (Element seasonalType : seasonalTypes) {
-                        String type = seasonalType.selectFirst("div.anime-header").text();
-                        Elements animeElements = seasonalType.select("div.seasonal-anime");
-                        for (Element animeElement : animeElements) {
-                            MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
-                            Element titleElement = animeElement.selectFirst("div.title");
-                            Element imageElement = animeElement.selectFirst("div.image");
-                            myAnimelistAnimeData.setTitle(titleElement.selectFirst("h2").text());
-                            myAnimelistAnimeData.setUrl(imageElement.selectFirst("a").attr("href"));
-                            String imageUrl = imageElement.selectFirst("img").attr("src");
-                            if (imageUrl.equals("")) {
-                                imageUrl = imageElement.selectFirst("img").attr("data-src");
-                            }
-                            myAnimelistAnimeData.addImage(imageUrl);
-                            myAnimelistAnimeData.putInfo("type", type);
-
-                            try {
-                                String genreString = "";
-                                Elements genreElements = animeElement.selectFirst("div.genres").select("a");
-                                for (Element genreElement : genreElements)
-                                    genreString += genreElement.text() + ",";
-                                genreString = genreString.substring(0, genreString.length() - 1);
-                                myAnimelistAnimeData.putInfo("Genres", genreString);
-                            }catch (Exception e) {e.printStackTrace();}
-                            result.add(myAnimelistAnimeData);
-                        }
-                    }
-                    if(result.size() > 0) {
-                        MyAnimeListCache.getInstance().storeAnimeCache(url, result);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return result;
-        }
-    }
-
 }

@@ -94,6 +94,10 @@ public class SuggestedFragment extends Fragment {
                         Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
                         startActivity(intent);
                     });
+                    if(data.getMalScoreString() != null) {
+                        holder.scoreTextView.setVisibility(View.VISIBLE);
+                        holder.scoreTextView.setText(data.getMalScoreString());
+                    }
                 }
         );
 

@@ -27,6 +27,7 @@ public class MyAnimelistSearch {
                 myAnimelistAnimeData.setTitle(animeData.getString("name"));
                 myAnimelistAnimeData.setUrl(animeData.getString("url"));
                 myAnimelistAnimeData.addImage(animeData.getString("image_url"));
+                myAnimelistAnimeData.setSearchScore(animeData.getDouble("es_score"));
                 result.add(myAnimelistAnimeData);
             }
         } catch (IOException | JSONException e) {

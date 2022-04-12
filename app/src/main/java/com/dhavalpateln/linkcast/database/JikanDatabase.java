@@ -86,6 +86,7 @@ public class JikanDatabase {
                 if(genreArray.length() > 0) {
                     myAnimelistAnimeData.putInfo("Genres", genreString.substring(0, genreString.length() - 1));
                 }
+                myAnimelistAnimeData.setMalScoreString(animeData.getString("score"));
                 result.add(myAnimelistAnimeData);
             }
             cache.storeCache(url, result);

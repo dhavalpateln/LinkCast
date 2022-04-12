@@ -112,6 +112,11 @@ public class DiscoverPopularFragmentObject extends Fragment {
                 intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);
                 startActivity(intent);
             });
+
+            if(data.getMalScoreString() != null) {
+                holder.scoreTextView.setVisibility(View.VISIBLE);
+                holder.scoreTextView.setText(data.getMalScoreString());
+            }
         });
 
         RecyclerView recyclerView = view.findViewById(R.id.discover_popular_recycler_view);

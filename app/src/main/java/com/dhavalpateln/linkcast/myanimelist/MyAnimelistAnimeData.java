@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 
 public class MyAnimelistAnimeData implements Serializable {
     private int id;
+    private double searchScore;
+    private String malScoreString;
     private String title;
     private String englishTitle;
     private String url;
@@ -35,6 +37,7 @@ public class MyAnimelistAnimeData implements Serializable {
         sideStory = new HashSet<>();
         characters = new ArrayList<>();
         recommendations = new ArrayList<>();
+        searchScore = 0;
     }
 
     public MyAnimelistAnimeData() {
@@ -46,6 +49,25 @@ public class MyAnimelistAnimeData implements Serializable {
     }
     public void setId(int id) {
         this.id = id;
+    }
+
+    public double getSearchScore() {
+        return searchScore;
+    }
+
+    public void setSearchScore(double searchScore) {
+        this.searchScore = searchScore;
+    }
+
+    public String getMalScoreString() {
+        return malScoreString;
+    }
+
+    public void setMalScoreString(String malScoreString) {
+        try {
+            malScoreString = String.format("%.2f", Double.valueOf(malScoreString));
+        } catch (Exception e) {}
+        this.malScoreString = malScoreString;
     }
 
     public String getTitle() {

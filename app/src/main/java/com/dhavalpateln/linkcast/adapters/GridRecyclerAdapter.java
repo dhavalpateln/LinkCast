@@ -58,6 +58,7 @@ public class GridRecyclerAdapter<T> extends RecyclerView.Adapter<GridRecyclerAda
         public TextView subTextTextView;
         public TextView titleTextView;
         public ImageView imageView;
+        public TextView scoreTextView;
         public ConstraintLayout mainLayout;
 
         public GridRecyclerViewHolder(@NonNull View itemView) {
@@ -66,6 +67,7 @@ public class GridRecyclerAdapter<T> extends RecyclerView.Adapter<GridRecyclerAda
             this.subTextTextView = itemView.findViewById(R.id.grid_object_subtext_text_view);
             this.titleTextView = itemView.findViewById(R.id.grid_object_title_text_view);
             this.imageView = itemView.findViewById(R.id.grid_object_image_view);
+            this.scoreTextView = itemView.findViewById(R.id.mal_score_text_view);
         }
     }
 }
