@@ -14,16 +14,16 @@
     >
 
     <ImageView
-        android:id="@+id/list_object_image_view"
-        android:layout_width="99dp"
+        android:id="@+id/video_object_image_view"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:padding="2dp"
+        app:layout_constraintDimensionRatio="W,4:3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.407"
-        android:clipToOutline="true"
         android:background="@drawable/layout_round_corner"
+        android:clipToOutline="true"
         tools:srcCompat="@tools:sample/avatars" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,11 +33,11 @@
         android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/list_object_image_view"
+        app:layout_constraintStart_toEndOf="@+id/video_object_image_view"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/list_object_title_text_view"
+            android:id="@+id/video_object_title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -47,17 +47,17 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/list_object_subtext_text_view"
+            android:id="@+id/video_object_subtext_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/list_object_buttons_holder_linearlayout"
-            app:layout_constraintTop_toBottomOf="@+id/list_object_title_text_view" />
+            app:layout_constraintBottom_toTopOf="@+id/video_object_buttons_holder_linearlayout"
+            app:layout_constraintTop_toBottomOf="@+id/video_object_title_text_view" />
 
         <LinearLayout
-            android:id="@+id/list_object_buttons_holder_linearlayout"
+            android:id="@+id/video_object_buttons_holder_linearlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

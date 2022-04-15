@@ -22,7 +22,7 @@
 
             <Button
                 android:id="@+id/discover_seasonal_type_button"
-                android:text="TV"
+                android:text="TV (New)"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"

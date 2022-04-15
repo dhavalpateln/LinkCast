@@ -124,10 +124,6 @@ public class CatalogObjectFragment extends Fragment {
                 BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
                 dialog.show(getParentFragmentManager(), "bookmarkEdit");
             });
-            if(recyclerData.getTitle().contains("Chuuni") || recyclerData.getTitle().contains("Boku no Hero Academia 3")) {
-                Log.d(TAG, "fk");
-
-            }
             if(recyclerData.getData().containsKey("imageUrl")) {
                 Glide.with(getContext())
                         .load(recyclerData.getData().get("imageUrl"))

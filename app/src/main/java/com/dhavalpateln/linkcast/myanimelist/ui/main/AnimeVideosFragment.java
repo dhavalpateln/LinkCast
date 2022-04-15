@@ -1,15 +1,6 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -21,8 +12,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.VideoRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.ArrayList;
@@ -30,26 +22,34 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link CharacterInfoFragment#newInstance} factory method to
+ * Use the {@link AnimeVideosFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CharacterInfoFragment extends Fragment {
+public class AnimeVideosFragment extends Fragment {
 
-    private List<MyAnimelistCharacterData> dataList;
-    private GridRecyclerAdapter<MyAnimelistCharacterData> recyclerAdapter;
-    private RecyclerView characterRecyclerView;
+    private List<MyAnimeListDatabase.VideoData> dataList;
+    private VideoRecyclerAdapter<MyAnimeListDatabase.VideoData> recyclerAdapter;
+    private RecyclerView videoRecyclerView;
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
-    public CharacterInfoFragment() {
+    public AnimeVideosFragment() {
         // Required empty public constructor
     }
 
-    public static CharacterInfoFragment newInstance() {
-        CharacterInfoFragment fragment = new CharacterInfoFragment();
+    public static AnimeVideosFragment newInstance() {
+        AnimeVideosFragment fragment = new AnimeVideosFragment();
         return fragment;
     }
 
@@ -69,44 +69,39 @@ public class CharacterInfoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        characterRecyclerView = view.findViewById(R.id.mal_characters_recycler_view);
+        videoRecyclerView = view.findViewById(R.id.mal_characters_recycler_view);
 
-        recyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), new GridRecyclerAdapter.RecyclerInterface<MyAnimelistCharacterData>() {
+        recyclerAdapter = new VideoRecyclerAdapter<>(dataList, getContext(), new VideoRecyclerAdapter.RecyclerInterface<MyAnimeListDatabase.VideoData>() {
             @Override
-            public void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, MyAnimelistCharacterData data) {
-                holder.titleTextView.setText(data.getName());
-                holder.subTextTextView.setText(data.getType());
+            public void onBindView(VideoRecyclerAdapter.ListRecyclerViewHolder holder, int position, MyAnimeListDatabase.VideoData data) {
+                holder.titleTextView.setText(data.getTitle());
                 Glide.with(getContext())
-                        .load(data.getImages().get(0))
+                        .load(data.getImageURL())
                         .centerCrop()
                         .crossFade()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(holder.imageView);
             }
         });
-        characterRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        characterRecyclerView.setAdapter(recyclerAdapter);
+        videoRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        videoRecyclerView.setAdapter(recyclerAdapter);
 
 
         MyAnimelistDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MyAnimelistDataViewModel.class);
         viewModel.getData().observe(getViewLifecycleOwner(), myAnimelistAnimeData -> {
             if(myAnimelistAnimeData.getId() > 0) {
-                updateCharactersRecyclerView(myAnimelistAnimeData.getCharacters());
                 executor.execute(() -> {
-                    MyAnimeListDatabase.getInstance().getAllCharacters(myAnimelistAnimeData);
-                    uiHandler.post(() -> updateCharactersRecyclerView(myAnimelistAnimeData.getCharacters()));
+                    List<MyAnimeListDatabase.VideoData> result = MyAnimeListDatabase.getInstance().fetchVideos(myAnimelistAnimeData);
+                    uiHandler.post(() -> updateRecyclerView(result));
                 });
             }
-            Log.d("MyAnimeCharacterFrag", "Changed");
+            Log.d("MyAnimeVideoFrag", "Changed");
         });
     }
 
-    private void updateCharactersRecyclerView(List<MyAnimelistCharacterData> characterList) {
-        for(MyAnimelistCharacterData characterData: characterList) {
-            if(!dataList.contains(characterData)) {
-                dataList.add(characterData);
-            }
-        }
+    private void updateRecyclerView(List<MyAnimeListDatabase.VideoData> videoDataList) {
+        dataList.clear();
+        dataList.addAll(videoDataList);
         recyclerAdapter.notifyDataSetChanged();
     }
 

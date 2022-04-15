@@ -19,18 +19,6 @@
         tools:layout="@layout/fragment_discover" />
 
     <fragment
-        android:id="@+id/nav_anime_links"
-        android:name="com.dhavalpateln.linkcast.ui.home.HomeFragment"
-        android:label="@string/menu_anime_links"
-        tools:layout="@layout/fragment_home" />
-
-    <!--<fragment
-        android:id="@+id/nav_anime_catalog"
-        android:name="com.dhavalpateln.linkcast.ui.home.HomeFragment"
-        android:label="Links"
-        tools:layout="@layout/fragment_home" />-->
-
-    <fragment
         android:id="@+id/nav_manga_links"
         android:name="com.dhavalpateln.linkcast.ui.mangas.MangaFragment"
         android:label="@string/menu_manga_links"

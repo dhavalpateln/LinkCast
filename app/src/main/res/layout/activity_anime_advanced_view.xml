@@ -90,9 +90,12 @@
             android:id="@+id/advanced_view_status_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:padding="0dp"
             android:layout_weight="1"
             android:text="Status"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_movie" />
 
         <Button
             android:id="@+id/advanced_view_episode_progress_button"
@@ -100,7 +103,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="0/0"
-            style="@style/Widget.MaterialComponents.Button.TextButton">
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_eye">
         </Button>
 
         <Button
@@ -110,7 +115,9 @@
             android:layout_weight="1"
             android:text="0"
             android:onClick="updateScore"
-            style="@style/Widget.MaterialComponents.Button.TextButton">
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_thumb">
         </Button>
 
         <Button
@@ -119,7 +126,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="INFO"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:drawableTop="@drawable/ic_info"
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
             android:onClick="animeInfo"/>
 
     </LinearLayout>

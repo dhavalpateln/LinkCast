@@ -31,7 +31,8 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
             case 0: return AnimeInfoFragment.newInstance();
             case 1: return CharacterInfoFragment.newInstance();
             case 2: return AnimeSynopsisFragment.newInstance();
-            case 3: return RecommendationsFragment.newInstance();
+            case 3: return AnimeVideosFragment.newInstance();
+            case 4: return RecommendationsFragment.newInstance();
         }
         return AnimeInfoFragment.newInstance();
     }
@@ -43,7 +44,8 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
             case 0: return "Info";
             case 1: return "Characters";
             case 2: return "Synopsis";
-            case 3: return "Recommendations";
+            case 3: return "Videos";
+            case 4: return "Recommendations";
         }
         return "Info";
         //return mContext.getResources().getString(TAB_TITLES[position]);
@@ -51,6 +53,6 @@ public class MyAnimelistSectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 4;
+        return 5;
     }
 }

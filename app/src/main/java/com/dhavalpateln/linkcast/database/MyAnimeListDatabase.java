@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.database;
 
+import android.provider.MediaStore;
+
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
@@ -25,6 +27,36 @@ public class MyAnimeListDatabase {
         TOP_MOVIES,
         TOP_POPULAR,
         TOP_FAVORITE
+    }
+
+    public class VideoData {
+        String url;
+        String title;
+        String imageURL;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getImageURL() {
+            return imageURL;
+        }
+
+        public void setImageURL(String imageURL) {
+            this.imageURL = imageURL;
+        }
     }
 
     private MyAnimeListDatabase() {
@@ -232,5 +264,27 @@ public class MyAnimeListDatabase {
         List<MyAnimelistAnimeData> animeList = getRecommendations(myAnimelistAnimeData.getUrl() + "/userrecs");
         for(MyAnimelistAnimeData animeData: animeList)
             myAnimelistAnimeData.addRecommendation(animeData);
+    }
+
+    public List<VideoData> fetchVideos(MyAnimelistAnimeData myAnimelistAnimeData) {
+        List<VideoData> result = new ArrayList<>();
+        String url = myAnimelistAnimeData.getUrl() + "/video";
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
+            Document html = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+            Element promotionalVideoDiv = html.selectFirst("div.video-block.promotional-video");
+            Elements videoElements = promotionalVideoDiv.select("div.video-list-outer");
+            for(Element videoElement: videoElements) {
+                VideoData videoData = new VideoData();
+                videoData.setImageURL(videoElement.selectFirst("img").attr("data-src"));
+                videoData.setUrl(videoElement.selectFirst("a").attr("href"));
+                videoData.setTitle(videoElement.selectFirst("span.title").text().trim());
+                result.add(videoData);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

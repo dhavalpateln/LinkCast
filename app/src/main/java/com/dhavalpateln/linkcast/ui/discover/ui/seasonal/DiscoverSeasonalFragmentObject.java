@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -48,10 +51,12 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
     private String TAG = "SeasonalFragmentObject";
     private GridRecyclerAdapter<MyAnimelistAnimeData> gridRecyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
+    private List<MyAnimelistAnimeData> fullList;
     private ProgressBar progressBar;
     private SeasonalViewModel model;
     private TextView seasonTextView;
     private String currentSeasonString = "Later";
+    private Button animeTypeButton;
 
     private Observer<List<MyAnimelistAnimeData>> observer;
     private Executor executor = Executors.newSingleThreadExecutor();
@@ -90,7 +95,9 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
 
         seasonTextView = view.findViewById(R.id.discover_seasonal_season_text_view);
         progressBar = view.findViewById(R.id.discover_seasonal_progress_bar);
+        animeTypeButton = view.findViewById(R.id.discover_seasonal_type_button);
         dataList = new ArrayList<>();
+        fullList = new ArrayList<>();
         gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), new GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>() {
 
             @Override
@@ -133,11 +140,21 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
                         builder.setTitle("Choose season");
                         builder.setItems(seasonList.toArray(new String[0]), (dialog, which) -> {
                             dataList.clear();
+                            fullList.clear();
                             gridRecyclerAdapter.notifyDataSetChanged();
                             progressBar.setVisibility(View.VISIBLE);
                             String seasonString = seasonList.get(which);
                             model.getData(currentSeasonString).removeObserver(observer);
+
+                            if(currentSeasonString.equals("Later")) {
+                                if(!seasonString.equals("Later")) animeTypeButton.setText("TV (New)");
+                            }
+                            else if(seasonString.equals("Later")) {
+                                if(!currentSeasonString.equals("Later")) animeTypeButton.setText("TV");
+                            }
+
                             currentSeasonString = seasonString;
+
                             model.getData(currentSeasonString).observe(getViewLifecycleOwner(), observer);
                             seasonTextView.setText(seasonString);
                         });
@@ -146,19 +163,53 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
                     seasonTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
                 });
             });
+            animeTypeButton.setText("TV");
             seasonTextView.setText("Later");
             model.getData("Later").observe(getViewLifecycleOwner(), observer);
         }
         else {
+            animeTypeButton.setText("TV (New)");
             seasonTextView.setText(model.getSeasonString(seasonType));
+            currentSeasonString = model.getSeasonString(seasonType);
             model.getData(seasonType).observe(getViewLifecycleOwner(), observer);
         }
+
+        animeTypeButton.setOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(getContext(), v);
+            String[] filterTypes;
+
+            if(currentSeasonString.equals("Later")) {
+                filterTypes = new String[] {"TV", "ONA", "OVA", "Movie", "Special"};
+            }
+            else {
+                filterTypes = new String[] {"TV (New)", "TV (Continuing)", "ONA", "OVA", "Movie", "Special"};
+            }
+            for(String filter: filterTypes)   popupMenu.getMenu().add(filter);
+            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                animeTypeButton.setText(menuItem.getTitle());
+                filter();
+                return false;
+            });
+            popupMenu.show();
+        });
+    }
+
+    private void filter() {
+        String type = animeTypeButton.getText().toString();
+        dataList.clear();
+        for(MyAnimelistAnimeData animeData: fullList) {
+            if(animeData.getInfo("type").equals(type)) {
+                dataList.add(animeData);
+            }
+        }
+        gridRecyclerAdapter.notifyDataSetChanged();
     }
 
     private void updateRecyclerData(List<MyAnimelistAnimeData> myAnimelistAnimeData) {
         progressBar.setVisibility(View.GONE);
-        dataList.clear();
-        dataList.addAll(myAnimelistAnimeData);
-        gridRecyclerAdapter.notifyDataSetChanged();
+        fullList.clear();
+        fullList.addAll(myAnimelistAnimeData);
+        filter();
+        //gridRecyclerAdapter.notifyDataSetChanged();
     }
 }
