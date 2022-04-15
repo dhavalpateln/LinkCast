@@ -26,7 +26,8 @@
             android:name=".myanimelist.MyAnimelistInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_my_animelist_info"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".AnimeSearchActivity"
             android:exported="false" />

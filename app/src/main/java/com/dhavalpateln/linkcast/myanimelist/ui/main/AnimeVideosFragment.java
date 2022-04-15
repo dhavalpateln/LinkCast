@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +17,7 @@ import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.VideoRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
+import com.dhavalpateln.linkcast.dialogs.WebViewDialog;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.ArrayList;
@@ -81,6 +84,13 @@ public class AnimeVideosFragment extends Fragment {
                         .crossFade()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(holder.imageView);
+                holder.mainLayout.setOnClickListener(v -> {
+                    //WebViewDialog dialog = new WebViewDialog(data.getUrl());
+                    //dialog.show(getChildFragmentManager(), "PV");
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(data.getUrl()));
+                    startActivity(intent);
+                });
             }
         });
         videoRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
