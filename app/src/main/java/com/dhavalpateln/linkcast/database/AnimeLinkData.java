@@ -1,9 +1,12 @@
 package com.dhavalpateln.linkcast.database;
 
+import com.dhavalpateln.linkcast.utils.Utils;
+
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AnimeLinkData {
+public class AnimeLinkData implements Serializable {
 
     private String id;
     private String title;
@@ -70,17 +73,29 @@ public class AnimeLinkData {
     }
 
     public void updateData(String key, String value) {
-        updateData(key, value, true);
+        updateData(key, value, true, true);
     }
 
     public void updateData(String key, String value, boolean updateFirebase) {
+        updateData(key, value, updateFirebase, true);
+    }
+
+    public void updateData(String key, String value, boolean updateFirebase, boolean isAnime) {
         getData().put(key, value);
         if(updateFirebase && getId() != null) {
-            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(getId()).child("data").child(key).setValue(value);
+            if(isAnime) {
+                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(getId()).child("data").child(key).setValue(value);
+            }
+            else {
+                FirebaseDBHelper.getUserMangaWebExplorerLinkRef(getId()).child("data").child(key).setValue(value);
+            }
         }
     }
 
-    public void updateAll() {
+    public void updateAll(boolean isAnime) {
+
+        if(id == null)  id = Utils.getCurrentTime();
+
         Map<String, Object> update = new HashMap<>();
         update.put(id + "/title", getTitle());
         update.put(id + "/url", getUrl());
@@ -88,7 +103,8 @@ public class AnimeLinkData {
         for(String key: getData().keySet()) {
             update.put(id + "/data/" + key, getData().get(key));
         }
-        FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().updateChildren(update);
+        if(isAnime)   FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().updateChildren(update);
+        else FirebaseDBHelper.getUserMangaWebExplorerLinkRef().updateChildren(update);
     }
 
     public void setData(Map<String, String> data) {

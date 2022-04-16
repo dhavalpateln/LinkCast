@@ -46,6 +46,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".MangaAdvancedView"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
             android:exported="false"

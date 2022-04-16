@@ -54,6 +54,9 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserMangaWebExplorerLinkRef() {
         return getUserDataRef().child("mangawebexplorerlinks");
     }
+    public static DatabaseReference getUserMangaWebExplorerLinkRef(String id) {
+        return getUserDataRef().child("mangawebexplorerlinks").child(id);
+    }
     public static DatabaseReference getUserDownloadQueue() {
         return getUserDataRef().child("downloadqueue");
     }

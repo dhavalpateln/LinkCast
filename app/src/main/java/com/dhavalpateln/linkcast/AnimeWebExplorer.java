@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +20,7 @@ import com.dhavalpateln.linkcast.animesources.KwikCX;
 import com.dhavalpateln.linkcast.animesources.NineAnime;
 import com.dhavalpateln.linkcast.animesources.StreamAni;
 import com.dhavalpateln.linkcast.animesources.StreamSB;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
@@ -516,5 +518,20 @@ public class AnimeWebExplorer extends AppCompatActivity {
             }
         }
 
+    }
+
+    public static Intent prepareIntent(Context context, AnimeLinkData animeLinkData) {
+        Intent intent = new Intent(context, AnimeWebExplorer.class);
+        if(animeLinkData.getData() != null) {
+            intent.putExtra("mapdata", (HashMap<String, String>) animeLinkData.getData());
+            for(Map.Entry<String, String> entry: animeLinkData.getData().entrySet()) {
+                intent.putExtra("data-" + entry.getKey(), entry.getValue());
+            }
+        }
+        intent.putExtra("search", animeLinkData.getUrl());
+        intent.putExtra("source", "saved");
+        intent.putExtra("id", animeLinkData.getId());
+        intent.putExtra("title", animeLinkData.getTitle());
+        return intent;
     }
 }

@@ -57,6 +57,7 @@ public abstract class AnimeSearch {
     }
 
     public boolean isMangeSource() {return false;}
+    public boolean isAdvanceModeSource() {return true;}
 
     public abstract ArrayList<AnimeLinkData> search(String term);
     public abstract String getName();

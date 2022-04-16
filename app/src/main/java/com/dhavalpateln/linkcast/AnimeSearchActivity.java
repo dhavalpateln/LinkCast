@@ -104,30 +104,27 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
             }
             holder.openButton.setOnClickListener(v -> {
+                AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
                 Intent intent;
-                if(searchers.get(sourceSpinner.getSelectedItem().toString()).isMangeSource()) {
-                    intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+                if(animeSearch.isMangeSource()) {
+                    if(animeSearch.isAdvanceModeSource()) {
+                        intent = MangaAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
+                    }
+                    else {
+                        intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+                    }
                 }
                 else {
-                    intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                }
-                if(recyclerData.getData() != null) {
-                    if(recyclerData.getData().containsKey("mode") && recyclerData.getData().get("mode").equals("advanced")) {
-                        intent = new Intent(getApplicationContext(), AnimeAdvancedView.class);
-                        intent.putExtra("url", recyclerData.getUrl());
+                    if(animeSearch.isAdvanceModeSource()) {
+                        intent = AnimeAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
                     }
-                    intent.putExtra("mapdata", (HashMap<String, String>) recyclerData.getData());
-                    for(Map.Entry<String, String> entry: recyclerData.getData().entrySet()) {
-                        intent.putExtra("data-" + entry.getKey(), entry.getValue());
+                    else {
+                        intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), recyclerData);
                     }
                 }
-                intent.putExtra("search", recyclerData.getUrl());
-                intent.putExtra("source", "saved");
-                intent.putExtra("id", recyclerData.getId());
-                intent.putExtra("title", recyclerData.getTitle());
                 startActivity(intent);
             });
-            holder.openButton.setOnLongClickListener(v -> {
+            /*holder.openButton.setOnLongClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
                 for(Map.Entry<String, String> entry: recyclerData.getData().entrySet()) {
                     intent.putExtra("data-" + entry.getKey(), entry.getValue());
@@ -139,8 +136,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 intent.putExtra("title", recyclerData.getTitle());
                 startActivity(intent);
                 return false;
-            });
+            });*/
             if(recyclerData.getId() != null) {
+                holder.deleteButton.setVisibility(View.VISIBLE);
+                holder.editButton.setVisibility(View.VISIBLE);
                 holder.deleteButton.setOnClickListener(v -> {
                     FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
                 });

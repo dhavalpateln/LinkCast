@@ -56,6 +56,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -733,5 +734,11 @@ public class AnimeAdvancedView extends AppCompatActivity {
             }
         });
         popupMenu.show();
+    }
+
+    public static Intent prepareIntent(Context context, AnimeLinkData animeLinkData) {
+        Intent intent = new Intent(context, AnimeAdvancedView.class);
+        intent.putExtra(INTENT_ANIME_LINK_DATA, animeLinkData);
+        return intent;
     }
 }

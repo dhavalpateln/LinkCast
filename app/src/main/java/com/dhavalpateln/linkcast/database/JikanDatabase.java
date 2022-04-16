@@ -70,26 +70,28 @@ public class JikanDatabase {
 
         try {
             JSONObject jikanResult = getJikanResult(url);
-            JSONArray jikanResultArray = jikanResult.getJSONArray("data");
-            for(int i = 0; i < jikanResultArray.length(); i++) {
-                JSONObject animeData = jikanResultArray.getJSONObject(i);
-                MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
-                myAnimelistAnimeData.setUrl(animeData.getString("url"));
-                myAnimelistAnimeData.setTitle(animeData.getString("title"));
-                myAnimelistAnimeData.addImage(animeData.getJSONObject("images").getJSONObject("jpg").getString("image_url"));
+            if(jikanResult != null) {
+                JSONArray jikanResultArray = jikanResult.getJSONArray("data");
+                for (int i = 0; i < jikanResultArray.length(); i++) {
+                    JSONObject animeData = jikanResultArray.getJSONObject(i);
+                    MyAnimelistAnimeData myAnimelistAnimeData = new MyAnimelistAnimeData();
+                    myAnimelistAnimeData.setUrl(animeData.getString("url"));
+                    myAnimelistAnimeData.setTitle(animeData.getString("title"));
+                    myAnimelistAnimeData.addImage(animeData.getJSONObject("images").getJSONObject("jpg").getString("image_url"));
 
-                String genreString= "";
-                JSONArray genreArray = animeData.getJSONArray("genres");
-                for(int genreIndex = 0; genreIndex < genreArray.length(); genreIndex++) {
-                    genreString += genreArray.getJSONObject(genreIndex).getString("name") + ",";
+                    String genreString = "";
+                    JSONArray genreArray = animeData.getJSONArray("genres");
+                    for (int genreIndex = 0; genreIndex < genreArray.length(); genreIndex++) {
+                        genreString += genreArray.getJSONObject(genreIndex).getString("name") + ",";
+                    }
+                    if (genreArray.length() > 0) {
+                        myAnimelistAnimeData.putInfo("Genres", genreString.substring(0, genreString.length() - 1));
+                    }
+                    myAnimelistAnimeData.setMalScoreString(animeData.getString("score"));
+                    result.add(myAnimelistAnimeData);
                 }
-                if(genreArray.length() > 0) {
-                    myAnimelistAnimeData.putInfo("Genres", genreString.substring(0, genreString.length() - 1));
-                }
-                myAnimelistAnimeData.setMalScoreString(animeData.getString("score"));
-                result.add(myAnimelistAnimeData);
+                cache.storeCache(url, result);
             }
-            cache.storeCache(url, result);
         } catch (JSONException e) {
             e.printStackTrace();
         }

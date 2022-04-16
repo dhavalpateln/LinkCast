@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.manga;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,4 +57,11 @@ public class MangaReaderActivity extends AppCompatActivity {
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setCurrentItem(initialPosition, false);
     }
+
+    public static Intent prepareIntent(Context context, String[] images) {
+        Intent intent = new Intent(context, MangaReaderActivity.class);
+        intent.putExtra(INTENT_IMAGE_ARRAY, images);
+        return intent;
+    }
+
 }
