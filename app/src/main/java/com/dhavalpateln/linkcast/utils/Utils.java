@@ -38,6 +38,16 @@ public class Utils {
         return false;
     }
 
+    public static String capFirstLetters(String s) {
+        String[] words = s.split(" ");
+        String result = "";
+        for(String word: words) {
+            if(word.length() == 0) continue;
+            result += word.substring(0, 1).toUpperCase() + word.substring(1) + " ";
+        }
+        return result;
+    }
+
     public static boolean isInternetConnected(Context context) {
         return isNetworkAvailable(context) && isInternetAvailable();
     }

@@ -67,6 +67,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private static final int WEB_VIEW_REQUEST_CODE = 1;
     private static final String TAG = "AdvanceView";
 
+    public static final String INTENT_ANIME_LINK_DATA = "animedata";
+
     private Map<String, AnimeScrapper> extractors;
     private ProgressDialog progressDialog;
     private ImageView animeImageView;
@@ -191,15 +193,20 @@ public class AnimeAdvancedView extends AppCompatActivity {
         Intent calledIntent = getIntent();
 
         Bundle intentBundle = getIntent().getExtras();
-        animeData = new AnimeLinkData();
-        animeData.setUrl(intentBundle.getString(AnimeLinkData.DataContract.URL));
-        Map<String, String> data = new HashMap<>();
-        for(String intentKey: intentBundle.keySet()) {
-            if(intentKey.startsWith("data-")) {
-                data.put(intentKey.replace("data-", ""), intentBundle.getString(intentKey));
-            }
+        if(getIntent().hasExtra(INTENT_ANIME_LINK_DATA)) {
+            animeData = (AnimeLinkData) getIntent().getSerializableExtra(INTENT_ANIME_LINK_DATA);
         }
-        animeData.setData(data);
+        else {
+            animeData = new AnimeLinkData();
+            animeData.setUrl(intentBundle.getString(AnimeLinkData.DataContract.URL));
+            Map<String, String> data = new HashMap<>();
+            for (String intentKey : intentBundle.keySet()) {
+                if (intentKey.startsWith("data-")) {
+                    data.put(intentKey.replace("data-", ""), intentBundle.getString(intentKey));
+                }
+            }
+            animeData.setData(data);
+        }
 
         currentEpisode = Integer.valueOf(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM).split("-")[1].trim());
         updateEpisodeProgress();

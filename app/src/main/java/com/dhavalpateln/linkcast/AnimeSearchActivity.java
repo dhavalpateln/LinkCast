@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,24 +31,18 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.AnimeAdvancedView;
-import com.dhavalpateln.linkcast.AnimeWebExplorer;
-import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
-import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.AnimixPlaySearch;
 import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.MangaFourLife;
+import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
 import com.dhavalpateln.linkcast.ui.catalog.SharedAnimeLinkDataViewModel;
 
 import java.util.ArrayList;
@@ -111,7 +104,13 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
             }
             holder.openButton.setOnClickListener(v -> {
-                Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
+                Intent intent;
+                if(searchers.get(sourceSpinner.getSelectedItem().toString()).isMangeSource()) {
+                    intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+                }
+                else {
+                    intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
+                }
                 if(recyclerData.getData() != null) {
                     if(recyclerData.getData().containsKey("mode") && recyclerData.getData().get("mode").equals("advanced")) {
                         intent = new Intent(getApplicationContext(), AnimeAdvancedView.class);
@@ -225,7 +224,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch());
         searchers.put("animepahe.com", new AnimePaheSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
-        searchers.put("manga4life", new MangaFourLife());
+        searchers.put("manga4life", new MangaFourLifeSearch());
 
         String[] order = new String[] {
                 //ProvidersData.ANIMEKISASITE.NAME,

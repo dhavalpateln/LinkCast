@@ -33,7 +33,7 @@ public class JikanDatabase {
         try {
             HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
             int responseCode = SimpleHttpClient.getResponseCode(urlConnection);
-            if(responseCode == 200) {
+            if(responseCode < 400) {
                 return new JSONObject(SimpleHttpClient.getResponse(urlConnection));
             }
         } catch (IOException | JSONException e) {
@@ -109,8 +109,8 @@ public class JikanDatabase {
             try {
                 result.add("Later");
                 String url = "https://api.jikan.moe/v4/seasons";
-                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
-                JSONObject jsonResult = new JSONObject(SimpleHttpClient.getResponse(urlConnection));
+                //HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+                JSONObject jsonResult = getJikanResult(url);
                 JSONArray seasonList = jsonResult.getJSONArray("data");
                 for (int yearIndex = 0; yearIndex < seasonList.length(); yearIndex++) {
                     JSONObject yearJsonObj = seasonList.getJSONObject(yearIndex);
@@ -121,7 +121,7 @@ public class JikanDatabase {
                     }
                 }
                 JikanCache.getInstance().setSeasonListCache(result);
-            } catch (IOException | JSONException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
