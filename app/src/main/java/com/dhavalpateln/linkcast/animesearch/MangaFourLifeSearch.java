@@ -20,6 +20,7 @@ import java.util.Set;
 public class MangaFourLifeSearch extends AnimeSearch {
 
     private Map<String, String> mangaMap;
+    private boolean initComplete = false;
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
@@ -41,6 +42,17 @@ public class MangaFourLifeSearch extends AnimeSearch {
             }
         }
         return result;
+    }
+
+    @Override
+    public void init() {
+        getMangaList();
+        initComplete = true;
+    }
+
+    @Override
+    public boolean requiresInit() {
+        return !initComplete;
     }
 
     @Override

@@ -5,22 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/manga_list_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/manga_links_linear_layout">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Bookmarked Links"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-    </ScrollView>
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:padding="4dp"/>
 </LinearLayout>

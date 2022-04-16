@@ -1,10 +1,4 @@
-package com.dhavalpateln.linkcast.ui.catalog;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+package com.dhavalpateln.linkcast.ui.mangas;
 
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -14,12 +8,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class SharedAnimeLinkDataViewModel extends ViewModel {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
-    private Map<String, MutableLiveData<Map<String, AnimeLinkData>>> livaDataMap;
+public class MangaDataViewModel extends ViewModel {
 
     private MutableLiveData<Map<String, AnimeLinkData>> data;
 
@@ -31,21 +28,13 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
         return data;
     }
 
-    public LiveData<Map<String, AnimeLinkData>> getData(String catalogType) {
-        if(livaDataMap == null) {
-            loadData();
-        }
-        if(livaDataMap.containsKey(catalogType))    return livaDataMap.get(catalogType);
-        return null;
-    }
-
     private void loadData() {
         /*for(String catalogType: CatalogFragment.CATALOG_TYPE) {
             MutableLiveData<Map<String, AnimeLinkData>> liveData = new MutableLiveData<>();
             livaDataMap.put(catalogType, liveData);
         }*/
         data.setValue(new HashMap<>());
-        FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().addChildEventListener(new ChildEventListener() {
+        FirebaseDBHelper.getUserMangaWebExplorerLinkRef().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Map<String, AnimeLinkData> map = data.getValue();
@@ -53,7 +42,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 animeLinkData.setId(snapshot.getKey());
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateMangaCache(map);
             }
 
             @Override
@@ -63,7 +52,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 animeLinkData.setId(snapshot.getKey());
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateMangaCache(map);
             }
 
             @Override
@@ -71,7 +60,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 Map<String, AnimeLinkData> map = data.getValue();
                 map.remove(snapshot.getKey());
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateMangaCache(map);
             }
 
             @Override
@@ -85,5 +74,4 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
             }
         });
     }
-
 }

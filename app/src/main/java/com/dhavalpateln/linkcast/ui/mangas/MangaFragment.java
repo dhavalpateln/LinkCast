@@ -5,20 +5,32 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.LinkMaterialCardView;
+import com.dhavalpateln.linkcast.MangaAdvancedView;
 import com.dhavalpateln.linkcast.MangaWebExplorer;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.Link;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
+import com.dhavalpateln.linkcast.ui.catalog.SharedAnimeLinkDataViewModel;
 import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
+import com.dhavalpateln.linkcast.utils.UIBuilder;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,87 +38,67 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MangaFragment extends Fragment {
 
-    private Map<String, LinkMaterialCardView> viewMap;
+    private List<AnimeLinkData> dataList;
+    private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
+    private RecyclerView recyclerView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_manga, container, false);
-        viewMap = new HashMap<>();
-        final LinearLayout linearLayout = root.findViewById(R.id.manga_links_linear_layout);
-        DatabaseReference linkRef = FirebaseDBHelper.getUserMangaWebExplorerLinkRef();
-        linkRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                try {
-                    Link link = dataSnapshot.getValue(Link.class);
-                    //MaterialCardView card = createCard(dataSnapshot.getKey(), link.getTitle(), link.getUrl());
-                    LinkMaterialCardView card = new LinkMaterialCardView(getContext(), dataSnapshot.getKey(), link.getTitle(), link.getUrl());
-                    card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url, Map<String, String> data) {
-                            Intent intent = new Intent(getContext(), MangaWebExplorer.class);
-                            intent.putExtra("search", url);
-                            intent.putExtra("source", "saved");
-                            intent.putExtra("id", id);
-                            intent.putExtra("title", title);
-                            startActivity(intent);
-                        }
-                    });
-                    card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url, Map<String, String> data) {
-                            FirebaseDBHelper.removeMangaLink(id);
-                        }
-                    });
-                    /*card.addButton(getContext(), "EDIT", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                        @Override
-                        public void onClick(String id, String title, String url) {
-                            BookmarkLinkDialog dialog = new BookmarkLinkDialog(id, title, url);
-                            dialog.show(getParentFragmentManager(), "bookmarkEdit");
-                        }
-                    });*/
-
-                    linearLayout.addView(card.getCard(), 1);
-                    viewMap.put(dataSnapshot.getKey(), card);
-                }
-                catch (Exception e) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    Intent crashIntent = new Intent(getContext(), CrashReportActivity.class);
-                    crashIntent.putExtra("subject", "Crash");
-                    crashIntent.putExtra("message", sw.toString());
-                    startActivity(crashIntent);
-
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                viewMap.get(dataSnapshot.getKey()).cardTitle(dataSnapshot.child("title").getValue().toString());
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                linearLayout.removeView(viewMap.get(dataSnapshot.getKey()).getCard());
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
         return root;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        dataList = new ArrayList<>();
+
+        recyclerView = view.findViewById(R.id.manga_list_recycler_view);
+
+        recyclerAdapter = new ListRecyclerAdapter<>(dataList, getContext(), (ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>) (holder, position, data) -> {
+            holder.titleTextView.setText(data.getTitle());
+            Glide.with(getContext())
+                    .load(data.getAnimeMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL))
+                    .centerCrop()
+                    .crossFade()
+                    //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imageView);
+            holder.imageView.setClipToOutline(true);
+
+            Button openButton = UIBuilder.generateMaterialButton(getContext(), "OPEN");
+            openButton.setOnClickListener(v -> {
+                Intent intent = MangaAdvancedView.prepareIntent(getContext(), data);
+                startActivity(intent);
+            });
+
+            Button deleteButton = UIBuilder.generateMaterialButton(getContext(), "DELETE");
+            deleteButton.setOnClickListener(v -> {
+                FirebaseDBHelper.removeMangaLink(data.getId());
+            });
+
+            holder.buttonHolder.addView(openButton);
+            holder.buttonHolder.addView(deleteButton);
+        });
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(recyclerAdapter);
+
+        MangaDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MangaDataViewModel.class);
+        viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
+            dataList.clear();
+            for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
+                dataList.add(entry.getValue());
+            }
+            recyclerAdapter.notifyDataSetChanged();
+        });
+    }
 }

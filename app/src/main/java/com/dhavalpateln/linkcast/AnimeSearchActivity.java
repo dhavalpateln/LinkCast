@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -48,6 +50,8 @@ import com.dhavalpateln.linkcast.ui.catalog.SharedAnimeLinkDataViewModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class AnimeSearchActivity extends AppCompatActivity {
 
@@ -58,6 +62,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText searchEditText;
     private Spinner sourceSpinner;
+    private ProgressDialog progressDialog;
 
     private Map<String, AnimeSearch> searchers;
     private AnimeSearch animeSearch;
@@ -67,6 +72,9 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private ExtractSearchResult extractSearchResult;
 
     private String currentSource = "SAVED";
+
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -205,6 +213,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
         sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
         searchEditText = findViewById(R.id.editTextSearchBar);
 
+        progressDialog = new ProgressDialog(AnimeSearchActivity.this);
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
+
         if(getIntent().hasExtra(INTENT_SEARCH_TERM)) {
             searchEditText.setText(getIntent().getStringExtra(INTENT_SEARCH_TERM));
         }
@@ -254,20 +266,17 @@ public class AnimeSearchActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
-        viewModel.getData().observe(this, new Observer<Map<String, AnimeLinkData>>() {
-            @Override
-            public void onChanged(Map<String, AnimeLinkData> stringAnimeLinkDataMap) {
-                Log.d(TAG, "Data changed");
-                ArrayList<AnimeLinkData> bookmarkedData = new ArrayList<>();
-                for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                    AnimeLinkData animeLinkData = entry.getValue();
-                    animeLinkData.setId(entry.getKey());
-                    bookmarkedData.add(entry.getValue());
-                }
-                bookmarkedSearch.updateData(bookmarkedData);
-                if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
-                    updateRecyclerData(bookmarkedSearch.search(searchEditText.getText().toString()));
-                }
+        viewModel.getData().observe(this, stringAnimeLinkDataMap -> {
+            Log.d(TAG, "Data changed");
+            ArrayList<AnimeLinkData> bookmarkedData = new ArrayList<>();
+            for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
+                AnimeLinkData animeLinkData = entry.getValue();
+                animeLinkData.setId(entry.getKey());
+                bookmarkedData.add(entry.getValue());
+            }
+            bookmarkedSearch.updateData(bookmarkedData);
+            if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
+                updateRecyclerData(bookmarkedSearch.search(searchEditText.getText().toString()));
             }
         });
 
@@ -300,7 +309,20 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 if (selectedText != null) {
                     selectedText.setTextColor(Color.WHITE);
                 }
-                search(true);
+                AnimeSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
+                if(searcher.requiresInit()) {
+                    executor.execute(() -> {
+                        uiHandler.post(() -> progressDialog.show());
+                        searcher.init();
+                        uiHandler.post(() -> {
+                            progressDialog.dismiss();
+                            search(true);
+                        });
+                    });
+                }
+                else {
+                    search(true);
+                }
                 if(!searchers.get(sourceSpinner.getSelectedItem().toString()).hasQuickSearch()) {
                     Toast.makeText(getApplicationContext(), "Use Search button for this source", Toast.LENGTH_LONG).show();
                     filteredData.clear();

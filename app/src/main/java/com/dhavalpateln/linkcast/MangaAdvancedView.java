@@ -243,6 +243,7 @@ public class MangaAdvancedView extends AppCompatActivity {
 
     public void save(View view) {
         animeData.updateAll(false);
+        Toast.makeText(getApplicationContext(), "Progress Saved", Toast.LENGTH_LONG).show();
     }
 
     public void updateScore(View view) {

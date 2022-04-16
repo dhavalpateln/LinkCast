@@ -56,6 +56,9 @@ public abstract class AnimeSearch {
         }
     }
 
+    public void init() {}
+    public boolean requiresInit() {return false;}
+
     public boolean isMangeSource() {return false;}
     public boolean isAdvanceModeSource() {return true;}
 
