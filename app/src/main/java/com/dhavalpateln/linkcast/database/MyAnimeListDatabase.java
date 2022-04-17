@@ -287,4 +287,30 @@ public class MyAnimeListDatabase {
         }
         return result;
     }
+
+    public MyAnimelistCharacterData getCharacterData(MyAnimelistCharacterData data) {
+        MyAnimelistCharacterData result = MyAnimeListCache.getInstance().getCharacterData(data.getUrl());
+        if(result == null) {
+            result = new MyAnimelistCharacterData();
+            result.setUrl(data.getUrl());
+            JikanDatabase.getInstance().getCharacterData(result);
+            String picsUrl = data.getUrl() + "/pics";
+            try {
+                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(picsUrl);
+                SimpleHttpClient.setBrowserUserAgent(urlConnection);
+                Document html = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+                Element contentDiv = html.selectFirst("div#content");
+                Element table = contentDiv.selectFirst("table");
+                Element picsCol = html.selectFirst("div#content").selectFirst("table").selectFirst("tr").child(1);
+                Elements picElements = picsCol.select("div.picSurround");
+                for(Element picElement: picElements) {
+                    result.addImage(picElement.selectFirst("img").attr("data-src"));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return result;
+    }
 }

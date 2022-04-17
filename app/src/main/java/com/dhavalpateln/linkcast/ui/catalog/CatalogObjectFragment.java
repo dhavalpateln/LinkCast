@@ -137,6 +137,8 @@ public class CatalogObjectFragment extends Fragment {
             else {
                 holder.animeImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_stat_name));
             }
+            //holder.editButton.setText("\u2605" + recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+            holder.scoreTextView.setText("\u2605" + recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
         }
 
         @Override
@@ -154,6 +156,7 @@ public class CatalogObjectFragment extends Fragment {
             private Button openButton;
             private Button deleteButton;
             private Button editButton;
+            private TextView scoreTextView;
             private ConstraintLayout mainLayout;
 
             public RecyclerViewHolder(@NonNull View itemView) {
@@ -161,6 +164,7 @@ public class CatalogObjectFragment extends Fragment {
                 this.mainLayout = (ConstraintLayout) itemView;
                 this.episodeNumTextView = itemView.findViewById(R.id.catalog_recycler_object_text_view);
                 this.sourceTextView = itemView.findViewById(R.id.catalog_recycler_object_source_text_view);
+                scoreTextView = itemView.findViewById(R.id.anime_score_text_view);
                 this.animeImageView = itemView.findViewById(R.id.anime_image_view);
                 this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
                 this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);

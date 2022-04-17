@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.myanimelist;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 import androidx.annotation.Nullable;
 
-public class MyAnimelistCharacterData {
+public class MyAnimelistCharacterData implements Serializable {
     private int id;
     private String url;
     private String name;

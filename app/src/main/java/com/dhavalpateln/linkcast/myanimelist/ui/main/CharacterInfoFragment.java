@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.ArrayList;
@@ -82,6 +84,10 @@ public class CharacterInfoFragment extends Fragment {
                         .crossFade()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(holder.imageView);
+                holder.mainLayout.setOnClickListener(v -> {
+                    Intent intent = MyAnimelistCharacterActivity.prepareIntent(getContext(), data);
+                    startActivity(intent);
+                });
             }
         });
         characterRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));

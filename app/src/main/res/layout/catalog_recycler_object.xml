@@ -25,6 +25,17 @@
         android:background="@drawable/layout_round_corner"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <TextView
+        android:id="@+id/anime_score_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:background="@drawable/layout_round_corner_black_transparent"
+        app:layout_constraintBottom_toBottomOf="@id/anime_image_view"
+        app:layout_constraintEnd_toEndOf="@+id/anime_image_view" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="124dp"

@@ -95,7 +95,7 @@ public class AnimeInfoFragment extends Fragment {
         englishTitleTextView = view.findViewById(R.id.mal_info_anime_english_title);
         searchAnimeButton = view.findViewById(R.id.mal_anime_search_button);
         sliderView = view.findViewById(R.id.anime_info_img_slider);
-        imageSliderAdapter = new SliderAdapter(getContext(), sliderImageURLs, (imageList, position) -> {
+        imageSliderAdapter = new SliderAdapter(getActivity(), sliderImageURLs, (imageList, position) -> {
             Intent intent = new Intent(getActivity(), MangaReaderActivity.class);
             intent.putExtra(MangaReaderActivity.INTENT_REVERSE, false);
             intent.putExtra(MangaReaderActivity.INTENT_START_POSITION, position);

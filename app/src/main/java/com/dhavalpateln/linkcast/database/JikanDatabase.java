@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.database;
 
 import com.dhavalpateln.linkcast.data.JikanCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.SeasonalViewModel;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
@@ -36,7 +37,15 @@ public class JikanDatabase {
             if(responseCode < 400) {
                 return new JSONObject(SimpleHttpClient.getResponse(urlConnection));
             }
-        } catch (IOException | JSONException e) {
+            if(responseCode == 429) {
+                Thread.sleep(1000);
+                HttpURLConnection urlConnection2 = SimpleHttpClient.getURLConnection(url);
+                int responseCode2 = SimpleHttpClient.getResponseCode(urlConnection2);
+                if(responseCode2 < 400) {
+                    return new JSONObject(SimpleHttpClient.getResponse(urlConnection2));
+                }
+            }
+        } catch (IOException | JSONException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;
@@ -128,5 +137,17 @@ public class JikanDatabase {
             }
         }
         return result;
+    }
+
+    public void getCharacterData(MyAnimelistCharacterData data) {
+        String url = "https://api.jikan.moe/v4/characters/" + data.getId();
+        JSONObject jikanResult = getJikanResult(url);
+        try {
+            data.setName(jikanResult.getJSONObject("data").getString("name"));
+            data.setAbout(jikanResult.getJSONObject("data").getString("about"));
+            data.addImage(jikanResult.getJSONObject("data").getJSONObject("images").getJSONObject("jpg").getString("image_url"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
