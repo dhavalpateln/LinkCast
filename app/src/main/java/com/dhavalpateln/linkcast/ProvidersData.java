@@ -16,7 +16,7 @@ public class ProvidersData {
     public static class NINEANIME {
         public static final String NAME = "9anime";
         public static final String URL = "https://9anime.to";
-        public static final String[] ALTERNATE_URLS = {"https://9anime.id"};
+        public static final String[] ALTERNATE_URLS = {"https://9anime.id", "https://9anime.to"};
     }
 
     public static class MANGAFOURLIFE {

@@ -215,12 +215,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
             animeData.setId(id);
         }
 
-        if(calledIntent.hasExtra("data-status")) {
-            statusButton.setText(calledIntent.getStringExtra("data-status"));
-        }
-        else {
-            statusButton.setText("PLANNED");
-        }
+        statusButton.setText(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS));
 
         scoreButton.setText(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
 
@@ -250,7 +245,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         extractors.put("animekisa.tv", new AnimeKisaTVExtractor());
         extractors.put("animepahe.com", new AnimePaheExtractor());
         extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
-        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor());
+        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
 
         Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
 
@@ -635,7 +630,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         this.id = id;
         Map<String, Object> update = new HashMap<>();
         update.put(id + "/title", animeTitleTextView.getText().toString());// + "(" + sourceExtractor.getDisplayName() + ")");
-        update.put(id + "/url", calledIntent.getStringExtra("url"));
+        update.put(id + "/url", animeData.getUrl());
 
         for(String key: animeData.getData().keySet()) {
             update.put(id + "/data/" + key, animeData.getData().get(key));

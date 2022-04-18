@@ -89,7 +89,7 @@ public class StatusFragment extends Fragment {
         container.addView(streamtape);
 
         executor.execute(() -> {
-            NineAnimeExtractor extractor = new NineAnimeExtractor();
+            NineAnimeExtractor extractor = new NineAnimeExtractor(getActivity());
             List<VideoURLData> episodeURLs = new ArrayList<>();
             extractor.extractEpisodeUrls("<a class=\"active\" title=\"2016-04-03 08:00\" data-sources=\"{&quot;41&quot;:&quot;977d63d3a1ee4b133d5d6c1c6d6449dcfd6af5f82f039a74ed2e9519404e721b&quot;,&quot;28&quot;:&quot;1cc261f347322e6dbf660bfd2d2938e03394aa7a285fdb85663d1275ae8d6e74&quot;,&quot;43&quot;:&quot;1ff534ad9d4ab6df70a86c96d0d5e2711509814a72f34003addb7e98f69c3b9c&quot;,&quot;40&quot;:&quot;416ff38568ce949e4e32a3d341f69ee1c1b2bd1db95a8ec3beee776d091f12fe&quot;,&quot;35&quot;:&quot;f46ba15661f2705b09e7b19dbfb7bcf9f8b839ee5ecb4bec4c00cb52072c0b5d&quot;}\" data-base=\"1\" data-name-normalized=\"1\" href=\"https://9anime.id/watch/my-hero-academia.jvl2/ep-1\">1</a>", episodeURLs);
             Set<String> extractedSources = new HashSet<>();

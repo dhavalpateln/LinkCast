@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,6 +107,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull RecyclerViewAdapter.RecyclerViewHolder holder, int position) {
             // Set the data to textview and imageview.
             AnimeLinkData recyclerData = episodeDataArrayList.get(position);
+            holder.scoreTextView.setVisibility(View.GONE);
             holder.episodeNumTextView.setText(recyclerData.getTitle());
             if(recyclerData.getId() != null) {
                 String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
@@ -191,6 +193,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
             private Button openButton;
             private Button deleteButton;
             private Button editButton;
+            private TextView scoreTextView;
             private ConstraintLayout mainLayout;
 
             public RecyclerViewHolder(@NonNull View itemView) {
@@ -201,6 +204,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
                 this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);
                 this.editButton = itemView.findViewById(R.id.edit_button_catalog_recycler);
+                this.scoreTextView = itemView.findViewById(R.id.anime_score_text_view);
             }
         }
     }
@@ -232,7 +236,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put("animekisa.tv", new AnimeKisaSearch());
         searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
-        searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch());
+        searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
         searchers.put("animepahe.com", new AnimePaheSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
@@ -255,12 +259,65 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.search_recycler_view);
         adapter = new RecyclerViewAdapter(filteredData, getApplicationContext());
-        recyclerAdapter = new ListRecyclerAdapter<>(filteredData, getApplicationContext(), new ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>() {
-            @Override
-            public void onBindView(ListRecyclerAdapter.ListRecyclerViewHolder holder, int position, AnimeLinkData data) {
-
+        recyclerAdapter = new ListRecyclerAdapter<>(filteredData, getApplicationContext(), new String[] {"OPEN", "DELETE", "EDIT"}, (ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>) (holder, position, data) -> {
+            AnimeLinkData recyclerData = data;
+            holder.titleTextView.setText(recyclerData.getTitle());
+            if(recyclerData.getId() != null) {
+                String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
+                holder.titleTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
+            }
+            holder.getButton("OPEN").setOnClickListener(v -> {
+                AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
+                Intent intent;
+                if(animeSearch.isMangeSource()) {
+                    if(animeSearch.isAdvanceModeSource()) {
+                        intent = MangaAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
+                    }
+                    else {
+                        intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+                    }
+                }
+                else {
+                    if(animeSearch.isAdvanceModeSource()) {
+                        intent = AnimeAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
+                    }
+                    else {
+                        intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), recyclerData);
+                    }
+                }
+                startActivity(intent);
+            });
+            if(recyclerData.getId() != null) {
+                holder.getButton("DELETE").setVisibility(View.VISIBLE);
+                holder.getButton("EDIT").setVisibility(View.VISIBLE);
+                holder.getButton("DELETE").setOnClickListener(v -> {
+                    FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
+                });
+                holder.getButton("EDIT").setOnClickListener(v -> {
+                    // TODO: add more fields to edit
+                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
+                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
+                });
+            }
+            else {
+                holder.getButton("OPEN").setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                holder.getButton("DELETE").setVisibility(View.GONE);
+                holder.getButton("EDIT").setVisibility(View.GONE);
             }
 
+            if(recyclerData.getData().containsKey("imageUrl")) {
+                Glide.with(getApplicationContext())
+                        .load(recyclerData.getData().get("imageUrl"))
+                        .centerCrop()
+                        .crossFade()
+                        //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imageView);
+                holder.imageView.setClipToOutline(true);
+            }
+            else {
+                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_stat_name));
+            }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);

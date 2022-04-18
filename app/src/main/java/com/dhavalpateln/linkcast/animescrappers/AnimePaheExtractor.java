@@ -133,7 +133,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
             }
 
             String apiUrl = "https://animepahe.com/api?m=release&id=" +
-                    data.get(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SEARCH_ID) +
+                    data.get(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION) +
                     "&sort=episode_asc";
 
             return getEpisodeList(apiUrl);

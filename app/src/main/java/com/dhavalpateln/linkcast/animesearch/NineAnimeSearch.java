@@ -1,6 +1,9 @@
 package com.dhavalpateln.linkcast.animesearch;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
@@ -16,10 +19,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor.SOURCE_PREF_KEY;
+
 public class NineAnimeSearch extends AnimeSearch {
 
     private final String TAG = "9AnimeSearch";
     private String baseURL;
+    private SharedPreferences prefs;
+
+    public NineAnimeSearch() {super();}
+
+    public NineAnimeSearch(Context context) {
+        this();
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    }
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
@@ -64,12 +77,15 @@ public class NineAnimeSearch extends AnimeSearch {
     public void init() {
         try {
             if(baseURL == null) {
-                baseURL = ProvidersData.NINEANIME.URL;
+                baseURL = prefs.getString(SOURCE_PREF_KEY, ProvidersData.NINEANIME.URL);
                 if(getHttpResponseCode(baseURL) != 200) {
                     for(String url: ProvidersData.NINEANIME.ALTERNATE_URLS) {
                         if(getHttpResponseCode(url) == 200) {
                             Log.d(TAG, "Using alternate url: " + url);
                             baseURL = url;
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(SOURCE_PREF_KEY, baseURL);
+                            editor.commit();
                             break;
                         }
                     }

@@ -1,8 +1,12 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
@@ -34,6 +38,9 @@ public class NineAnimeExtractor extends AnimeScrapper {
     private final String NORMAL_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private Map<Character, Character> tableMap;
     private String nineAnimeBaseUrl;
+    private SharedPreferences prefs;
+
+    public static final String SOURCE_PREF_KEY = "9animesource";
 
     public NineAnimeExtractor() {
         super();
@@ -41,6 +48,11 @@ public class NineAnimeExtractor extends AnimeScrapper {
         for(int i = 0; i < BASE64_TABLE.length(); i++) {
             tableMap.put(BASE64_TABLE.charAt(i), NORMAL_TABLE.charAt(i));
         }
+    }
+
+    public NineAnimeExtractor(Context context) {
+        this();
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     private String getCipher(String key, String text) {
@@ -170,12 +182,15 @@ public class NineAnimeExtractor extends AnimeScrapper {
     public void updateBaseUrl() {
         try {
             if(nineAnimeBaseUrl == null) {
-                nineAnimeBaseUrl = ProvidersData.NINEANIME.URL;
+                nineAnimeBaseUrl = prefs.getString(SOURCE_PREF_KEY, ProvidersData.NINEANIME.URL);
                 if(getHttpResponseCode(nineAnimeBaseUrl) != 200) {
                     for(String url: ProvidersData.NINEANIME.ALTERNATE_URLS) {
                         if(getHttpResponseCode(url) == 200) {
                             Log.d(TAG, "Using alternate url: " + url);
                             nineAnimeBaseUrl = url;
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(SOURCE_PREF_KEY, nineAnimeBaseUrl);
+                            editor.commit();
                             break;
                         }
                     }
