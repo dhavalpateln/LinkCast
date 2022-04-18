@@ -12,17 +12,25 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -54,7 +62,33 @@ public class StatusFragment extends Fragment {
         container.addView(sbStatus);
 
         executor.execute(() -> {
+            GogoAnimeExtractor extractor = new GogoAnimeExtractor();
+            List<VideoURLData> episodeURLs = new ArrayList<>();
+            extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
+            Set<String> extractedSources = new HashSet<>();
+            for(VideoURLData videoURLData: episodeURLs) {
+                extractedSources.add(videoURLData.getSource().toLowerCase());
+            }
+            uiHandler.post(() -> {
+                markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
+                markStatus(sbStatus, extractedSources.contains("streamsb"));
+            });
         });
+    }
+
+    private void markStatus(ConstraintLayout statusConstraintLayout, boolean success) {
+        ImageView failImageView = statusConstraintLayout.findViewById(R.id.status_fail_image_view);
+        ImageView successImageView = statusConstraintLayout.findViewById(R.id.status_success_image_view);
+        ProgressBar progressBar = statusConstraintLayout.findViewById(R.id.status_progress_bar);
+        progressBar.setVisibility(View.GONE);
+        if(success) {
+            failImageView.setVisibility(View.GONE);
+            successImageView.setVisibility(View.VISIBLE);
+        }
+        else {
+            failImageView.setVisibility(View.VISIBLE);
+            successImageView.setVisibility(View.GONE);
+        }
     }
 
     private LinearLayout generateHeaderView(String header) {

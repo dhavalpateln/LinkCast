@@ -36,7 +36,7 @@ public class EmbedSitoExtractor extends AnimeScrapper {
             JSONArray episodeList = jsonSearchResult.getJSONArray("data");
             for(int i = 0; i < episodeList.length(); i++) {
                 JSONObject episode = episodeList.getJSONObject(i);
-                VideoURLData urlData = new VideoURLData("Embed - " + episode.getString("label"), episode.getString("file"), null);
+                VideoURLData urlData = new VideoURLData("Embed", "Embed - " + episode.getString("label"), episode.getString("file"), null);
                 result.add(urlData);
             }
         } catch (JSONException | IOException e) {

@@ -31,7 +31,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/ic_baseline_check_24"
+        android:src="@drawable/ic_baseline_check_40"
         android:visibility="gone"/>
 
     <ImageView
@@ -41,7 +41,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/ic_baseline_check_24"
+        android:src="@drawable/ic_baseline_clear_40"
         android:visibility="gone"/>
 
 

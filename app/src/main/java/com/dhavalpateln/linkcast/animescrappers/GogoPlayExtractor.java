@@ -150,7 +150,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 for (int i = 0; i < vidSources.length(); i++) {
                     JSONObject vidSource = vidSources.getJSONObject(i);
                     if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                        VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(episodeUrl).getHost() + "/");
+                        VideoURLData videoURLData = new VideoURLData("GogoPlay", "GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(episodeUrl).getHost() + "/");
                         videoURLData.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
                         result.add(videoURLData);
                         Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());

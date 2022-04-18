@@ -147,7 +147,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                                             Matcher doodmatcher = doodDownloadLinkPattern.matcher(httpLine);
                                             if (doodmatcher.find()) {
                                                 downloadUrl = doodmatcher.group(1);
-                                                VideoURLData videoURLData = new VideoURLData("DOODSTREAM", downloadUrl, null);
+                                                VideoURLData videoURLData = new VideoURLData("DOODSTREAM", "DOODSTREAM", downloadUrl, null);
                                                 result.add(videoURLData);
                                                 Log.d(TAG, "DOODSTREAM" + " : " + downloadUrl);
                                                 break;

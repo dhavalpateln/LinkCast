@@ -38,7 +38,7 @@ public class StreamTapeExtractor extends AnimeScrapper {
             if(matcher.find()) {
                 String redirectUrl = getRedirectUrl("https:" + matcher.group(1) + matcher.group(2));
                 if(redirectUrl != null) {
-                    VideoURLData videoURLData = new VideoURLData("StreamTape - MP4", redirectUrl, null);
+                    VideoURLData videoURLData = new VideoURLData("StreamTape", "StreamTape - MP4", redirectUrl, null);
                     result.add(videoURLData);
                 }
                 Log.d(TAG, "complete");

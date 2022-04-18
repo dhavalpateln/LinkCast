@@ -48,7 +48,7 @@ public class XStreamExtractor extends AnimeScrapper {
                 con.setInstanceFollowRedirects(false);
                 con.connect();
                 String realURL = con.getHeaderField("Location").toString();
-                VideoURLData videoURLData = new VideoURLData("XStream - " + episode.getString("label"), realURL, null);
+                VideoURLData videoURLData = new VideoURLData("XStream", "XStream - " + episode.getString("label"), realURL, null);
                 result.add(videoURLData);
             }
         } catch (JSONException | IOException e) {

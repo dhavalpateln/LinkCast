@@ -1,16 +1,12 @@
 package com.dhavalpateln.linkcast;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,35 +19,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.animescrappers.AnimeKisaCCExtractor;
-import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
-import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
-import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
-import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
-import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
-import com.dhavalpateln.linkcast.dialogs.CastDialog;
-import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
-import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
-import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.gms.cast.framework.CastButtonFactory;
-import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,8 +38,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import static com.dhavalpateln.linkcast.utils.Utils.getCurrentTime;
 
 public class MangaAdvancedView extends AppCompatActivity {
 

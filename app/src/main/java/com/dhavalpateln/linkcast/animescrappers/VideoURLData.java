@@ -4,17 +4,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VideoURLData {
+    private String source;
     private String title;
     private String url;
     private String referer;
     private Map<String, String> headers;
 
-    public VideoURLData(String title, String url, String referer) {
+    public VideoURLData(String source, String title, String url, String referer) {
+        this.source = source;
         this.title = title;
         this.url = url;
         this.referer = referer;
         headers = new HashMap<>();
         if(hasReferer()) headers.put("Referer", this.referer);
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public String getTitle() {
