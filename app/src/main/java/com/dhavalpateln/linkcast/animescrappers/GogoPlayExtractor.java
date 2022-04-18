@@ -41,8 +41,8 @@ public class GogoPlayExtractor extends AnimeScrapper {
     private String GOGOANIME_IV = "9728346589106791";
     private String CUSTOM_PADDER = "\u0008\u000e\u0003\u0008\t\u0003\u0004\t";
 
-    public GogoPlayExtractor(String baseUrl) {
-        super(baseUrl);
+    public GogoPlayExtractor() {
+        super();
     }
 
     @Override
@@ -150,55 +150,12 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 for (int i = 0; i < vidSources.length(); i++) {
                     JSONObject vidSource = vidSources.getJSONObject(i);
                     if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                        VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(baseUrl).getHost() + "/");
+                        VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(episodeUrl).getHost() + "/");
                         videoURLData.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
                         result.add(videoURLData);
                         Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
                     }
                 }
-                /*String htmlContent = getHttpContent(episodeUrl);
-                Pattern dataValuePattern = Pattern.compile("data-name=\"episode\" data-value=\"(.*)\"");
-
-                for(String line: htmlContent.split("\n")) {
-                    if(line.contains("data-name=\"episode\"")) {
-                        Matcher matcher = dataValuePattern.matcher(line);
-                        if (matcher.find()) {
-                            String cryptoDataValue = "test"; //decrypt(matcher.group(1));
-                            String id = cryptoDataValue.split("&")[0];
-                            String hostName = "https://" + uri.getHost();
-                            //hostName = "https://gogoplay4.com";
-
-                            Uri vidStreamUri = new Uri.Builder()
-                                    .appendPath("encrypt-ajax.php")
-                                    .appendQueryParameter("id", encrypt(uri.getQueryParameter("id"), GOGOANIME_ENCRYPT_KEY, GOGOANIME_IV))
-                                    .build();
-
-                            Log.d(TAG, hostName + vidStreamUri.toString());
-
-                            Map<String, String> headerMap = new HashMap<>();
-                            headerMap.put("x-requested-with", "XMLHttpRequest");
-                            JSONObject jsonObject = new JSONObject(getHttpContent(hostName + vidStreamUri.toString(), headerMap));
-
-                            String dataResponse = decrypt(jsonObject.getString("data"), GOGOANIME_DECRYPT_KEY, GOGOANIME_IV);
-                            dataResponse = dataResponse.replace("o\"<P{#meme\":", "e\":[{\"file\":");
-                            dataResponse = dataResponse.replaceAll("^[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+", "");
-                            dataResponse = dataResponse.replaceAll("[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+$", "");
-
-                            JSONObject content = new JSONObject(dataResponse);
-
-                            JSONArray vidSources = content.getJSONArray("source");
-                            for (int i = 0; i < vidSources.length(); i++) {
-                                JSONObject vidSource = vidSources.getJSONObject(i);
-                                if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                                    VideoURLData videoURLData = new VideoURLData("GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(baseUrl).getHost() + "/");
-                                    videoURLData.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
-                                    result.add(videoURLData);
-                                    Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
-                                }
-                            }
-                        }
-                    }
-                }*/
             } catch (Exception e) {
                 e.printStackTrace();
             }

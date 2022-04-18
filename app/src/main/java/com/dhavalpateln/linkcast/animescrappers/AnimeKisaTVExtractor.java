@@ -16,8 +16,8 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
     private String TAG = "AnimeKisaTV - Extractor";
 
-    public AnimeKisaTVExtractor(String baseUrl) {
-        super(baseUrl);
+    public AnimeKisaTVExtractor() {
+        super();
         setData("domain", "https://animekisa.tv/");
     }
 
@@ -29,19 +29,17 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
     @Override
     public Map<String, String> getEpisodeList(String episodeListUrl) {
         try {
-            if(!episodeList.containsKey(episodeListUrl)) {
-                String baseHtmlContent = getHttpContent(episodeListUrl);
-                String lines[] = baseHtmlContent.split("\n");
-                getEpisodeList(episodeListUrl, lines, 0);
-            }
+            String baseHtmlContent = getHttpContent(episodeListUrl);
+            String lines[] = baseHtmlContent.split("\n");
+            return getEpisodeList(episodeListUrl, lines, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return episodeList.get(episodeListUrl);
+        return new HashMap<>();
     }
 
     private Map<String, String> getEpisodeList(String episodeListUrl, String[] lines, int startLineNum) {
-        episodeList.put(episodeListUrl, new HashMap<>());
+        Map<String, String> result = new HashMap<>();
         for(int linenum = startLineNum; linenum < lines.length; linenum++) {
             String line = lines[linenum].trim();
             if(line.startsWith("<a class=\"infovan\"")) {
@@ -50,12 +48,12 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                 if (matcher.find()) {
                     String episodeUrl = getData("domain") + matcher.group(1);
                     String episodeNum = episodeUrl.split("-episode-")[1];
-                    episodeList.get(episodeListUrl).put(episodeNum, episodeUrl);
+                    result.put(episodeNum, episodeUrl);
                 }
 
             }
         }
-        return episodeList.get(episodeListUrl);
+        return result;
     }
 
     private String pad(String s) {
@@ -95,7 +93,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
 
                 try {
-                    GogoPlayExtractor extractor = new GogoPlayExtractor(downloadEpisodeLink);
+                    GogoPlayExtractor extractor = new GogoPlayExtractor();
                     extractor.extractEpisodeUrls(downloadEpisodeLink, result);
                 } catch (Exception e) {
                     Log.e(TAG, "Error extracting vidstream");
@@ -115,11 +113,11 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                             Log.d(TAG, "Url: " + url + ", Source: " + source);
                             //
                             if (source.toLowerCase().equals("streamsb")) {
-                                StreamSBExtractor extractor = new StreamSBExtractor(url);
+                                StreamSBExtractor extractor = new StreamSBExtractor();
                                 extractor.extractEpisodeUrls(url, result);
                             } else if (source.equalsIgnoreCase("xstreamcdn")) {
                                 try {
-                                    XStreamExtractor extractor = new XStreamExtractor(url);
+                                    XStreamExtractor extractor = new XStreamExtractor();
                                     extractor.extractEpisodeUrls(url, result);
                                 } catch (Exception e) {
                                     Log.d(TAG, "XstreamCDN - ERROR: " + url);
@@ -180,7 +178,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
             boolean foundTitle = false;
             boolean foundEpisodeListStartLineNum = false;
             int episodeListStartLineNum = 0;
-            String baseHtmlContent = getHttpContent(this.baseUrl);
+            String baseHtmlContent = getHttpContent(data.getUrl());
             String lines[] = baseHtmlContent.split("\n");
             for(int linenum = 0; linenum < lines.length; linenum++) {
                 String line = lines[linenum].trim();
@@ -209,7 +207,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                     foundEpisodeListStartLineNum = true;
                 }
             }
-            return getEpisodeList(this.baseUrl, lines, episodeListStartLineNum);
+            return getEpisodeList(data.getUrl(), lines, episodeListStartLineNum);
         } catch (IOException e) {
             e.printStackTrace();
         }

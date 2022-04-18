@@ -249,12 +249,10 @@ public class AnimeAdvancedView extends AppCompatActivity {
         episodeRecyclerView.setAdapter(adapter);
 
         extractors = new HashMap<>();
-        extractors.put("animekisa.tv", new AnimeKisaTVExtractor(animeData.getUrl()));
-        extractors.put("animekisa.cc", new AnimeKisaCCExtractor(animeData.getUrl()));
-        extractors.put("animixplay.to", new AnimixPlayTOExtractor(animeData.getUrl()));
-        extractors.put("animepahe.com", new AnimePaheExtractor(animeData.getUrl()));
-        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(animeData.getUrl()));
-        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(animeData.getUrl()));
+        extractors.put("animekisa.tv", new AnimeKisaTVExtractor());
+        extractors.put("animepahe.com", new AnimePaheExtractor());
+        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
+        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor());
 
         Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
 

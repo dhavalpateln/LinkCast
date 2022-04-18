@@ -14,7 +14,7 @@ import java.util.Map;
 public class EmbedSitoExtractor extends AnimeScrapper {
 
     public EmbedSitoExtractor(String baseUrl) {
-        super(baseUrl);
+        super();
     }
 
     @Override

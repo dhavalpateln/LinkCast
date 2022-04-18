@@ -19,8 +19,8 @@ public class XStreamExtractor extends AnimeScrapper {
 
     private String TAG = "XStream";
 
-    public XStreamExtractor(String baseUrl) {
-        super(baseUrl);
+    public XStreamExtractor() {
+        super();
     }
 
     @Override

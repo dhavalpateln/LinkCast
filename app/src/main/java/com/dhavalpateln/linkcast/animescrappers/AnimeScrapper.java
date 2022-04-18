@@ -17,14 +17,10 @@ import java.util.Map;
 
 public abstract class AnimeScrapper {
 
-    String baseUrl;
     Map<String, String> dataMap;
-    Map<String, Map<String, String>> episodeList;
     private int connectionTimeout = 6000;
 
-    public AnimeScrapper(String baseUrl) {
-        this.baseUrl = baseUrl;
-        episodeList = new HashMap<>();
+    public AnimeScrapper() {
         dataMap = new HashMap<>();
     }
 

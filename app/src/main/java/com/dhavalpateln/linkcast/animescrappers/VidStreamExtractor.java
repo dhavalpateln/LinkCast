@@ -32,8 +32,8 @@ public class VidStreamExtractor extends AnimeScrapper {
 
     private String TAG = "VidStream";
 
-    public VidStreamExtractor(String baseUrl) {
-        super(baseUrl);
+    public VidStreamExtractor() {
+        super();
     }
 
     @Override

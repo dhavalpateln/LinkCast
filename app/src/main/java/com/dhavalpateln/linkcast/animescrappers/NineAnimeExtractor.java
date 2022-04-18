@@ -35,8 +35,8 @@ public class NineAnimeExtractor extends AnimeScrapper {
     private Map<Character, Character> tableMap;
     private String nineAnimeBaseUrl;
 
-    public NineAnimeExtractor(String baseUrl) {
-        super(baseUrl);
+    public NineAnimeExtractor() {
+        super();
         tableMap = new HashMap<>();
         for(int i = 0; i < BASE64_TABLE.length(); i++) {
             tableMap.put(BASE64_TABLE.charAt(i), NORMAL_TABLE.charAt(i));
@@ -207,13 +207,13 @@ public class NineAnimeExtractor extends AnimeScrapper {
                     switch (dataSource) {
                         case "41": // VIDSTREAM
                         case "28": // MCLOUD
-                            extractor = new VidStreamExtractor(url);
+                            extractor = new VidStreamExtractor();
                             extractor.extractEpisodeUrls(url, result);
                             break;
                         case "43":
                             break;
                         case "40": // STREAMTAPE
-                            extractor = new StreamTapeExtractor(url);
+                            extractor = new StreamTapeExtractor();
                             extractor.extractEpisodeUrls(url, result);
                             break;
                         case "35":

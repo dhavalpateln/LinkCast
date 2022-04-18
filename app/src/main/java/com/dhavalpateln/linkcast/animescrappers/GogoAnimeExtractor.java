@@ -23,9 +23,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
 
     private String TAG = "Gogoanime - Extractor";
 
-    public GogoAnimeExtractor(String baseUrl) {
-        super(baseUrl);
-    }
+    public GogoAnimeExtractor() { }
 
     @Override
     public void configConnection(HttpURLConnection urlConnection) {
@@ -109,10 +107,10 @@ public class GogoAnimeExtractor extends AnimeScrapper {
                     switch (sourceName) {
                         case "vidstreaming":
                             link = "https:" + link;
-                            extractor = new GogoPlayExtractor(link);
+                            extractor = new GogoPlayExtractor();
                             break;
                         case "streamsb":
-                            extractor = new StreamSBExtractor(link);
+                            extractor = new StreamSBExtractor();
                             break;
                     }
                     if(extractor != null) {

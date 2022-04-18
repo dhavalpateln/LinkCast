@@ -19,14 +19,9 @@ import java.util.regex.Pattern;
 public class AnimePaheExtractor extends AnimeScrapper{
 
     private String TAG = "AnimePahe - Extractor";
-    private String animeUrl;
-    private String apiUrl;
-    private String animeTitle;
 
-    public AnimePaheExtractor(String baseUrl) {
-        super(baseUrl);
-
-        this.animeUrl = baseUrl;
+    public AnimePaheExtractor() {
+        super();
     }
 
     @Override

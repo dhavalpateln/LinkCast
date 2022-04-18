@@ -15,8 +15,8 @@ public class StreamTapeExtractor extends AnimeScrapper {
 
     private String TAG = "StreamTape";
 
-    public StreamTapeExtractor(String baseUrl) {
-        super(baseUrl);
+    public StreamTapeExtractor() {
+        super();
     }
 
     @Override

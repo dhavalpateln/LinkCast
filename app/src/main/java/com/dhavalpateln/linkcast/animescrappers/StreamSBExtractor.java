@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 public class StreamSBExtractor extends AnimeScrapper {
     private String TAG = "StreamSB";
 
-    public StreamSBExtractor(String baseUrl) {
-        super(baseUrl);
+    public StreamSBExtractor() {
+        super();
     }
 
     @Override
