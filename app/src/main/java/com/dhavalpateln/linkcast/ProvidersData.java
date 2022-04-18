@@ -28,4 +28,24 @@ public class ProvidersData {
         public static final String NAME = "myanimelist";
         public static final String URL = "https://myanimelist.net";
     }
+
+    public static class STREAMSB {
+        public static final String NAME = "StreamSB";
+    }
+
+    public static class GOGOPLAY {
+        public static final String NAME = "GogoPlay";
+    }
+
+    public static class STREAMTAPE {
+        public static final String NAME = "StreamTape";
+    }
+
+    public static class VIDSTREAM {
+        public static final String NAME = "VidStream";
+    }
+
+    public static class MCLOUD {
+        public static final String NAME = "MCLOUD";
+    }
 }

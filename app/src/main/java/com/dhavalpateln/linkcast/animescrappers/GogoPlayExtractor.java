@@ -4,13 +4,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.google.android.gms.common.util.ArrayUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -40,6 +44,12 @@ public class GogoPlayExtractor extends AnimeScrapper {
     private String GOGOANIME_SECRET = "63976882873559819639988080820907";
     private String GOGOANIME_IV = "9728346589106791";
     private String CUSTOM_PADDER = "\u0008\u000e\u0003\u0008\t\u0003\u0004\t";
+
+    private class GogoAnimeKeys {
+        byte[] key1;
+        byte[] key2;
+        byte[] iv;
+    }
 
     public GogoPlayExtractor() {
         super();
@@ -116,6 +126,27 @@ public class GogoPlayExtractor extends AnimeScrapper {
         return result;
     }
 
+    private GogoAnimeKeys fetchKeys(String url) {
+        GogoAnimeKeys keys = new GogoAnimeKeys();
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
+            String response = SimpleHttpClient.getResponse(urlConnection);
+            Pattern keyPattern = Pattern.compile("(container|videocontent)-(\\d+?)\"");
+            Matcher matcher = keyPattern.matcher(response);
+            List<String> keyList = new ArrayList<>();
+            while(matcher.find()) {
+                keyList.add(matcher.group(2));
+            }
+            keys.key1 = Utils.unhexlify(keyList.get(0));
+            keys.key2 = Utils.unhexlify(keyList.get(2));
+            keys.iv = Utils.unhexlify(keyList.get(1));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return keys;
+    }
+
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -123,10 +154,11 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 Uri uri = Uri.parse(episodeUrl);
                 String hostName = "https://" + uri.getHost();
                 String contentId = uri.getQueryParameter("id");
-                byte[] GOGOANIME_KEY = getGogoAnimeKey(contentId, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8));
+                GogoAnimeKeys gogoAnimeKeys = fetchKeys(episodeUrl);
+                //byte[] GOGOANIME_KEY = getGogoAnimeKey(contentId, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8));
                 Uri vidStreamUri = new Uri.Builder()
                         .appendPath("encrypt-ajax.php")
-                        .appendQueryParameter("id", encrypt(uri.getQueryParameter("id"), GOGOANIME_KEY, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8)))
+                        .appendQueryParameter("id", encrypt(uri.getQueryParameter("id"), gogoAnimeKeys.key1, gogoAnimeKeys.iv))
                         .appendQueryParameter("alias", uri.getQueryParameter("id"))
                         .build();
 
@@ -139,7 +171,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 String response = getHttpContent(hostName + vidStreamUri.toString(), headerMap);
                 JSONObject jsonObject = new JSONObject(response);
 
-                String dataResponse = decrypt(jsonObject.getString("data"), GOGOANIME_KEY, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8));
+                String dataResponse = decrypt(jsonObject.getString("data"), gogoAnimeKeys.key2, gogoAnimeKeys.iv);
                 //dataResponse = dataResponse.replace("o\"<P{#meme\":", "e\":[{\"file\":");
                 dataResponse = dataResponse.replaceAll("^[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+", "");
                 dataResponse = dataResponse.replaceAll("[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+$", "");
@@ -150,7 +182,12 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 for (int i = 0; i < vidSources.length(); i++) {
                     JSONObject vidSource = vidSources.getJSONObject(i);
                     if (vidSources.length() == 1 || !vidSource.getString("label").equals("Auto")) {
-                        VideoURLData videoURLData = new VideoURLData("GogoPlay", "GogoPlay - " + vidSource.getString("label"), vidSource.getString("file"), "https://" + Uri.parse(episodeUrl).getHost() + "/");
+                        VideoURLData videoURLData = new VideoURLData(
+                                getDisplayName(),
+                                "GogoPlay - " + vidSource.getString("label"),
+                                vidSource.getString("file"),
+                                "https://" + Uri.parse(episodeUrl).getHost() + "/"
+                        );
                         videoURLData.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
                         result.add(videoURLData);
                         Log.d(TAG, videoURLData.getTitle() + " : " + videoURLData.getUrl());
@@ -169,6 +206,6 @@ public class GogoPlayExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return "GogoPlay";
+        return ProvidersData.GOGOPLAY.NAME;
     }
 }

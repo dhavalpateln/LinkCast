@@ -64,4 +64,13 @@ public class Utils {
         }
         return result;
     }
+
+    public static byte[] unhexlify(String hexString) {
+        byte[] result = new byte[hexString.length() / 2];
+        for ( int j = 0; j < hexString.length(); j+=2 ) {
+            result[j / 2] = (byte) ((Character.digit(hexString.charAt(j), 16) << 4)
+                    + Character.digit(hexString.charAt(j+1), 16));
+        }
+        return result;
+    }
 }

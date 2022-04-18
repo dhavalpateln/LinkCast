@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.animescrappers;
 
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.utils.Utils;
@@ -52,7 +53,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                             String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
                                     "&hash=" + downloadVideoParams[2];
                             Log.d(TAG, lastDownloadUrl);
-                            VideoURLData urlData = new VideoURLData("StreamSB", "Stream SB - " + res, lastDownloadUrl, null);
+                            VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + res, lastDownloadUrl, null);
                             result.add(urlData);
 
                         /*Log.d(TAG, "error: initial sleep");
@@ -77,6 +78,6 @@ public class StreamSBExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return null;
+        return ProvidersData.STREAMSB.NAME;
     }
 }

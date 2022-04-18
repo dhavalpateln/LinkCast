@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.net.Uri;
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import org.json.JSONArray;
@@ -76,7 +77,7 @@ public class VidStreamExtractor extends AnimeScrapper {
                     String videoURL = sources.getJSONObject(0).getString("file");
                     String title = Uri.parse(host).getHost().split("\\.")[0];
                     if(sources.length() > 1)    title += " - " + (i + 1);
-                    VideoURLData videoURLData = new VideoURLData("VidStream", title, videoURL, episodeUrl);
+                    VideoURLData videoURLData = new VideoURLData(getDisplayName(), title, videoURL, episodeUrl);
                     result.add(videoURLData);
                 }
                 Log.d(TAG, "done");
@@ -93,6 +94,6 @@ public class VidStreamExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return "Vidstream";
+        return ProvidersData.VIDSTREAM.NAME;
     }
 }

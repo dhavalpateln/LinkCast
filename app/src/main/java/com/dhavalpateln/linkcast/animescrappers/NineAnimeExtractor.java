@@ -206,8 +206,10 @@ public class NineAnimeExtractor extends AnimeScrapper {
                 try {
                     switch (dataSource) {
                         case "41": // VIDSTREAM
-                        case "28": // MCLOUD
                             extractor = new VidStreamExtractor();
+                            extractor.extractEpisodeUrls(url, result);
+                        case "28": // MCLOUD
+                            extractor = new MCloudExtractor();
                             extractor.extractEpisodeUrls(url, result);
                             break;
                         case "43":
