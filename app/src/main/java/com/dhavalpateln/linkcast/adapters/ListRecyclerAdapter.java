@@ -4,13 +4,17 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.utils.UIBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -25,11 +29,16 @@ public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAda
     private List<T> dataArrayList;
     private Context mcontext;
     private RecyclerInterface recyclerInterface;
+    private String[] buttons;
 
     public ListRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext, RecyclerInterface recyclerInterface) {
+        this(recyclerDataArrayList, mcontext, new String[] {}, recyclerInterface);
+    }
+    public ListRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext, String[] buttons, RecyclerInterface recyclerInterface) {
         this.dataArrayList = recyclerDataArrayList;
         this.mcontext = mcontext;
         this.recyclerInterface = recyclerInterface;
+        this.buttons = buttons;
     }
 
     @NonNull
@@ -37,7 +46,8 @@ public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAda
     public ListRecyclerAdapter.ListRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_recycler_object, parent, false);
-        return new ListRecyclerAdapter.ListRecyclerViewHolder(view);
+        ListRecyclerAdapter.ListRecyclerViewHolder holder = new ListRecyclerAdapter.ListRecyclerViewHolder(view, this.buttons);
+        return holder;
     }
 
     @Override
@@ -60,14 +70,28 @@ public class ListRecyclerAdapter<T> extends RecyclerView.Adapter<ListRecyclerAda
         public ImageView imageView;
         public LinearLayout buttonHolder;
         public ConstraintLayout mainLayout;
+        private Map<String, Button> buttonMap;
 
-        public ListRecyclerViewHolder(@NonNull View itemView) {
+        public ListRecyclerViewHolder(@NonNull View itemView, String[] buttons) {
             super(itemView);
             this.mainLayout = (ConstraintLayout) itemView;
             this.subTextTextView = itemView.findViewById(R.id.list_object_subtext_text_view);
             this.titleTextView = itemView.findViewById(R.id.list_object_title_text_view);
             this.buttonHolder = itemView.findViewById(R.id.list_object_buttons_holder_linearlayout);
             this.imageView = itemView.findViewById(R.id.list_object_image_view);
+            buttonMap = new HashMap<>();
+            for(String buttonName: buttons) {
+                Button button = UIBuilder.generateMaterialButton(mcontext, buttonName);
+                buttonMap.put(buttonName, button);
+                this.buttonHolder.addView(button);
+            }
+        }
+
+        public Button getButton(String key) {
+            if(buttonMap.containsKey(key)) {
+                return buttonMap.get(key);
+            }
+            return null;
         }
     }
 }

@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Utils {
+
+    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
     public static String getCurrentTime() {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
@@ -50,5 +53,15 @@ public class Utils {
 
     public static boolean isInternetConnected(Context context) {
         return isNetworkAvailable(context) && isInternetAvailable();
+    }
+
+    public static byte[] hexlify(byte[] bytes) {
+        byte[] result = new byte[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            result[j * 2] = (byte) hexArray[v >>> 4];
+            result[j * 2 + 1] = (byte) hexArray[v & 0x0F];
+        }
+        return result;
     }
 }

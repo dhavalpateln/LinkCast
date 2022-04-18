@@ -42,7 +42,6 @@ public class DiscoverPopularFragmentObject extends Fragment {
 
     private PopularViewModel.TYPE type;
     private String TAG = "PopularFragmentObject";
-    private ListRecyclerAdapter<MyAnimelistAnimeData> listRecyclerAdapter;
     private GridRecyclerAdapter<MyAnimelistAnimeData> gridRecyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
     private Button prevButton;

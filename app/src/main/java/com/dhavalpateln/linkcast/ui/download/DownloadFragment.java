@@ -1,12 +1,17 @@
 package com.dhavalpateln.linkcast.ui.download;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -17,15 +22,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.LinkMaterialCardView;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.utils.UIBuilder;
 import com.google.android.material.card.MaterialCardView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DownloadFragment extends Fragment {
@@ -33,53 +44,105 @@ public class DownloadFragment extends Fragment {
     private String TAG = "DownloadFragment";
 
     private Map<String, MaterialCardView> viewMap;
+    private List<File> downloadFileList;
+    private ListRecyclerAdapter<File> listRecyclerAdapter;
+    private RecyclerView recyclerView;
+    private Button openFolderButton;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_download, container, false);
-
-        viewMap = new HashMap<>();
-
-        final LinearLayout linearLayout = root.findViewById(R.id.download_linear_layout);
-
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/LinkCast");
-        if(file != null) {
-            for (File fileElement : file.listFiles()) {
-                String fileName = fileElement.getName();
-                String filePath = fileElement.getAbsolutePath();
-                if (!fileName.endsWith(".mp4")) {
-                    continue;
-                }
-                LinkMaterialCardView card = new LinkMaterialCardView(getContext(), filePath, fileName, filePath);
-                card.addButton(getContext(), "OPEN", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                    @Override
-                    public void onClick(String id, String title, String url, Map<String, String> data) {
-                        //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        //intent.setData(Uri.parse(url));
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        intent.setDataAndType(Uri.parse(url), "video/*");
-                        startActivity(intent);
-                    }
-                });
-                card.addButton(getContext(), "DELETE", new LinkMaterialCardView.MaterialCardViewButtonClickListener() {
-                    @Override
-                    public void onClick(String id, String title, String url, Map<String, String> data) {
-                        File fileToDelete = new File(url);
-                        fileToDelete.setWritable(true);
-                        boolean deleted = fileToDelete.delete();
-                        Log.d(TAG, "Deleted: " + deleted);
-                        Log.d(TAG, "IsFile: " + fileToDelete.isFile());
-                        //Uri uri = FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider", new File(url));
-                        linearLayout.removeView(viewMap.get(id));
-                    }
-                });
-                linearLayout.addView(card.getCard(), 0);
-                viewMap.put(filePath, card.getCard());
-            }
-        }
         return root;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        recyclerView = view.findViewById(R.id.download_recycler_view);
+        openFolderButton = view.findViewById(R.id.open_download_folder_button);
+        downloadFileList = new ArrayList<>();
+
+        openFolderButton.setOnClickListener(v -> openDownloadFolder());
+
+        listRecyclerAdapter = new ListRecyclerAdapter<>(downloadFileList, getContext(), new String[] {"OPEN", "DELETE"},(ListRecyclerAdapter.RecyclerInterface<File>) (holder, position, data) -> {
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 250);
+            layoutParams.setMargins(4, 4, 4, 4);
+            holder.mainLayout.setLayoutParams(layoutParams);
+            holder.imageView.setVisibility(View.GONE);
+            holder.subTextTextView.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+            holder.titleTextView.setText(data.getName());
+
+            holder.getButton("OPEN").setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setDataAndType(Uri.parse(data.getAbsolutePath()), "video/*");
+                startActivity(intent);
+            });
+
+            holder.getButton("DELETE").setOnClickListener(v -> {
+                boolean fileDeleted = data.delete();
+                if(fileDeleted) {
+                    downloadFileList.remove(data);
+                    listRecyclerAdapter.notifyDataSetChanged();
+                }
+                else {
+                    Toast.makeText(getContext(), "Unable to delete", Toast.LENGTH_LONG).show();
+                }
+            });
+        });
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(listRecyclerAdapter);
+
+        refreshDownloads();
+    }
+
+    private void openDownloads() {
+        if (isSamsung()) {
+            Intent intent = getActivity().getPackageManager()
+                    .getLaunchIntentForPackage("com.sec.android.app.myfiles");
+            intent.setAction("samsung.myfiles.intent.action.LAUNCH_MY_FILES");
+            intent.putExtra("samsung.myfiles.intent.extra.START_PATH",
+                    getDownloadsFile().getPath());
+            startActivity(intent);
+        }
+        else startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+    }
+
+    private boolean isSamsung() {
+        String manufacturer = Build.MANUFACTURER;
+        if (manufacturer != null) return manufacturer.toLowerCase().equals("samsung");
+        return false;
+    }
+
+    private File getDownloadsFile() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    }
+
+    private void openDownloadFolder() {
+        File downloadDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/LinkCast");
+        openDownloads();
+        //if(downloadDirectory != null) {
+        //    Intent intent = new Intent(Intent.ACTION_VIEW);
+        //    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //    intent.setDataAndType(Uri.fromFile(downloadDirectory), "*/*");
+        //    startActivity(intent);
+        //}
+    }
+
+    private void refreshDownloads() {
+        File downloadDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/LinkCast");
+        if (downloadDirectory != null) {
+            downloadFileList.clear();
+            for (File file : downloadDirectory.listFiles()) {
+                if (!file.getName().endsWith(".mp4")) {
+                    continue;
+                }
+                downloadFileList.add(file);
+            }
+            listRecyclerAdapter.notifyDataSetChanged();
+        }
+    }
 }

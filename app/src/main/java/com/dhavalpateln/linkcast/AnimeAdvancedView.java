@@ -249,14 +249,14 @@ public class AnimeAdvancedView extends AppCompatActivity {
         episodeRecyclerView.setAdapter(adapter);
 
         extractors = new HashMap<>();
-        extractors.put("animekisa.tv", new AnimeKisaTVExtractor(calledIntent.getStringExtra("url")));
-        extractors.put("animekisa.cc", new AnimeKisaCCExtractor(calledIntent.getStringExtra("url")));
-        extractors.put("animixplay.to", new AnimixPlayTOExtractor(calledIntent.getStringExtra("url")));
-        extractors.put("animepahe.com", new AnimePaheExtractor(calledIntent.getStringExtra("url")));
-        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(calledIntent.getStringExtra("url")));
-        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(calledIntent.getStringExtra("url")));
+        extractors.put("animekisa.tv", new AnimeKisaTVExtractor(animeData.getUrl()));
+        extractors.put("animekisa.cc", new AnimeKisaCCExtractor(animeData.getUrl()));
+        extractors.put("animixplay.to", new AnimixPlayTOExtractor(animeData.getUrl()));
+        extractors.put("animepahe.com", new AnimePaheExtractor(animeData.getUrl()));
+        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(animeData.getUrl()));
+        extractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(animeData.getUrl()));
 
-        Log.d("ADV_VIEW", "URL=" + calledIntent.getStringExtra("url"));
+        Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
 
         String animeDataSource = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
         if(extractors.containsKey(animeDataSource)) {
@@ -264,7 +264,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
         }
         else {
             for (String extractorName : extractors.keySet()) {
-                if (extractors.get(extractorName).isCorrectURL(calledIntent.getStringExtra("url"))) {
+                if (extractors.get(extractorName).isCorrectURL(animeData.getUrl())) {
                     sourceExtractor = extractors.get(extractorName);
                     break;
                 }
@@ -432,11 +432,38 @@ public class AnimeAdvancedView extends AppCompatActivity {
                     @Override
                     public void onClick(AdvancedSourceSelector dialog, VideoURLData videoURLData) {
 
-                        String source = videoURLData.getTitle();
+                        if(videoURLData.getUrl().replace(".mp4upload", "").contains(".mp4") || videoURLData.getUrl().contains(".m3u8")) {
+                            boolean canCast = true;
+                            if(videoURLData.getTitle().toLowerCase().startsWith("xstreamcdn")) {
+                                canCast = false;
+                            }
+                            openCastDialog(videoURLData.getUrl(), episodeNum, (HashMap<String, String>) videoURLData.getHeaders(), canCast);
+                        }
+                        else {
+                            Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
+                            intent.putExtra("search", animeTitleTextView.getText().toString());
+                            if(videoURLData.getUrl().contains("sbplay")) {
+                                intent.putExtra("source", "sbplay.org");
+                                intent.putExtra("search", videoURLData.getUrl());
+                            }
+                            else {
+                                intent.putExtra("source", "generic");
+                                intent.putExtra("generic_url", videoURLData.getUrl());
+                            }
+
+                            intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, episodeNum);
+                            intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
+                            intent.putExtra("scrapper", sourceExtractor.getDisplayName());
+
+                            startActivityForResult(intent, WEB_VIEW_REQUEST_CODE);
+                        }
+                        dialog.close();
+
+                        /*String source = videoURLData.getTitle();
                         String url = videoURLData.getUrl();
 
                         boolean openCastDialog = true;
-                        boolean canCast = true;
+
                         HashMap<String, String> headers = (HashMap<String, String>) videoURLData.getHeaders();
                         if(videoURLData.hasReferer()) {
                             headers.put("Referer", videoURLData.getReferer());
@@ -484,7 +511,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
 
                         if(openCastDialog) {
                             openCastDialog(url, episodeNum, headers, canCast);
-                        }
+                        }*/
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "SourceSelector");

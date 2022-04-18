@@ -63,7 +63,7 @@ public class MangaFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.manga_list_recycler_view);
 
-        recyclerAdapter = new ListRecyclerAdapter<>(dataList, getContext(), (ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>) (holder, position, data) -> {
+        recyclerAdapter = new ListRecyclerAdapter<>(dataList, getContext(), new String[] {"OPEN", "DELETE"},(ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>) (holder, position, data) -> {
             holder.titleTextView.setText(data.getTitle());
             Glide.with(getContext())
                     .load(data.getAnimeMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL))
@@ -74,19 +74,15 @@ public class MangaFragment extends Fragment {
                     .into(holder.imageView);
             holder.imageView.setClipToOutline(true);
 
-            Button openButton = UIBuilder.generateMaterialButton(getContext(), "OPEN");
-            openButton.setOnClickListener(v -> {
+            holder.getButton("OPEN").setOnClickListener(v -> {
                 Intent intent = MangaAdvancedView.prepareIntent(getContext(), data);
                 startActivity(intent);
             });
 
-            Button deleteButton = UIBuilder.generateMaterialButton(getContext(), "DELETE");
-            deleteButton.setOnClickListener(v -> {
+            holder.getButton("DELETE").setOnClickListener(v -> {
                 FirebaseDBHelper.removeMangaLink(data.getId());
             });
 
-            holder.buttonHolder.addView(openButton);
-            holder.buttonHolder.addView(deleteButton);
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
