@@ -30,11 +30,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.animescrappers.AnimeKisaCCExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
-import com.dhavalpateln.linkcast.animescrappers.AnimixPlayTOExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
