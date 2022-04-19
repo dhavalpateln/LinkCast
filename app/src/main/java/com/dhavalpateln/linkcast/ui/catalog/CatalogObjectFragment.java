@@ -60,7 +60,8 @@ public class CatalogObjectFragment extends Fragment {
     public enum Sort {
         BY_NAME,
         BY_SCORE,
-        BY_DATE_ADDED
+        BY_DATE_ADDED_ASC,
+        BY_DATE_ADDED_DESC
     }
 
     public CatalogObjectFragment() {
@@ -101,21 +102,7 @@ public class CatalogObjectFragment extends Fragment {
             holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
             //holder.sourceTextView.setText(recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
             holder.openButton.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), AnimeWebExplorer.class);
-                if(recyclerData.getData() != null) {
-                    if(recyclerData.getData().containsKey("mode") && recyclerData.getData().get("mode").equals("advanced")) {
-                        intent = new Intent(getContext(), AnimeAdvancedView.class);
-                        intent.putExtra("url", recyclerData.getUrl());
-                    }
-                    intent.putExtra("mapdata", (HashMap<String, String>) recyclerData.getData());
-                    for(Map.Entry<String, String> entry: recyclerData.getData().entrySet()) {
-                        intent.putExtra("data-" + entry.getKey(), entry.getValue());
-                    }
-                }
-                intent.putExtra("search", recyclerData.getUrl());
-                intent.putExtra("source", "saved");
-                intent.putExtra("id", recyclerData.getId());
-                intent.putExtra("title", recyclerData.getTitle());
+                Intent intent = AnimeAdvancedView.prepareIntent(getContext(), recyclerData);
                 startActivity(intent);
             });
             holder.deleteButton.setOnClickListener(v -> {
@@ -261,8 +248,11 @@ public class CatalogObjectFragment extends Fragment {
             case BY_SCORE:
                 popupMenu.getMenu().findItem(R.id.sort_by_score).setChecked(true);
                 break;
-            case BY_DATE_ADDED:
-                popupMenu.getMenu().findItem(R.id.sort_by_date_added).setChecked(true);
+            case BY_DATE_ADDED_ASC:
+                popupMenu.getMenu().findItem(R.id.sort_by_date_added_asc).setChecked(true);
+                break;
+            case BY_DATE_ADDED_DESC:
+                popupMenu.getMenu().findItem(R.id.sort_by_date_added_desc).setChecked(true);
                 break;
         }
 
@@ -274,8 +264,11 @@ public class CatalogObjectFragment extends Fragment {
                 case R.id.sort_by_score:
                     currentSortOrder = Sort.BY_SCORE;
                     break;
-                case R.id.sort_by_date_added:
-                    currentSortOrder = Sort.BY_DATE_ADDED;
+                case R.id.sort_by_date_added_asc:
+                    currentSortOrder = Sort.BY_DATE_ADDED_ASC;
+                    break;
+                case R.id.sort_by_date_added_desc:
+                    currentSortOrder = Sort.BY_DATE_ADDED_DESC;
                     break;
                 default:
                     break;
@@ -303,8 +296,11 @@ public class CatalogObjectFragment extends Fragment {
                     }
                 });
                 break;
-            case BY_DATE_ADDED:
+            case BY_DATE_ADDED_ASC:
                 Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.getId().compareToIgnoreCase(animeLinkData2.getId()));
+                break;
+            case BY_DATE_ADDED_DESC:
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData2.getId().compareToIgnoreCase(animeLinkData1.getId()));
                 break;
         }
         adapter.notifyDataSetChanged();

@@ -119,4 +119,13 @@ public class AnimeLinkData implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
+
+    public void copyFrom(AnimeLinkData animeLinkData) {
+        setTitle(animeLinkData.getTitle());
+        setUrl(animeLinkData.getUrl());
+        Map<String, String> dataMap = getData();
+        for(Map.Entry<String, String> dataEntry: animeLinkData.getData().entrySet()) {
+            dataMap.put(dataEntry.getKey(), dataEntry.getValue());
+        }
+    }
 }

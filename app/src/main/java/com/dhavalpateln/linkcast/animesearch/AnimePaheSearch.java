@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.animesearch;
 
 import android.net.Uri;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import org.json.JSONArray;
@@ -46,6 +47,7 @@ public class AnimePaheSearch extends AnimeSearch {
                 data.put(AnimeLinkData.DataContract.DATA_MODE, "advanced");
                 data.put(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SEARCH_ID, searchElement.getString("id"));
                 data.put(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION, searchElement.getString("session"));
+                data.put(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.ANIMEPAHE.NAME);
                 animeLinkData.setData(data);
                 /*resultElement.put(ID, searchElement.getString("id"));
                 resultElement.put(IMAGE, searchElement.getString("poster"));

@@ -3,14 +3,17 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,7 +32,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
 
     @Override
     public boolean isCorrectURL(String url) {
-        if(url.startsWith("https://animepahe.com/anime/")) return true;
+        if(url.startsWith("https://animepahe.com/")) return true;
         return false;
     }
 
@@ -90,54 +93,29 @@ public class AnimePaheExtractor extends AnimeScrapper{
     @Override
     public List<EpisodeNode> extractData(AnimeLinkData animeLinkData) {
         try {
-            boolean foundImage = getData("imageUrl") != null;
-            boolean foundTitle = false;
-            Map<String, String> data = animeLinkData.getData();
 
-            if(animeLinkData.getTitle() != null && !animeLinkData.getTitle().equals("")) {
-                animeLinkData.setTitle(animeLinkData.getTitle().replace("(" + getDisplayName() + ")", ""));
-                setData(AnimeLinkData.DataContract.TITLE, animeLinkData.getTitle());
-                setData("animeTitle", animeLinkData.getTitle());
-                foundTitle = true;
-            }
+            animeLinkData.setTitle(animeLinkData.getTitle().replaceAll("\\(.*\\)$", ""));
 
-            if(data.containsKey(AnimeLinkData.DataContract.DATA_IMAGE_URL)) {
-                setData(AnimeLinkData.DataContract.DATA_IMAGE_URL, data.get(AnimeLinkData.DataContract.DATA_IMAGE_URL));
-                foundImage = true;
-            }
+            String apiUrl = "https://animepahe.com/api?m=release&id=" +
+                    animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION) +
+                    "&sort=episode_asc";
 
-            if(!foundImage || !foundTitle) {
-                String[] lines = getHttpContent(data.get(AnimeLinkData.DataContract.URL)).split("\n");
-                for (int i = 0; i < lines.length; i++) {
-                    String line = lines[i].trim();
-                    if (!foundImage && line.contains("<div class=\"anime-cover\"")) {
-                        Pattern pattern = Pattern.compile("<img src=\"(.*?)\" ");
-                        Matcher matcher = pattern.matcher(lines[i + 1]);
-                        if (matcher.find()) {
-                            setData("imageUrl", matcher.group(1));
-                            foundImage = true;
-                        }
-                        pattern = Pattern.compile("\"Cover image of (.*?)\" ");
-                        matcher = pattern.matcher(lines[i + 1]);
-                        if (matcher.find()) {
-                            setData("animeTitle", matcher.group(1));
-                            foundTitle = true;
-                        }
-                    }
-                    if (!foundTitle && line.contains("<h1>")) {
-                        Pattern pattern = Pattern.compile("<h1>(.*?)</h1>");
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            setData("animeTitle", matcher.group(1));
-                            foundTitle = true;
-                        }
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(apiUrl);
+            int responseCode = SimpleHttpClient.getResponseCode(urlConnection);
+            if(responseCode == 404) {
+                AnimePaheSearch searcher = new AnimePaheSearch();
+                List<AnimeLinkData> searchResult = searcher.search(animeLinkData.getTitle());
+                for (AnimeLinkData animeData: searchResult) {
+                    if(animeData.getTitle().equals(animeLinkData.getTitle())) {
+                        animeLinkData.copyFrom(animeData);
+                        apiUrl = "https://animepahe.com/api?m=release&id=" +
+                                animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION) +
+                                "&sort=episode_asc";
+                        animeLinkData.updateAll(true);
+                        break;
                     }
                 }
             }
-
-            String apiUrl = "https://animepahe.com/api?m=release&id=" +
-                    data.get(AnimeLinkData.DataContract.DATA_ANIMEPAHE_SESSION) +
-                    "&sort=episode_asc";
 
             return getEpisodeList(apiUrl);
         } catch (Exception e) {

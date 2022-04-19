@@ -35,10 +35,12 @@ public class CatalogFragment extends Fragment {
         public static final String WATCHING = "Watching";
         public static final String PLANNED = "Planned";
         public static final String COMPLETED = "Completed";
+        public static final String ONHOLD = "On Hold";
+        public static final String DROPPED = "Dropped";
         public static final String FAVORITE = "Fav";
         public static final String ALL = "All";
-        public static final String[] BASIC_TYPES = {WATCHING, PLANNED, COMPLETED};
-        public static final String[] ALL_TYPES = {WATCHING, PLANNED, FAVORITE, COMPLETED, ALL};
+        public static final String[] BASIC_TYPES = {WATCHING, PLANNED, COMPLETED, ONHOLD, DROPPED};
+        public static final String[] ALL_TYPES = {WATCHING, PLANNED, FAVORITE, COMPLETED, ONHOLD, DROPPED, ALL};
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,

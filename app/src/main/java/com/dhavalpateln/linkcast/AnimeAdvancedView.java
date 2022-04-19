@@ -588,10 +588,9 @@ public class AnimeAdvancedView extends AppCompatActivity {
     }
 
     private void saveProgress() {
-        Intent calledIntent = getIntent();
         String id;
-        if(calledIntent.hasExtra("id") && calledIntent.getStringExtra("id") != null) {
-            id = calledIntent.getStringExtra("id");
+        if(animeData.getId() != null) {
+            id = animeData.getId();
         }
         else {
             id = getCurrentTime();

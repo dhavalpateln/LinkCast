@@ -57,7 +57,8 @@ public class SettingsFragment extends Fragment {
         sortOrderOptions = new String[] {
                 CatalogObjectFragment.Sort.BY_NAME.name(),
                 CatalogObjectFragment.Sort.BY_SCORE.name(),
-                CatalogObjectFragment.Sort.BY_DATE_ADDED.name(),
+                CatalogObjectFragment.Sort.BY_DATE_ADDED_ASC.name(),
+                CatalogObjectFragment.Sort.BY_DATE_ADDED_DESC.name()
         };
 
         return root;

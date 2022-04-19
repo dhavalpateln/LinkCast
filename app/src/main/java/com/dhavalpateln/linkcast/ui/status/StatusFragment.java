@@ -20,10 +20,12 @@ import android.widget.TextView;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -167,21 +169,18 @@ public class StatusFragment extends Fragment {
         container.addView(kwik);
 
         Executors.newSingleThreadExecutor().execute(() -> {
-            boolean searchSuccess = false;
-            boolean episodeListSuccess = false;
+            boolean browseSuccess = false;
             try {
                 AnimePaheExtractor extractor = new AnimePaheExtractor();
                 AnimePaheSearch searcher = new AnimePaheSearch();
 
-                searchSuccess = !searcher.search("hero academia").isEmpty();
-                episodeListSuccess = !extractor.getEpisodeList("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc").isEmpty();
+                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia");
+                browseSuccess = !episodeList.isEmpty();
 
-                boolean finalSearchSuccess = searchSuccess;
-                boolean finalEpisodeListSuccess = episodeListSuccess;
-                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
+                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
 
                 List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc&page=1:::1", episodeURLs);
+                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
                 Set<String> extractedSources = new HashSet<>();
                 for (VideoURLData videoURLData : episodeURLs) {
                     extractedSources.add(videoURLData.getSource().toLowerCase());
@@ -190,14 +189,18 @@ public class StatusFragment extends Fragment {
                     markStatus(kwik, !extractedSources.isEmpty());
                 });
             } catch (Exception e) {
-                boolean finalSearchSuccess1 = searchSuccess;
-                boolean finalEpisodeListSuccess1 = episodeListSuccess;
+                boolean finalBrowseSuccess = browseSuccess;
                 uiHandler.post(() -> {
-                    markStatus(browsingStatus, finalSearchSuccess1 && finalEpisodeListSuccess1);
+                    markStatus(browsingStatus, finalBrowseSuccess);
                     markStatus(kwik, false);
                 });
             }
         });
+    }
+
+    private List<EpisodeNode> browse(AnimeSearch searcher, AnimeScrapper extractor, String searchTerm) {
+        List<AnimeLinkData> searchResult = searcher.search(searchTerm);
+        return extractor.extractData(searchResult.get(0));
     }
 
     private void markStatus(ConstraintLayout statusConstraintLayout, boolean success) {

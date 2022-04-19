@@ -8,7 +8,9 @@
             android:title="Alphabet" />
         <item android:id="@+id/sort_by_score"
             android:title="Score" />
-        <item android:id="@+id/sort_by_date_added"
-            android:title="Date Added" />
+        <item android:id="@+id/sort_by_date_added_asc"
+            android:title="Date Added ASC" />
+        <item android:id="@+id/sort_by_date_added_desc"
+            android:title="Date Added DESC" />
     </group>
 </menu>
