@@ -2,23 +2,25 @@ package com.dhavalpateln.linkcast.ui.catalog;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -28,9 +30,11 @@ import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,34 +45,32 @@ import java.util.Map;
  */
 public class CatalogObjectFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
+    private static final String CATALOG_TYPE_ARG = "type";
+    private static final String SORT_ARG = "sort";
     private static final String TAG = "CATALOG_FRAGMENT";
 
-
-    // TODO: Rename and change types of parameters
     private String tabName;
     private ArrayList<AnimeLinkData> data;
     private RecyclerView recyclerView;
     private RecyclerViewAdapter adapter;
+    private ImageView sortButton;
+    private TextView animeEntriesCountTextView;
+    private Sort currentSortOrder = Sort.BY_SCORE;
+
+    public enum Sort {
+        BY_NAME,
+        BY_SCORE,
+        BY_DATE_ADDED
+    }
 
     public CatalogObjectFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment CatalogObjectFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CatalogObjectFragment newInstance(String param1) {
+    public static CatalogObjectFragment newInstance(String catalogType) {
         CatalogObjectFragment fragment = new CatalogObjectFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putString(CATALOG_TYPE_ARG, catalogType);
         fragment.setArguments(args);
         return fragment;
     }
@@ -137,7 +139,6 @@ public class CatalogObjectFragment extends Fragment {
             else {
                 holder.animeImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_stat_name));
             }
-            //holder.editButton.setText("\u2605" + recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
             holder.scoreTextView.setText("\u2605" + recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
         }
 
@@ -177,8 +178,20 @@ public class CatalogObjectFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            tabName = getArguments().getString(ARG_PARAM1);
+            tabName = getArguments().getString(CATALOG_TYPE_ARG);
         }
+        if(savedInstanceState != null) {
+            currentSortOrder = (Sort) savedInstanceState.getSerializable(SORT_ARG);
+        }
+        else {
+            getDefaultSortOrder();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(SORT_ARG, currentSortOrder);
     }
 
     @Override
@@ -196,6 +209,8 @@ public class CatalogObjectFragment extends Fragment {
             data = new ArrayList<>();
         }
         SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
+        animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
+        sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
         adapter = new RecyclerViewAdapter(data, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -227,11 +242,84 @@ public class CatalogObjectFragment extends Fragment {
                 }*/
 
             }
-            adapter.notifyDataSetChanged();
+            animeEntriesCountTextView.setText(data.size() + " Entries");
+            sortData();
+            //adapter.notifyDataSetChanged();
         });
+
+        sortButton.setOnClickListener(v -> showSortOptions(v));
     }
 
+    private void showSortOptions(View view) {
+        PopupMenu popupMenu = new PopupMenu(getContext(), view);
+        popupMenu.getMenuInflater().inflate(R.menu.anime_sort_menu, popupMenu.getMenu());
 
+        switch (currentSortOrder) {
+            case BY_NAME:
+                popupMenu.getMenu().findItem(R.id.sort_by_alphabet).setChecked(true);
+                break;
+            case BY_SCORE:
+                popupMenu.getMenu().findItem(R.id.sort_by_score).setChecked(true);
+                break;
+            case BY_DATE_ADDED:
+                popupMenu.getMenu().findItem(R.id.sort_by_date_added).setChecked(true);
+                break;
+        }
 
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.sort_by_alphabet:
+                    currentSortOrder = Sort.BY_NAME;
+                    break;
+                case R.id.sort_by_score:
+                    currentSortOrder = Sort.BY_SCORE;
+                    break;
+                case R.id.sort_by_date_added:
+                    currentSortOrder = Sort.BY_DATE_ADDED;
+                    break;
+                default:
+                    break;
+            }
+            sortData();
+            return false;
+        });
+
+        popupMenu.show();
+    }
+
+    private void sortData() {
+        switch (currentSortOrder) {
+            case BY_NAME:
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle()));
+                break;
+            case BY_SCORE:
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> {
+                    int score1 = Integer.valueOf(animeLinkData1.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                    int score2 = Integer.valueOf(animeLinkData2.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                    if(score1 > score2) return -1;
+                    else if(score2 > score1)    return 1;
+                    else {
+                        return animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle());
+                    }
+                });
+                break;
+            case BY_DATE_ADDED:
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.getId().compareToIgnoreCase(animeLinkData2.getId()));
+                break;
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void getDefaultSortOrder() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        try {
+            currentSortOrder = Sort.valueOf(prefs.getString(SharedPrefContract.ANIME_LIST_SORT_ORDER, SharedPrefContract.ANIME_LIST_SORT_DEFAULT));
+        } catch (Exception e) {
+            currentSortOrder = Sort.BY_SCORE;
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(SharedPrefContract.ANIME_LIST_SORT_ORDER, currentSortOrder.name());
+            editor.commit();
+        }
+    }
 
 }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -21,12 +22,19 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
+import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
 
 public class SettingsFragment extends Fragment {
 
     private LinearLayout episodeTrackerView;
     private TextView episodeTrackerValue;
     private String[] episodeTrackingOptions;
+
+    private LinearLayout listSortOrderView;
+    private TextView listSortOrderValue;
+    private String[] sortOrderOptions;
+
+
 
 
     private SharedPreferences prefs;
@@ -42,8 +50,15 @@ public class SettingsFragment extends Fragment {
 
         episodeTrackerView = root.findViewById(R.id.settings_episode_tracker);
         episodeTrackerValue = root.findViewById(R.id.settings_episode_tracker_value);
+        listSortOrderView = root.findViewById(R.id.settings_anime_sort_order);
+        listSortOrderValue = root.findViewById(R.id.settings_anime_sort_order_value);
 
         episodeTrackingOptions = new String[] {"Last episode watched", "Max episode watched"};
+        sortOrderOptions = new String[] {
+                CatalogObjectFragment.Sort.BY_NAME.name(),
+                CatalogObjectFragment.Sort.BY_SCORE.name(),
+                CatalogObjectFragment.Sort.BY_DATE_ADDED.name(),
+        };
 
         return root;
     }
@@ -55,6 +70,7 @@ public class SettingsFragment extends Fragment {
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         episodeTrackerValue.setText(episodeTrackingOptions[prefs.getInt(SharedPrefContract.EPISODE_TRACKING, SharedPrefContract.EPISODE_TRACKING_DEFAULT)]);
+        listSortOrderValue.setText(prefs.getString(SharedPrefContract.ANIME_LIST_SORT_ORDER, SharedPrefContract.ANIME_LIST_SORT_DEFAULT));
 
         episodeTrackerView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -64,6 +80,19 @@ public class SettingsFragment extends Fragment {
                 editor.putInt(SharedPrefContract.EPISODE_TRACKING, which);
                 editor.commit();
                 episodeTrackerValue.setText(episodeTrackingOptions[which]);
+            });
+            builder.show();
+        });
+
+        listSortOrderView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Choose option");
+            builder.setItems(sortOrderOptions, (dialog, which) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString(SharedPrefContract.ANIME_LIST_SORT_ORDER, sortOrderOptions[which]);
+                editor.commit();
+                listSortOrderValue.setText(sortOrderOptions[which]);
+                //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
             });
             builder.show();
         });
