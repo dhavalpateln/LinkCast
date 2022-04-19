@@ -74,7 +74,7 @@ public class VidStreamExtractor extends AnimeScrapper {
 
                 JSONArray sources = infoContent.getJSONObject("media").getJSONArray("sources");
                 for(int i = 0; i < sources.length(); i++) {
-                    String videoURL = sources.getJSONObject(0).getString("file");
+                    String videoURL = sources.getJSONObject(i).getString("file");
                     String title = Uri.parse(host).getHost().split("\\.")[0];
                     if(sources.length() > 1)    title += " - " + (i + 1);
                     VideoURLData videoURLData = new VideoURLData(getDisplayName(), title, videoURL, episodeUrl);

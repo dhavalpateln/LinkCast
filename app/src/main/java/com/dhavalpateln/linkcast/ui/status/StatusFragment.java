@@ -19,9 +19,14 @@ import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
+import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -53,77 +59,124 @@ public class StatusFragment extends Fragment {
 
         gogoanimeTest(statusContainer);
         nineanimeTest(statusContainer);
+        animepaheTest(statusContainer);
     }
 
     private void gogoanimeTest(LinearLayout container) {
         LinearLayout divider = generateHeaderView(ProvidersData.GOGOANIME.NAME);
+        ConstraintLayout browsingStatus = generateStatusView("Browsing");
         ConstraintLayout gogoplayStatus = generateStatusView("GogoPlay");
         ConstraintLayout sbStatus = generateStatusView("StreamSB");
         container.addView(divider);
+        container.addView(browsingStatus);
         container.addView(gogoplayStatus);
         container.addView(sbStatus);
 
         executor.execute(() -> {
-            GogoAnimeExtractor extractor = new GogoAnimeExtractor();
-            List<VideoURLData> episodeURLs = new ArrayList<>();
-            extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
-            Set<String> extractedSources = new HashSet<>();
-            for(VideoURLData videoURLData: episodeURLs) {
-                extractedSources.add(videoURLData.getSource().toLowerCase());
+            try {
+                GogoAnimeExtractor extractor = new GogoAnimeExtractor();
+                GogoAnimeSearch searcher = new GogoAnimeSearch();
+
+                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
+                boolean episodeListSuccess = !extractor.getEpisodeList("https://gogoanime.fi/category/one-piece").isEmpty();
+
+                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+
+                List<VideoURLData> episodeURLs = new ArrayList<>();
+                extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
+                Set<String> extractedSources = new HashSet<>();
+                for (VideoURLData videoURLData : episodeURLs) {
+                    extractedSources.add(videoURLData.getSource().toLowerCase());
+                }
+                uiHandler.post(() -> {
+                    markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
+                    markStatus(sbStatus, extractedSources.contains("streamsb"));
+                });
+            } catch (Exception e) {
+                uiHandler.post(() -> {
+                    markStatus(gogoplayStatus, false);
+                    markStatus(sbStatus, false);
+                });
             }
-            uiHandler.post(() -> {
-                markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
-                markStatus(sbStatus, extractedSources.contains("streamsb"));
-            });
         });
     }
 
     private void nineanimeTest(LinearLayout container) {
         LinearLayout divider = generateHeaderView(ProvidersData.NINEANIME.NAME);
+        ConstraintLayout browsingStatus = generateStatusView("Browsing");
         ConstraintLayout vidstream = generateStatusView(ProvidersData.VIDSTREAM.NAME);
         ConstraintLayout mcloud = generateStatusView(ProvidersData.MCLOUD.NAME);
         ConstraintLayout streamtape = generateStatusView(ProvidersData.STREAMTAPE.NAME);
         container.addView(divider);
+        container.addView(browsingStatus);
         container.addView(vidstream);
         container.addView(mcloud);
         container.addView(streamtape);
 
-        executor.execute(() -> {
-            NineAnimeExtractor extractor = new NineAnimeExtractor(getActivity());
-            List<VideoURLData> episodeURLs = new ArrayList<>();
-            extractor.extractEpisodeUrls("<a class=\"active\" title=\"2016-04-03 08:00\" data-sources=\"{&quot;41&quot;:&quot;977d63d3a1ee4b133d5d6c1c6d6449dcfd6af5f82f039a74ed2e9519404e721b&quot;,&quot;28&quot;:&quot;1cc261f347322e6dbf660bfd2d2938e03394aa7a285fdb85663d1275ae8d6e74&quot;,&quot;43&quot;:&quot;1ff534ad9d4ab6df70a86c96d0d5e2711509814a72f34003addb7e98f69c3b9c&quot;,&quot;40&quot;:&quot;416ff38568ce949e4e32a3d341f69ee1c1b2bd1db95a8ec3beee776d091f12fe&quot;,&quot;35&quot;:&quot;f46ba15661f2705b09e7b19dbfb7bcf9f8b839ee5ecb4bec4c00cb52072c0b5d&quot;}\" data-base=\"1\" data-name-normalized=\"1\" href=\"https://9anime.id/watch/my-hero-academia.jvl2/ep-1\">1</a>", episodeURLs);
-            Set<String> extractedSources = new HashSet<>();
-            for(VideoURLData videoURLData: episodeURLs) {
-                extractedSources.add(videoURLData.getSource());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                NineAnimeExtractor extractor = new NineAnimeExtractor(getActivity());
+                NineAnimeSearch searcher = new NineAnimeSearch(getActivity());
+
+                searcher.init();
+                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
+                Map<String, String> episodeList = extractor.getEpisodeList("https://9anime.to/watch/my-hero-academia-season-5.653z");
+                boolean episodeListSuccess = !episodeList.isEmpty();
+
+                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+
+                List<VideoURLData> episodeURLs = new ArrayList<>();
+                extractor.extractEpisodeUrls(episodeList.get("1"), episodeURLs);
+                Set<String> extractedSources = new HashSet<>();
+                for (VideoURLData videoURLData : episodeURLs) {
+                    extractedSources.add(videoURLData.getSource());
+                }
+                uiHandler.post(() -> {
+                    markStatus(vidstream, extractedSources.contains(ProvidersData.VIDSTREAM.NAME));
+                    markStatus(mcloud, extractedSources.contains(ProvidersData.MCLOUD.NAME));
+                    markStatus(streamtape, extractedSources.contains(ProvidersData.STREAMTAPE.NAME));
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                markStatus(browsingStatus, false);
+                markStatus(vidstream, false);
+                markStatus(mcloud, false);
+                markStatus(streamtape, false);
             }
-            uiHandler.post(() -> {
-                markStatus(vidstream, extractedSources.contains(ProvidersData.VIDSTREAM.NAME));
-                markStatus(mcloud, extractedSources.contains(ProvidersData.MCLOUD.NAME));
-                markStatus(streamtape, extractedSources.contains(ProvidersData.STREAMTAPE.NAME));
-            });
         });
     }
 
-    private void animepahe(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.GOGOANIME.NAME);
-        ConstraintLayout gogoplayStatus = generateStatusView("GogoPlay");
-        ConstraintLayout sbStatus = generateStatusView("StreamSB");
+    private void animepaheTest(LinearLayout container) {
+        LinearLayout divider = generateHeaderView(ProvidersData.ANIMEPAHE.NAME);
+        ConstraintLayout browsingStatus = generateStatusView("Browsing");
+        ConstraintLayout kwik = generateStatusView("Kwik");
         container.addView(divider);
-        container.addView(gogoplayStatus);
-        container.addView(sbStatus);
+        container.addView(browsingStatus);
+        container.addView(kwik);
 
-        executor.execute(() -> {
-            GogoAnimeExtractor extractor = new GogoAnimeExtractor();
-            List<VideoURLData> episodeURLs = new ArrayList<>();
-            extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
-            Set<String> extractedSources = new HashSet<>();
-            for(VideoURLData videoURLData: episodeURLs) {
-                extractedSources.add(videoURLData.getSource().toLowerCase());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                AnimePaheExtractor extractor = new AnimePaheExtractor();
+                AnimePaheSearch searcher = new AnimePaheSearch();
+
+                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
+                boolean episodeListSuccess = !extractor.getEpisodeList("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc").isEmpty();
+
+                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+
+                List<VideoURLData> episodeURLs = new ArrayList<>();
+                extractor.extractEpisodeUrls("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc&page=1:::1", episodeURLs);
+                Set<String> extractedSources = new HashSet<>();
+                for (VideoURLData videoURLData : episodeURLs) {
+                    extractedSources.add(videoURLData.getSource().toLowerCase());
+                }
+                uiHandler.post(() -> {
+                    markStatus(kwik, !extractedSources.isEmpty());
+                });
+            } catch (Exception e) {
+                markStatus(browsingStatus, false);
+                markStatus(kwik, false);
             }
-            uiHandler.post(() -> {
-                markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
-                markStatus(sbStatus, extractedSources.contains("streamsb"));
-            });
         });
     }
 

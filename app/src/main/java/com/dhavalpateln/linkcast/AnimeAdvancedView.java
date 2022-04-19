@@ -15,8 +15,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -38,6 +40,7 @@ import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
@@ -47,6 +50,7 @@ import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
+import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -87,6 +91,7 @@ public class AnimeAdvancedView extends AppCompatActivity {
     private AnimeLinkData animeData;
     private List<MyAnimelistAnimeData> myAnimelistSearchResult;
     private MyAnimelistAnimeData selectedMyAnimelistAnimeData;
+    private SharedPreferences prefs;
 
 
     private class EpisodeData {
@@ -141,7 +146,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
             holder.mainLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + recyclerData.getNum());
                     if(!episodeUpdateMode) {
                         ExtractEpisodeTask task = new ExtractEpisodeTask();
                         task.execute(recyclerData.getUrl(), recyclerData.getNum());
@@ -149,7 +153,14 @@ public class AnimeAdvancedView extends AppCompatActivity {
                     else {
                         episodeUpdateMode = false;
                     }
-                    currentEpisode = Integer.valueOf(recyclerData.getNum());
+                    int episodeUpdateMode = prefs.getInt(SharedPrefContract.EPISODE_TRACKING, SharedPrefContract.EPISODE_TRACKING_DEFAULT);
+                    if(episodeUpdateMode == SettingsFragment.EpisodeTracking.MAX_EPISODE) {
+                        currentEpisode = Math.max(currentEpisode, Integer.valueOf(recyclerData.getNum()));
+                    }
+                    else {
+                        currentEpisode = Integer.valueOf(recyclerData.getNum());
+                    }
+                    animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + currentEpisode);
                     updateEpisodeProgress();
                 }
             });
@@ -179,6 +190,8 @@ public class AnimeAdvancedView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anime_advanced_view);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         animeImageView = findViewById(R.id.anime_advanced_view_anime_image);
         episodeRecyclerView = findViewById(R.id.anime_advanced_view_episode_recycler_view);
@@ -449,60 +462,6 @@ public class AnimeAdvancedView extends AppCompatActivity {
                             startActivityForResult(intent, WEB_VIEW_REQUEST_CODE);
                         }
                         dialog.close();
-
-                        /*String source = videoURLData.getTitle();
-                        String url = videoURLData.getUrl();
-
-                        boolean openCastDialog = true;
-
-                        HashMap<String, String> headers = (HashMap<String, String>) videoURLData.getHeaders();
-                        if(videoURLData.hasReferer()) {
-                            headers.put("Referer", videoURLData.getReferer());
-                        }
-                        if(source.toLowerCase().startsWith("doodstream")) {
-                            headers.put("Referer", "https://dood.la/");
-                            //startPlayer(url, episodeNum, headers, true);
-                        }
-                        else if(source.toLowerCase().startsWith("vidstream")) {
-                            headers.put("Referer", "https://gogoplay.io/");
-                            //startPlayer(url, episodeNum, headers, true);
-                        }
-                        else if(url.contains(".m3u8") || url.replace(".mp4upload", "").contains(".mp4")) {
-                            if(sourceExtractor.getDisplayName().equals("AnimePahe.com")) {
-                                headers.put("Referer", "https://kwik.cx/");
-                            }
-                            //startPlayer(url, episodeNum, headers, true);
-                        }
-                        else if(source.toLowerCase().startsWith("xstreamcdn")) {
-                            canCast = false;
-                            //startPlayer(url, episodeNum, null, false);
-                        }
-                        else {
-                            openCastDialog = false;
-                            Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                            intent.putExtra("search", animeTitleTextView.getText().toString());
-                            if(url.contains("sbplay")) {
-                                intent.putExtra("source", "sbplay.org");
-                                intent.putExtra("search", url);
-                            }
-                            else {
-                                intent.putExtra("source", "generic");
-                                intent.putExtra("generic_url", url);
-                            }
-
-                            intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, episodeNum);
-                            intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
-                            intent.putExtra("scrapper", sourceExtractor.getDisplayName());
-
-                            startActivityForResult(intent, WEB_VIEW_REQUEST_CODE);
-                            //startActivity(intent);
-                        }
-
-                        dialog.close();
-
-                        if(openCastDialog) {
-                            openCastDialog(url, episodeNum, headers, canCast);
-                        }*/
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "SourceSelector");
