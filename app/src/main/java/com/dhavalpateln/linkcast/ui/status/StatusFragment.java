@@ -28,6 +28,7 @@ import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -73,14 +74,18 @@ public class StatusFragment extends Fragment {
         container.addView(sbStatus);
 
         executor.execute(() -> {
+            boolean searchSuccess = false;
+            boolean episodeListSuccess = false;
             try {
                 GogoAnimeExtractor extractor = new GogoAnimeExtractor();
                 GogoAnimeSearch searcher = new GogoAnimeSearch();
 
-                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
-                boolean episodeListSuccess = !extractor.getEpisodeList("https://gogoanime.fi/category/one-piece").isEmpty();
+                searchSuccess = !searcher.search("hero academia").isEmpty();
+                episodeListSuccess = !extractor.getEpisodeList("https://gogoanime.fi/category/one-piece").isEmpty();
 
-                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+                boolean finalSearchSuccess = searchSuccess;
+                boolean finalEpisodeListSuccess = episodeListSuccess;
+                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
 
                 List<VideoURLData> episodeURLs = new ArrayList<>();
                 extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
@@ -93,7 +98,10 @@ public class StatusFragment extends Fragment {
                     markStatus(sbStatus, extractedSources.contains("streamsb"));
                 });
             } catch (Exception e) {
+                boolean finalEpisodeListSuccess1 = episodeListSuccess;
+                boolean finalSearchSuccess1 = searchSuccess;
                 uiHandler.post(() -> {
+                    markStatus(browsingStatus, finalSearchSuccess1 && finalEpisodeListSuccess1);
                     markStatus(gogoplayStatus, false);
                     markStatus(sbStatus, false);
                 });
@@ -114,19 +122,23 @@ public class StatusFragment extends Fragment {
         container.addView(streamtape);
 
         Executors.newSingleThreadExecutor().execute(() -> {
+            boolean searchSuccess = false;
+            boolean episodeListSuccess = false;
             try {
                 NineAnimeExtractor extractor = new NineAnimeExtractor(getActivity());
                 NineAnimeSearch searcher = new NineAnimeSearch(getActivity());
 
                 searcher.init();
-                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
-                Map<String, String> episodeList = extractor.getEpisodeList("https://9anime.to/watch/my-hero-academia-season-5.653z");
-                boolean episodeListSuccess = !episodeList.isEmpty();
+                searchSuccess = !searcher.search("hero academia").isEmpty();
+                List<EpisodeNode> episodeList = extractor.getEpisodeList("https://9anime.to/watch/my-hero-academia-season-5.653z");
+                episodeListSuccess = !episodeList.isEmpty();
 
-                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+                boolean finalSearchSuccess = searchSuccess;
+                boolean finalEpisodeListSuccess = episodeListSuccess;
+                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
 
                 List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls(episodeList.get("1"), episodeURLs);
+                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
                 Set<String> extractedSources = new HashSet<>();
                 for (VideoURLData videoURLData : episodeURLs) {
                     extractedSources.add(videoURLData.getSource());
@@ -138,7 +150,7 @@ public class StatusFragment extends Fragment {
                 });
             } catch (Exception e) {
                 e.printStackTrace();
-                markStatus(browsingStatus, false);
+                markStatus(browsingStatus, searchSuccess && episodeListSuccess);
                 markStatus(vidstream, false);
                 markStatus(mcloud, false);
                 markStatus(streamtape, false);
@@ -155,14 +167,18 @@ public class StatusFragment extends Fragment {
         container.addView(kwik);
 
         Executors.newSingleThreadExecutor().execute(() -> {
+            boolean searchSuccess = false;
+            boolean episodeListSuccess = false;
             try {
                 AnimePaheExtractor extractor = new AnimePaheExtractor();
                 AnimePaheSearch searcher = new AnimePaheSearch();
 
-                boolean searchSuccess = !searcher.search("hero academia").isEmpty();
-                boolean episodeListSuccess = !extractor.getEpisodeList("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc").isEmpty();
+                searchSuccess = !searcher.search("hero academia").isEmpty();
+                episodeListSuccess = !extractor.getEpisodeList("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc").isEmpty();
 
-                uiHandler.post(() -> markStatus(browsingStatus, searchSuccess && episodeListSuccess));
+                boolean finalSearchSuccess = searchSuccess;
+                boolean finalEpisodeListSuccess = episodeListSuccess;
+                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
 
                 List<VideoURLData> episodeURLs = new ArrayList<>();
                 extractor.extractEpisodeUrls("https://animepahe.com/api?m=release&id=82713178-9273-583d-0074-d47fa8d57a9b&sort=episode_asc&page=1:::1", episodeURLs);
@@ -174,8 +190,12 @@ public class StatusFragment extends Fragment {
                     markStatus(kwik, !extractedSources.isEmpty());
                 });
             } catch (Exception e) {
-                markStatus(browsingStatus, false);
-                markStatus(kwik, false);
+                boolean finalSearchSuccess1 = searchSuccess;
+                boolean finalEpisodeListSuccess1 = episodeListSuccess;
+                uiHandler.post(() -> {
+                    markStatus(browsingStatus, finalSearchSuccess1 && finalEpisodeListSuccess1);
+                    markStatus(kwik, false);
+                });
             }
         });
     }

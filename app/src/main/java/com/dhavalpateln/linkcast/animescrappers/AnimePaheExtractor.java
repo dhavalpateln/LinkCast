@@ -2,13 +2,16 @@ package com.dhavalpateln.linkcast.animescrappers;
 
 import android.util.Log;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,8 +34,8 @@ public class AnimePaheExtractor extends AnimeScrapper{
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
-        Map<String, String> map = new HashMap<>();
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
+        List<EpisodeNode> result = new ArrayList<>();
         try {
             //String basePageUrl = episodeListUrl.split("&sort=")[0] + "&sort=episode_asc";
             String jsonStringContent = getHttpContent(episodeListUrl);
@@ -43,12 +46,12 @@ public class AnimePaheExtractor extends AnimeScrapper{
             for(int episodeNum = 0; episodeNum < totalEpisodes; episodeNum++) {
                 int pageNum = (episodeNum / episodesPerPage) + 1;
                 String episodePageUrl = episodeListUrl + "&page=" + pageNum;
-                map.put(String.valueOf(episodeNum + 1), episodePageUrl + ":::" + (episodeNum + startEpisodeNum));
+                result.add(new EpisodeNode(String.valueOf(episodeNum + 1), episodePageUrl + ":::" + (episodeNum + startEpisodeNum)));
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        return map;
+        return result;
     }
 
     @Override
@@ -85,7 +88,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData animeLinkData) {
+    public List<EpisodeNode> extractData(AnimeLinkData animeLinkData) {
         try {
             boolean foundImage = getData("imageUrl") != null;
             boolean foundTitle = false;
@@ -145,6 +148,6 @@ public class AnimePaheExtractor extends AnimeScrapper{
 
     @Override
     public String getDisplayName() {
-        return "AnimePahe.com";
+        return ProvidersData.ANIMEPAHE.NAME;
     }
 }

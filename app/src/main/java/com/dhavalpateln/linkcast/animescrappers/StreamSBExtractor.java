@@ -5,6 +5,7 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class StreamSBExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
@@ -72,7 +73,7 @@ public class StreamSBExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData data) {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         return null;
     }
 

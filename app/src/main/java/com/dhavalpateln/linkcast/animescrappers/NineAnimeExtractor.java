@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,9 +150,9 @@ public class NineAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         updateBaseUrl();
-        Map<String, String> result = new HashMap<>();
+        List<EpisodeNode> result = new ArrayList<>();
         try {
             Pattern slugPattern = Pattern.compile("/watch/[^&?/]+\\.(.*?)$");
             Matcher slugMatcher = slugPattern.matcher(episodeListUrl);
@@ -168,7 +169,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
                 Document html = Jsoup.parse(responseContent.getString("html"));
                 Elements episodes = html.select("a[title][data-sources][data-base]");
                 for(Element element: episodes) {
-                    result.put(element.attr("data-base"), element.toString());
+                    result.add(new EpisodeNode(element.attr("data-base"), element.toString()));
                 }
 
                 Log.d(TAG, "Found " + result.size() + " episodes");
@@ -249,7 +250,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData data) {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         data.setTitle(data.getTitle().replace("(" + getDisplayName() + ")", ""));
         setData("animeTitle", data.getTitle());
         setData(AnimeLinkData.DataContract.DATA_IMAGE_URL, data.getData().get(AnimeLinkData.DataContract.DATA_IMAGE_URL));

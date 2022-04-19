@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,7 +44,7 @@ public class VidStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
@@ -88,7 +89,7 @@ public class VidStreamExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData data) {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         return null;
     }
 

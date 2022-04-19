@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -133,8 +134,8 @@ public abstract class AnimeScrapper {
     }
 
     public abstract boolean isCorrectURL(String url);
-    public abstract Map<String, String> getEpisodeList(String episodeListUrl);
+    public abstract List<EpisodeNode> getEpisodeList(String episodeListUrl);
     public abstract void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result);
-    public abstract Map<String, String> extractData(AnimeLinkData data);
+    public abstract List<EpisodeNode> extractData(AnimeLinkData data);
     public abstract String getDisplayName();
 }

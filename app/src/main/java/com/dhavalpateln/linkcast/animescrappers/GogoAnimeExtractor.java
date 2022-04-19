@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +14,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +38,8 @@ public class GogoAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
-        Map<String, String> result = new HashMap<>();
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
+        List<EpisodeNode> result = new ArrayList<>();
         try {
             String htmlContent = getHttpContent(episodeListUrl);
             Pattern idPattern = Pattern.compile("value=\"(.*?)\".*class=\"movie_id\"");
@@ -71,7 +73,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
                         Matcher linkMatcher = linkPattern.matcher(line);
                         Matcher episodeNumMatcher = episodeNumPattern.matcher(lines[linenum + 1]);
                         if(linkMatcher.find() && episodeNumMatcher.find()) {
-                            result.put(episodeNumMatcher.group(1).trim(), ProvidersData.GOGOANIME.URL + linkMatcher.group(1).trim());
+                            result.add(new EpisodeNode(episodeNumMatcher.group(1).trim(), ProvidersData.GOGOANIME.URL + linkMatcher.group(1).trim()));
                         }
                     }
                 }
@@ -128,7 +130,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData data) {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         if(data.getTitle() == null) {
             String[] urlsplit = data.getUrl().split("/");
             data.setTitle(urlsplit[urlsplit.length - 1].replace("-", " "));

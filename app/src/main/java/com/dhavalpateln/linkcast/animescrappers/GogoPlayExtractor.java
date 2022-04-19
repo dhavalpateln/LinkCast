@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.google.android.gms.common.util.ArrayUtils;
@@ -61,7 +62,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
@@ -138,9 +139,21 @@ public class GogoPlayExtractor extends AnimeScrapper {
             while(matcher.find()) {
                 keyList.add(matcher.group(2));
             }
-            keys.key1 = Utils.unhexlify(keyList.get(0));
+
+            if(keyList.get(1).length() > 16) {
+                keys.key1 = Utils.unhexlify(keyList.get(0));
+                keys.key2 = Utils.unhexlify(keyList.get(2));
+                keys.iv = Utils.unhexlify(keyList.get(1));
+            }
+            else {
+                keys.key1 = keyList.get(0).getBytes(StandardCharsets.UTF_8);
+                keys.key2 = keyList.get(2).getBytes(StandardCharsets.UTF_8);
+                keys.iv = keyList.get(1).getBytes(StandardCharsets.UTF_8);
+            }
+
+            /*keys.key1 = Utils.unhexlify(keyList.get(0));
             keys.key2 = Utils.unhexlify(keyList.get(2));
-            keys.iv = Utils.unhexlify(keyList.get(1));
+            keys.iv = Utils.unhexlify(keyList.get(1));*/
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -200,7 +213,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> extractData(AnimeLinkData data) {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         return null;
     }
 
