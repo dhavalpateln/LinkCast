@@ -26,6 +26,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
+import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import java.util.concurrent.Executors;
 public class SuggestedFragment extends Fragment {
 
     private Map<String, List<MyAnimelistAnimeData>> userRankAnimeMap;
+    private Set<Integer> userMalIDs;
     private RecyclerView recyclerView;
     private GridRecyclerAdapter<MyAnimelistAnimeData> recyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
@@ -117,6 +119,7 @@ public class SuggestedFragment extends Fragment {
     private void updateUserRankAnimeMap() {
         if(userRankAnimeMap == null) {
             Map<String, AnimeLinkData> userAnimeMap = StoredAnimeLinkData.getInstance().getCache();
+            userMalIDs = new HashSet<>();
             userRankAnimeMap = new HashMap<>();
             for (int i = 0; i <= 10; i++) {
                 userRankAnimeMap.put(String.valueOf(i), new ArrayList<>());
@@ -127,9 +130,19 @@ public class SuggestedFragment extends Fragment {
                 if (malURL != null) {
                     MyAnimelistAnimeData animelistAnimeData = new MyAnimelistAnimeData();
                     animelistAnimeData.setUrl(malURL);
+                    animelistAnimeData.setSearchScore(Double.valueOf(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE)));
                     userRankAnimeMap.get(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE)).add(animelistAnimeData);
+                    userMalIDs.add(animelistAnimeData.getId());
                 }
             }
+        }
+    }
+
+    private void selectCandidates(int count, String score, List<MyAnimelistAnimeData> result) {
+        List<MyAnimelistAnimeData> pool = userRankAnimeMap.get(score);
+        if(pool.size() > 0) {
+            for(int i = 0; i < count; i++)
+                result.add(pool.get(Utils.getRandomInt(0, pool.size())));
         }
     }
 
@@ -137,50 +150,45 @@ public class SuggestedFragment extends Fragment {
         executor.execute(() -> {
 
             uiHandler.post(() -> progressDialog.show());
-
-            updateUserRankAnimeMap();
             List<MyAnimelistAnimeData> result = new ArrayList<>();
+            try {
+                updateUserRankAnimeMap();
 
-            Set<MyAnimelistAnimeData> toFetchPool = new HashSet<>();
-            List<MyAnimelistAnimeData> recommendationPool = new ArrayList<>();
-            for(int score = 1; score <= 10; score++) {
-                List<MyAnimelistAnimeData> animeList = userRankAnimeMap.get(String.valueOf(score));
-                List<MyAnimelistAnimeData> randomSelected = new ArrayList<>();
-                if(score < 6) {
-                    addRandom(randomSelected, animeList, 1);
+                List<MyAnimelistAnimeData> baseCandidates = new ArrayList<>(100);
+
+                selectCandidates(40, "10", baseCandidates);
+                selectCandidates(30, "9", baseCandidates);
+                selectCandidates(15, "8", baseCandidates);
+                selectCandidates(15, "7", baseCandidates);
+
+                if (baseCandidates.size() != 0) {
+
+                    List<MyAnimelistAnimeData> recommedationPool = new ArrayList<>();
+
+                    Collections.shuffle(baseCandidates);
+                    Set<MyAnimelistAnimeData> finalCandidates = new HashSet<>();
+                    for (int i = 0; i < baseCandidates.size() && finalCandidates.size() <= 10; i++) {
+                        finalCandidates.add(baseCandidates.get(i));
+                    }
+
+                    for (MyAnimelistAnimeData candidate : finalCandidates) {
+                        MyAnimeListDatabase.getInstance().getRecommendations(candidate);
+                        List<MyAnimelistAnimeData> candidateRecommendations = candidate.getRecommendations();
+                        List<MyAnimelistAnimeData> selectedRecommendations = new ArrayList<>(5);
+                        for (int i = 0; i < candidateRecommendations.size() && selectedRecommendations.size() <= 5; i++) {
+                            if (!userMalIDs.contains(candidateRecommendations.get(i).getId())) {
+                                selectedRecommendations.add(candidateRecommendations.get(i));
+                            }
+                        }
+                        for(MyAnimelistAnimeData recommendation: selectedRecommendations) {
+                            if(!recommedationPool.contains(recommendation)) {
+                                recommedationPool.add(recommendation);
+                            }
+                        }
+                    }
+                    addRandom(result, recommedationPool, 20);
                 }
-                else {
-                    addRandom(randomSelected, animeList, score);
-                }
-                for(MyAnimelistAnimeData anime: randomSelected) {
-                    for (int i = 0; i <= score; i++)
-                        recommendationPool.add(anime);
-                }
-            }
-            Collections.shuffle(recommendationPool);
-            if(recommendationPool.size() < 10) {
-                addRandom(recommendationPool, userRankAnimeMap.get("0"), 10 - recommendationPool.size());
-            }
-            for(int i = 0; i < recommendationPool.size(); i++) {
-                toFetchPool.add(recommendationPool.get(i));
-                if(toFetchPool.size() == 10)    break;
-            }
-
-
-            for(MyAnimelistAnimeData selectedAnime: toFetchPool) {
-                MyAnimeListDatabase.getInstance().getRecommendations(selectedAnime);
-            }
-
-            MyAnimelistAnimeData recommendationDummy = new MyAnimelistAnimeData();
-            for(MyAnimelistAnimeData animelistAnimeData: toFetchPool) {
-                MyAnimeListDatabase.getInstance().getRecommendations(animelistAnimeData);
-                for(MyAnimelistAnimeData recommendation: animelistAnimeData.getRecommendations()) {
-                    recommendationDummy.addRecommendation(recommendation);
-                }
-            }
-
-            List<MyAnimelistAnimeData> resultRecommendationPool = recommendationDummy.getRecommendations();
-            addRandom(result, resultRecommendationPool, 20);
+            } catch (Exception e) { e.printStackTrace(); }
 
             uiHandler.post(() -> {
                 progressDialog.dismiss();

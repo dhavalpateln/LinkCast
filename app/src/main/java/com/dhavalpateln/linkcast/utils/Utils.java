@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
 
@@ -72,5 +74,9 @@ public class Utils {
                     + Character.digit(hexString.charAt(j+1), 16));
         }
         return result;
+    }
+
+    public static int getRandomInt(int low, int high) {
+        return ThreadLocalRandom.current().nextInt(low, high);
     }
 }
