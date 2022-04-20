@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,7 +15,10 @@ import android.widget.Spinner;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 
@@ -34,7 +38,7 @@ public class MyAnimeListSearchDialog extends DialogFragment {
     private List<MyAnimelistAnimeData> dataList;
     private MyAnimelistAnimeData myAnimelistAnimeData;
     private RecyclerView recyclerView;
-    ListRecyclerAdapter<MyAnimelistAnimeData> recyclerAdapter;
+    private DialogAnimeListAdapter recyclerAdapter;
     private SourceSelectedListener sourceSelectedListener;
 
     public MyAnimeListSearchDialog(SourceSelectedListener sourceSelectedListener) {
@@ -63,26 +67,7 @@ public class MyAnimeListSearchDialog extends DialogFragment {
         // Pass null as the parent view because its going in the dialog layout
         builder.setView(view);
 
-        recyclerAdapter = new ListRecyclerAdapter<>(dataList, getContext(), new ListRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>() {
-            @Override
-            public void onBindView(ListRecyclerAdapter.ListRecyclerViewHolder holder, int position, MyAnimelistAnimeData data) {
-
-                holder.titleTextView.setText(data.getTitle());
-
-                Glide.with(getContext())
-                        .load(data.getImages().get(0))
-                        .centerCrop()
-                        .crossFade()
-                        //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.imageView);
-
-                holder.mainLayout.setOnClickListener(v -> {
-                    sourceSelectedListener.onSourceSelected(data);
-                    MyAnimeListSearchDialog.this.getDialog().cancel();
-                });
-            }
-        });
+        recyclerAdapter = new DialogAnimeListAdapter(dataList, getContext());
 
         recyclerView = view.findViewById(R.id.mal_search_dialog_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -108,6 +93,34 @@ public class MyAnimeListSearchDialog extends DialogFragment {
         new MALSearchTask().execute();
 
         return builder.create();
+    }
+
+    private class DialogAnimeListAdapter extends ListRecyclerAdapter<MyAnimelistAnimeData> {
+
+        public DialogAnimeListAdapter(List<MyAnimelistAnimeData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
+
+            MyAnimelistAnimeData data = dataList.get(position);
+
+            holder.titleTextView.setText(data.getTitle());
+
+            Glide.with(getContext())
+                    .load(data.getImages().get(0))
+                    .centerCrop()
+                    .crossFade()
+                    //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.animeImageView);
+
+            holder.mainLayout.setOnClickListener(v -> {
+                sourceSelectedListener.onSourceSelected(data);
+                MyAnimeListSearchDialog.this.getDialog().cancel();
+            });
+        }
     }
 
     private class MALSearchTask extends AsyncTask<Void, Void, List<MyAnimelistAnimeData>> {

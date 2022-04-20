@@ -1,21 +1,29 @@
 package com.dhavalpateln.linkcast.ui.mangas;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.MangaAdvancedView;
+import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
+import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogObjectFragment;
 
+import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MangaFragmentObject extends AbstractCatalogObjectFragment {
 
@@ -27,28 +35,26 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
         return fragment;
     }
 
-    @Override
-    public void onRecyclerBindViewHolder(@NonNull RecyclerViewAdapter.RecyclerViewHolder holder, int position, AnimeLinkData data) {
-        holder.titleTextView.setText(data.getTitle());
-        Glide.with(getContext())
-                .load(data.getAnimeMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL))
-                .centerCrop()
-                .crossFade()
-                //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.animeImageView);
-        holder.animeImageView.setClipToOutline(true);
+    private class MangaCatalogListAdapter extends AnimeDataListRecyclerAdapter {
 
-        holder.openButton.setOnClickListener(v -> {
-            Intent intent = MangaAdvancedView.prepareIntent(getContext(), data);
-            startActivity(intent);
-        });
+        public MangaCatalogListAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
 
-        holder.deleteButton.setOnClickListener(v -> {
-            FirebaseDBHelper.removeMangaLink(data.getId());
-        });
+        @Override
+        public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            AnimeLinkData data = dataList.get(position);
+            holder.openButton.setOnClickListener(v -> {
+                Intent intent = MangaAdvancedView.prepareIntent(getContext(), data);
+                startActivity(intent);
+            });
 
-        holder.editButton.setVisibility(View.GONE);
+            holder.deleteButton.setOnClickListener(v -> {
+                FirebaseDBHelper.removeMangaLink(data.getId());
+            });
+            holder.editButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -58,9 +64,20 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
         viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
             dataList.clear();
             for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                dataList.add(entry.getValue());
+                AnimeLinkData animeLinkData = entry.getValue();
+                if(tabName.equals(AnimeFragment.Catalogs.ALL) ||
+                        tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
+                        (tabName.equals(AnimeFragment.Catalogs.FAVORITE) &&
+                                animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
+                    dataList.add(entry.getValue());
+                }
             }
             refreshAdapter();
         });
+    }
+
+    @Override
+    public RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context) {
+        return new MangaCatalogListAdapter(adapterDataList, context);
     }
 }

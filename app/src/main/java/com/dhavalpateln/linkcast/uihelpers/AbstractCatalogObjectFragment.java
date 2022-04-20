@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -36,7 +37,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     protected String tabName;
     protected List<AnimeLinkData> dataList;
     private RecyclerView recyclerView;
-    private RecyclerViewAdapter adapter;
+    private RecyclerView.Adapter adapter;
     private ImageView sortButton;
     private TextView animeEntriesCountTextView;
     private Sort currentSortOrder = Sort.BY_SCORE;
@@ -50,64 +51,6 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
 
     public AbstractCatalogObjectFragment() {
         // Required empty public constructor
-    }
-
-    public abstract void onRecyclerBindViewHolder(@NonNull RecyclerViewAdapter.RecyclerViewHolder holder, int position, AnimeLinkData data);
-
-    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
-
-        private List<AnimeLinkData> animeLinkDataList;
-        private Context mcontext;
-
-        public RecyclerViewAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
-            this.animeLinkDataList = recyclerDataArrayList;
-            this.mcontext = mcontext;
-        }
-
-        @NonNull
-        @Override
-        public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // Inflate Layout
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.catalog_recycler_object, parent, false);
-            return new RecyclerViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
-            // Set the data to textview and imageview.
-            onRecyclerBindViewHolder(holder, position, animeLinkDataList.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            // this method returns the size of recyclerview
-            return animeLinkDataList.size();
-        }
-
-        // View Holder Class to handle Recycler View.
-        public class RecyclerViewHolder extends RecyclerView.ViewHolder {
-
-            public TextView titleTextView;
-            public TextView subTextView;
-            public ImageView animeImageView;
-            public Button openButton;
-            public Button deleteButton;
-            public Button editButton;
-            public TextView scoreTextView;
-            public ConstraintLayout mainLayout;
-
-            public RecyclerViewHolder(@NonNull View itemView) {
-                super(itemView);
-                this.mainLayout = (ConstraintLayout) itemView;
-                this.titleTextView = itemView.findViewById(R.id.catalog_recycler_object_text_view);
-                this.subTextView = itemView.findViewById(R.id.catalog_recycler_object_sub_text_view);
-                this.scoreTextView = itemView.findViewById(R.id.anime_score_text_view);
-                this.animeImageView = itemView.findViewById(R.id.anime_image_view);
-                this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
-                this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);
-                this.editButton = itemView.findViewById(R.id.edit_button_catalog_recycler);
-            }
-        }
     }
 
     @Override
@@ -147,11 +90,13 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
         sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
-        adapter = new RecyclerViewAdapter(dataList, getContext());
+        adapter = getAdapter(dataList, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         sortButton.setOnClickListener(v -> showSortOptions(v));
     }
+
+    public abstract RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context);
 
     private void showSortOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);

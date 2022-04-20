@@ -26,6 +26,17 @@
         android:background="@drawable/layout_round_corner"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <TextView
+        android:id="@+id/anime_score_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:background="@drawable/layout_round_corner_black_transparent"
+        app:layout_constraintBottom_toBottomOf="@id/list_object_image_view"
+        app:layout_constraintEnd_toEndOf="@+id/list_object_image_view" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -63,6 +74,31 @@
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_editor_absoluteX="4dp">
+
+            <Button
+                android:id="@+id/open_button_catalog_recycler"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OPEN" />
+
+            <Button
+                android:id="@+id/delete_button_catalog_recycler"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="DELETE" />
+
+            <Button
+                android:id="@+id/edit_button_catalog_recycler"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="EDIT" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

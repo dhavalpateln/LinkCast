@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.MyAnimeListCharacterAdapter;
+import com.dhavalpateln.linkcast.adapters.MyAnimeListGridCharacterAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class CharacterInfoFragment extends Fragment {
 
     private List<MyAnimelistCharacterData> dataList;
-    private MyAnimeListCharacterAdapter recyclerAdapter;
+    private MyAnimeListGridCharacterAdapter recyclerAdapter;
     private RecyclerView characterRecyclerView;
 
     private Executor executor = Executors.newSingleThreadExecutor();
@@ -66,7 +66,7 @@ public class CharacterInfoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         characterRecyclerView = view.findViewById(R.id.mal_characters_recycler_view);
 
-        recyclerAdapter = new MyAnimeListCharacterAdapter(dataList, getContext());
+        recyclerAdapter = new MyAnimeListGridCharacterAdapter(dataList, getContext());
         characterRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         characterRecyclerView.setAdapter(recyclerAdapter);
 

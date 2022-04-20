@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 import com.dhavalpateln.linkcast.LinkMaterialCardView;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.utils.UIBuilder;
 import com.google.android.material.card.MaterialCardView;
 
@@ -66,22 +68,40 @@ public class DownloadFragment extends Fragment {
 
         openFolderButton.setOnClickListener(v -> openDownloadFolder());
 
-        listRecyclerAdapter = new ListRecyclerAdapter<>(downloadFileList, getContext(), new String[] {"OPEN", "DELETE"},(ListRecyclerAdapter.RecyclerInterface<File>) (holder, position, data) -> {
+        listRecyclerAdapter = new DownloadListAdapter(downloadFileList, getContext());
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(listRecyclerAdapter);
+
+        refreshDownloads();
+    }
+
+    private class DownloadListAdapter extends ListRecyclerAdapter<File> {
+
+        public DownloadListAdapter(List<File> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
+
+            File data = downloadFileList.get(position);
+
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 250);
             layoutParams.setMargins(4, 4, 4, 4);
             holder.mainLayout.setLayoutParams(layoutParams);
-            holder.imageView.setVisibility(View.GONE);
-            holder.subTextTextView.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+            holder.animeImageView.setVisibility(View.GONE);
+            holder.subTextView.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
             holder.titleTextView.setText(data.getName());
 
-            holder.getButton("OPEN").setOnClickListener(v -> {
+            holder.openButton.setOnClickListener(v -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(Uri.parse(data.getAbsolutePath()), "video/*");
                 startActivity(intent);
             });
 
-            holder.getButton("DELETE").setOnClickListener(v -> {
+            holder.deleteButton.setOnClickListener(v -> {
                 boolean fileDeleted = data.delete();
                 if(fileDeleted) {
                     downloadFileList.remove(data);
@@ -91,12 +111,9 @@ public class DownloadFragment extends Fragment {
                     Toast.makeText(getContext(), "Unable to delete", Toast.LENGTH_LONG).show();
                 }
             });
-        });
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(listRecyclerAdapter);
-
-        refreshDownloads();
+            holder.editButton.setVisibility(View.GONE);
+        }
     }
 
     private void openDownloads() {

@@ -33,7 +33,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
@@ -49,6 +51,7 @@ import com.dhavalpateln.linkcast.ui.animes.SharedAnimeLinkDataViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -58,7 +61,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     public static String INTENT_SEARCH_TERM = "search";
 
     private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
-    private RecyclerViewAdapter adapter;
+    private SearchListRecyclerAdapter adapter;
     private RecyclerView recyclerView;
     private EditText searchEditText;
     private Spinner sourceSpinner;
@@ -84,34 +87,16 @@ public class AnimeSearchActivity extends AppCompatActivity {
         }
     };
 
-    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
+    private class SearchListRecyclerAdapter extends AnimeDataListRecyclerAdapter {
 
-        private ArrayList<AnimeLinkData> episodeDataArrayList;
-        private Context mcontext;
-
-        public RecyclerViewAdapter(ArrayList<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
-            this.episodeDataArrayList = recyclerDataArrayList;
-            this.mcontext = mcontext;
-        }
-
-        @NonNull
-        @Override
-        public RecyclerViewAdapter.RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // Inflate Layout
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.catalog_recycler_object, parent, false);
-            return new RecyclerViewAdapter.RecyclerViewHolder(view);
+        public SearchListRecyclerAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerViewAdapter.RecyclerViewHolder holder, int position) {
-            // Set the data to textview and imageview.
-            AnimeLinkData recyclerData = episodeDataArrayList.get(position);
-            holder.scoreTextView.setVisibility(View.GONE);
-            holder.episodeNumTextView.setText(recyclerData.getTitle());
-            if(recyclerData.getId() != null) {
-                String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
-                holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
-            }
+        public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            AnimeLinkData recyclerData = this.dataArrayList.get(position);
             holder.openButton.setOnClickListener(v -> {
                 AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
                 Intent intent;
@@ -133,19 +118,6 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 }
                 startActivity(intent);
             });
-            /*holder.openButton.setOnLongClickListener(v -> {
-                Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                for(Map.Entry<String, String> entry: recyclerData.getData().entrySet()) {
-                    intent.putExtra("data-" + entry.getKey(), entry.getValue());
-                }
-                intent.putExtra("url", recyclerData.getUrl());
-                intent.putExtra("search", recyclerData.getUrl());
-                intent.putExtra("source", "saved");
-                intent.putExtra("id", recyclerData.getId());
-                intent.putExtra("title", recyclerData.getTitle());
-                startActivity(intent);
-                return false;
-            });*/
             if(recyclerData.getId() != null) {
                 holder.deleteButton.setVisibility(View.VISIBLE);
                 holder.editButton.setVisibility(View.VISIBLE);
@@ -157,53 +129,6 @@ public class AnimeSearchActivity extends AppCompatActivity {
                     BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
                     dialog.show(getSupportFragmentManager(), "bookmarkEdit");
                 });
-            }
-            else {
-                holder.deleteButton.setVisibility(View.GONE);
-                holder.editButton.setVisibility(View.GONE);
-            }
-
-            if(recyclerData.getData().containsKey("imageUrl")) {
-                Glide.with(getApplicationContext())
-                        .load(recyclerData.getData().get("imageUrl"))
-                        .centerCrop()
-                        .crossFade()
-                        //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.animeImageView);
-                holder.animeImageView.setClipToOutline(true);
-            }
-            else {
-                holder.animeImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_stat_name));
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            // this method returns the size of recyclerview
-            return episodeDataArrayList.size();
-        }
-
-        // View Holder Class to handle Recycler View.
-        public class RecyclerViewHolder extends RecyclerView.ViewHolder {
-
-            private TextView episodeNumTextView;
-            private ImageView animeImageView;
-            private Button openButton;
-            private Button deleteButton;
-            private Button editButton;
-            private TextView scoreTextView;
-            private ConstraintLayout mainLayout;
-
-            public RecyclerViewHolder(@NonNull View itemView) {
-                super(itemView);
-                this.mainLayout = (ConstraintLayout) itemView;
-                this.episodeNumTextView = itemView.findViewById(R.id.catalog_recycler_object_text_view);
-                this.animeImageView = itemView.findViewById(R.id.anime_image_view);
-                this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
-                this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);
-                this.editButton = itemView.findViewById(R.id.edit_button_catalog_recycler);
-                this.scoreTextView = itemView.findViewById(R.id.anime_score_text_view);
             }
         }
     }
@@ -257,67 +182,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put("Bookmarked", bookmarkedSearch);
 
         recyclerView = findViewById(R.id.search_recycler_view);
-        adapter = new RecyclerViewAdapter(filteredData, getApplicationContext());
-        recyclerAdapter = new ListRecyclerAdapter<>(filteredData, getApplicationContext(), new String[] {"OPEN", "DELETE", "EDIT"}, (ListRecyclerAdapter.RecyclerInterface<AnimeLinkData>) (holder, position, data) -> {
-            AnimeLinkData recyclerData = data;
-            holder.titleTextView.setText(recyclerData.getTitle());
-            if(recyclerData.getId() != null) {
-                String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
-                holder.titleTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
-            }
-            holder.getButton("OPEN").setOnClickListener(v -> {
-                AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
-                Intent intent;
-                if(animeSearch.isMangeSource()) {
-                    if(animeSearch.isAdvanceModeSource()) {
-                        intent = MangaAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
-                    }
-                    else {
-                        intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-                    }
-                }
-                else {
-                    if(animeSearch.isAdvanceModeSource()) {
-                        intent = AnimeAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
-                    }
-                    else {
-                        intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), recyclerData);
-                    }
-                }
-                startActivity(intent);
-            });
-            if(recyclerData.getId() != null) {
-                holder.getButton("DELETE").setVisibility(View.VISIBLE);
-                holder.getButton("EDIT").setVisibility(View.VISIBLE);
-                holder.getButton("DELETE").setOnClickListener(v -> {
-                    FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
-                });
-                holder.getButton("EDIT").setOnClickListener(v -> {
-                    // TODO: add more fields to edit
-                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
-                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
-                });
-            }
-            else {
-                holder.getButton("OPEN").setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                holder.getButton("DELETE").setVisibility(View.GONE);
-                holder.getButton("EDIT").setVisibility(View.GONE);
-            }
-
-            if(recyclerData.getData().containsKey("imageUrl")) {
-                Glide.with(getApplicationContext())
-                        .load(recyclerData.getData().get("imageUrl"))
-                        .centerCrop()
-                        .crossFade()
-                        //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.imageView);
-                holder.imageView.setClipToOutline(true);
-            }
-            else {
-                holder.imageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_stat_name));
-            }
-        });
+        adapter = new SearchListRecyclerAdapter(filteredData, getApplicationContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
 

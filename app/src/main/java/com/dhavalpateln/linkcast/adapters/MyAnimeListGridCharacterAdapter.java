@@ -14,11 +14,11 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-public class MyAnimeListCharacterAdapter extends GridRecyclerAdapter<MyAnimelistCharacterData> {
+public class MyAnimeListGridCharacterAdapter extends GridRecyclerAdapter<MyAnimelistCharacterData> {
 
     private List<MyAnimelistCharacterData> dataList;
 
-    public MyAnimeListCharacterAdapter(List<MyAnimelistCharacterData> recyclerDataArrayList, Context mcontext) {
+    public MyAnimeListGridCharacterAdapter(List<MyAnimelistCharacterData> recyclerDataArrayList, Context mcontext) {
         super(recyclerDataArrayList, mcontext);
         this.dataList = recyclerDataArrayList;
     }
