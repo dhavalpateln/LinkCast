@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.uihelpers;
+package com.dhavalpateln.linkcast.ui;
 
 import android.content.Intent;
 import android.os.Bundle;

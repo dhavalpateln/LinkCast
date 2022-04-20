@@ -1,7 +1,7 @@
 package com.dhavalpateln.linkcast.database;
 
 import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
-import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 
 public class SharedPrefContract {
     public static final String EPISODE_TRACKING = "episode_tracker";

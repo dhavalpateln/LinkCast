@@ -30,7 +30,10 @@ public class AnimeDataListRecyclerAdapter extends ListRecyclerAdapter<AnimeLinkD
     @Override
     public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
         AnimeLinkData recyclerData = dataArrayList.get(position);
-        holder.scoreTextView.setVisibility(View.GONE);
+        if(recyclerData.getId() == null)    holder.scoreTextView.setVisibility(View.GONE);
+        else {
+            holder.scoreTextView.setText("\u2605" + recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+        }
         holder.titleTextView.setText(recyclerData.getTitle());
         if(recyclerData.getId() != null) {
             String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);

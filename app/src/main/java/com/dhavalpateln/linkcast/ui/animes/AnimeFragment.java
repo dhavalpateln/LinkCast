@@ -1,31 +1,8 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.dhavalpateln.linkcast.AnimeAdvancedView;
-import com.dhavalpateln.linkcast.AnimeWebExplorer;
-import com.dhavalpateln.linkcast.LinkMaterialCardView;
-import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.database.Link;
-import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogFragment;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogFragment;
 
 public class AnimeFragment extends AbstractCatalogFragment {
 

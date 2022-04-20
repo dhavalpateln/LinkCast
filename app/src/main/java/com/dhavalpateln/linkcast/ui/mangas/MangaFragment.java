@@ -2,7 +2,7 @@ package com.dhavalpateln.linkcast.ui.mangas;
 
 import androidx.fragment.app.Fragment;
 
-import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogFragment;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogFragment;
 
 
 public class MangaFragment extends AbstractCatalogFragment {

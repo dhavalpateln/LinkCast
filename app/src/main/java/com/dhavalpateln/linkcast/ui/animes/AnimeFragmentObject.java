@@ -6,16 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.AnimeAdvancedView;
-import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 
 import java.util.List;
 import java.util.Map;

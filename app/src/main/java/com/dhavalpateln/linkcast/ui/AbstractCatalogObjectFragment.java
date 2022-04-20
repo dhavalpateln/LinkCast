@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.uihelpers;
+package com.dhavalpateln.linkcast.ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;

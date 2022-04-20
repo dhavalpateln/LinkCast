@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
-import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
