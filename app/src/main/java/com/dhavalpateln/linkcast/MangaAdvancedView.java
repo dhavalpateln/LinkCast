@@ -97,6 +97,10 @@ public class MangaAdvancedView extends AppCompatActivity {
                         uiHandler.post(() -> {
                             progressDialog.dismiss();
                             Intent intent = MangaReaderActivity.prepareIntent(getApplicationContext(), pages.toArray(new String[0]));
+                            if(recyclerData.isManhwa()) {
+                                intent.putExtra(MangaReaderActivity.INTENT_VERTICAL_MODE, true);
+                                intent.putExtra(MangaReaderActivity.INTENT_REVERSE, false);
+                            }
                             startActivity(intent);
                         });
                     });

@@ -100,7 +100,6 @@ public class CatalogObjectFragment extends Fragment {
             AnimeLinkData recyclerData = episodeDataArrayList.get(position);
             String sourceName = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
             holder.episodeNumTextView.setText(recyclerData.getTitle() + (sourceName.equals("") ? "" : " (" + sourceName + ")"));
-            //holder.sourceTextView.setText(recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
             holder.openButton.setOnClickListener(v -> {
                 Intent intent = AnimeAdvancedView.prepareIntent(getContext(), recyclerData);
                 startActivity(intent);

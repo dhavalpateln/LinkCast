@@ -9,6 +9,10 @@ import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -38,6 +42,26 @@ public class MangaFourLife extends MangaScrapper {
         try {
             HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
             String htmlContent = SimpleHttpClient.getResponse(urlConnection);
+
+            Document html = Jsoup.parse(htmlContent);
+
+
+
+            EpisodeNode.EpisodeType type = EpisodeNode.EpisodeType.MANGA;
+
+            try {
+                Elements infoElements = html.select("li.list-group-item");
+                for (Element infoElement : infoElements) {
+                    String[] infos = infoElement.text().split(":");
+                    if (infos[0].trim().equalsIgnoreCase("type")) {
+                        if (infos[1].trim().equalsIgnoreCase("manhwa")) {
+                            type = EpisodeNode.EpisodeType.MANHWA;
+                        }
+                        break;
+                    }
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+
             for(String line: htmlContent.split("\n")) {
                 line = line.trim();
                 if(line.startsWith("vm.Chapters")) {
@@ -49,9 +73,12 @@ public class MangaFourLife extends MangaScrapper {
                             String chapterInfo = chapterList.getJSONObject(i).getString("Chapter");
                             String index = chapterInfo.substring(0, 1);
                             String chapterNum = chapterInfo.substring(1, chapterInfo.length() - 1).replaceAll("^0*", "");
+                            if(chapterNum.equals(""))   chapterNum = "0";
                             String subNum = chapterInfo.substring(chapterInfo.length() - 1);
                             String chapterURL = url.replace("/manga/", "/read-online/") + "-chapter-" + chapterNum + (subNum.equals("0") ? "" : ("." + subNum)) + (index.equals("1") ? "" : ("-index-" + index)) + ".html";
-                            result.add(new EpisodeNode(chapterNum, chapterURL));
+                            EpisodeNode node = new EpisodeNode(chapterNum, chapterURL);
+                            node.setType(type);
+                            result.add(node);
                         }
                     }
                 }

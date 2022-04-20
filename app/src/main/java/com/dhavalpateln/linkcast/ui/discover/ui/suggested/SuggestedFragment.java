@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.ui.discover.ui.suggested;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
@@ -46,8 +48,9 @@ public class SuggestedFragment extends Fragment {
     private RecyclerView recyclerView;
     private GridRecyclerAdapter<MyAnimelistAnimeData> recyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
+    private ProgressDialog progressDialog;
 
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor = Executors.newCachedThreadPool();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public SuggestedFragment() {
@@ -101,30 +104,43 @@ public class SuggestedFragment extends Fragment {
                 }
         );
 
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
+
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(recyclerAdapter);
 
-        executor.execute(() -> {
+        generateRecommendations();
+    }
+
+    private void updateUserRankAnimeMap() {
+        if(userRankAnimeMap == null) {
             Map<String, AnimeLinkData> userAnimeMap = StoredAnimeLinkData.getInstance().getCache();
             userRankAnimeMap = new HashMap<>();
-            for(int i = 0; i <= 10; i++) { userRankAnimeMap.put(String.valueOf(i), new ArrayList<>()); }
-            for(Map.Entry<String, AnimeLinkData> entry: userAnimeMap.entrySet()) {
+            for (int i = 0; i <= 10; i++) {
+                userRankAnimeMap.put(String.valueOf(i), new ArrayList<>());
+            }
+            for (Map.Entry<String, AnimeLinkData> entry : userAnimeMap.entrySet()) {
                 AnimeLinkData animeLinkData = entry.getValue();
                 String malURL = animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_URL);
-                if(malURL != null) {
+                if (malURL != null) {
                     MyAnimelistAnimeData animelistAnimeData = new MyAnimelistAnimeData();
                     animelistAnimeData.setUrl(malURL);
                     userRankAnimeMap.get(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE)).add(animelistAnimeData);
                 }
-
             }
-            generateRecommendations();
-        });
+        }
     }
 
     private void generateRecommendations() {
         executor.execute(() -> {
+
+            uiHandler.post(() -> progressDialog.show());
+
+            updateUserRankAnimeMap();
             List<MyAnimelistAnimeData> result = new ArrayList<>();
+
             Set<MyAnimelistAnimeData> toFetchPool = new HashSet<>();
             List<MyAnimelistAnimeData> recommendationPool = new ArrayList<>();
             for(int score = 1; score <= 10; score++) {
@@ -167,6 +183,7 @@ public class SuggestedFragment extends Fragment {
             addRandom(result, resultRecommendationPool, 20);
 
             uiHandler.post(() -> {
+                progressDialog.dismiss();
                 dataList.clear();
                 dataList.addAll(result);
                 recyclerAdapter.notifyDataSetChanged();

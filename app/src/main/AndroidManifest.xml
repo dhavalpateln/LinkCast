@@ -58,6 +58,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".manga.MangaReaderActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".MangaWebExplorer"
