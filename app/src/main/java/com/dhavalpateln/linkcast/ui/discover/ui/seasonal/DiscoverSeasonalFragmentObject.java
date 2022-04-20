@@ -1,14 +1,10 @@
 package com.dhavalpateln.linkcast.ui.discover.ui.seasonal;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,15 +12,10 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
-import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.adapters.MyAnimelistGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.JikanDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +40,7 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
 
     private SeasonalViewModel.SeasonType seasonType;
     private String TAG = "SeasonalFragmentObject";
-    private GridRecyclerAdapter<MyAnimelistAnimeData> gridRecyclerAdapter;
+    private MyAnimelistGridRecyclerAdapter gridRecyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
     private List<MyAnimelistAnimeData> fullList;
     private ProgressBar progressBar;
@@ -98,31 +89,7 @@ public class DiscoverSeasonalFragmentObject extends Fragment {
         animeTypeButton = view.findViewById(R.id.discover_seasonal_type_button);
         dataList = new ArrayList<>();
         fullList = new ArrayList<>();
-        gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), new GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>() {
-
-            @Override
-            public void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, MyAnimelistAnimeData data) {
-                holder.titleTextView.setText(data.getTitle());
-                holder.subTextTextView.setText(data.getInfo("Genres"));
-                try {
-                    Glide.with(getContext())
-                            .load(data.getImages().get(0))
-                            .centerCrop()
-                            .crossFade()
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .into(holder.imageView);
-                } catch (Exception e) {e.printStackTrace();}
-                if(data.getMalScoreString() != null) {
-                    holder.scoreTextView.setVisibility(View.VISIBLE);
-                    holder.scoreTextView.setText(data.getMalScoreString());
-                }
-                holder.itemView.setOnClickListener(v -> {
-                    Intent intent = new Intent(getContext(), MyAnimelistInfoActivity.class);
-                    intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);
-                    startActivity(intent);
-                });
-            }
-        });
+        gridRecyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getContext());
 
         RecyclerView recyclerView = view.findViewById(R.id.discover_seasonal_recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));

@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.ui.catalog;
+package com.dhavalpateln.linkcast.ui.animes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

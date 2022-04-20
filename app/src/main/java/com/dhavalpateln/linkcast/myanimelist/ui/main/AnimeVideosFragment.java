@@ -13,12 +13,8 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
-import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.VideoRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
-import com.dhavalpateln.linkcast.dialogs.WebViewDialog;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 

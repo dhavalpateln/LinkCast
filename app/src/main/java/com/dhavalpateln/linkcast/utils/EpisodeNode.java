@@ -5,6 +5,7 @@ public class EpisodeNode {
     private String episodeNumString;
     private String url;
     private EpisodeType type;
+    private int season;
 
     public enum EpisodeType {
         ANIME,
@@ -17,6 +18,7 @@ public class EpisodeNode {
         this.episodeNum = Double.valueOf(episodeNumString);
         this.url = url;
         this.type = EpisodeType.ANIME;
+        this.season = 0;
     }
 
     public double getEpisodeNum() {
@@ -25,6 +27,11 @@ public class EpisodeNode {
 
     public String getEpisodeNumString() {
         return episodeNumString;
+    }
+
+    public void setEpisodeNumString(String episodeNumString) {
+        this.episodeNumString = episodeNumString;
+        this.episodeNum = Double.valueOf(episodeNumString);
     }
 
     public String getUrl() {
@@ -37,6 +44,14 @@ public class EpisodeNode {
 
     public void setType(EpisodeType type) {
         this.type = type;
+    }
+
+    public int getSeason() {
+        return season;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
     }
 
     public boolean isAnime() {  return type == EpisodeType.ANIME;  }

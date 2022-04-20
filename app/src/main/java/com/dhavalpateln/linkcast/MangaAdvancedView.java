@@ -59,6 +59,7 @@ public class MangaAdvancedView extends AppCompatActivity {
     private int totalEpisode = 0;
     private AnimeLinkData animeData;
     private boolean episodeUpdateMode = false;
+    private List<Integer> seasonList;
     private Executor executor = Executors.newSingleThreadExecutor();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 

@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.myanimelist.ui.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -23,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeGridViewHolder;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
@@ -74,19 +76,7 @@ public class RecommendationsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.mal_info_recommendations_recycler_view);
         progressBar = view.findViewById(R.id.mal_recommendation_progressbar);
 
-        GridRecyclerAdapter<MyAnimelistAnimeData> recyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), (GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>) (holder, position, data) -> {
-            holder.titleTextView.setText(data.getTitle());
-            Glide.with(getContext())
-                    .load(data.getImages().get(0))
-                    .centerCrop()
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.imageView);
-            holder.mainLayout.setOnClickListener(v -> {
-                Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
-                startActivity(intent);
-            });
-        });
+        RecommendationAdapter recyclerAdapter = new RecommendationAdapter(dataList, getContext());
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(recyclerAdapter);
@@ -109,6 +99,29 @@ public class RecommendationsFragment extends Fragment {
                 });
             }
         });
+    }
+
+    private class RecommendationAdapter extends GridRecyclerAdapter<MyAnimelistAnimeData> {
+
+        public RecommendationAdapter(List<MyAnimelistAnimeData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AnimeGridViewHolder holder, int position) {
+            MyAnimelistAnimeData data = dataList.get(position);
+            holder.titleTextView.setText(data.getTitle());
+            Glide.with(getContext())
+                    .load(data.getImages().get(0))
+                    .centerCrop()
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imageView);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
+                startActivity(intent);
+            });
+        }
     }
 
 

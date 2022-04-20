@@ -3,7 +3,6 @@ package com.dhavalpateln.linkcast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,7 +45,7 @@ import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.ui.catalog.SharedAnimeLinkDataViewModel;
+import com.dhavalpateln.linkcast.ui.animes.SharedAnimeLinkDataViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.viewholders.AnimeGridViewHolder;
 
 import java.util.List;
 
@@ -16,58 +17,27 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class GridRecyclerAdapter<T> extends RecyclerView.Adapter<GridRecyclerAdapter.GridRecyclerViewHolder> {
-
-    public interface RecyclerInterface<T> {
-        void onBindView(GridRecyclerAdapter.GridRecyclerViewHolder holder, int position, T data);
-    }
+public abstract class GridRecyclerAdapter<T> extends RecyclerView.Adapter<AnimeGridViewHolder> {
 
     private List<T> dataArrayList;
-    private Context mcontext;
-    private RecyclerInterface recyclerInterface;
+    protected Context mcontext;
 
-    public GridRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext, RecyclerInterface recyclerInterface) {
+    public GridRecyclerAdapter(List<T> recyclerDataArrayList, Context mcontext) {
         this.dataArrayList = recyclerDataArrayList;
         this.mcontext = mcontext;
-        this.recyclerInterface = recyclerInterface;
     }
 
     @NonNull
     @Override
-    public GridRecyclerAdapter.GridRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AnimeGridViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_recycler_object, parent, false);
-        return new GridRecyclerAdapter.GridRecyclerViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull GridRecyclerAdapter.GridRecyclerViewHolder holder, int position) {
-        // Set the data to textview and imageview.
-        this.recyclerInterface.onBindView(holder, position, dataArrayList.get(position));
+        return new AnimeGridViewHolder(view);
     }
 
     @Override
     public int getItemCount() {
         // this method returns the size of recyclerview
         return dataArrayList.size();
-    }
-
-    // View Holder Class to handle Recycler View.
-    public class GridRecyclerViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView subTextTextView;
-        public TextView titleTextView;
-        public ImageView imageView;
-        public TextView scoreTextView;
-        public ConstraintLayout mainLayout;
-
-        public GridRecyclerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            this.mainLayout = (ConstraintLayout) itemView;
-            this.subTextTextView = itemView.findViewById(R.id.grid_object_subtext_text_view);
-            this.titleTextView = itemView.findViewById(R.id.grid_object_title_text_view);
-            this.imageView = itemView.findViewById(R.id.grid_object_image_view);
-            this.scoreTextView = itemView.findViewById(R.id.mal_score_text_view);
-        }
     }
 }

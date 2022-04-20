@@ -15,8 +15,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class BookmarkLinkDialog extends DialogFragment {
         bookmarkEditText.setText(bookmarkLinkTitle);
 
         ArrayAdapter<String> spinnerContent = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item);
-        for(String status: CatalogFragment.Catalogs.BASIC_TYPES) {
+        for(String status: AnimeFragment.Catalogs.BASIC_TYPES) {
             if(!status.toLowerCase().equals("all")) {
                 spinnerContent.add(status);
             }

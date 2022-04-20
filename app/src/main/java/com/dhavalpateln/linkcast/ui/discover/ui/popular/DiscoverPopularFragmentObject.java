@@ -1,18 +1,6 @@
 package com.dhavalpateln.linkcast.ui.discover.ui.popular;
 
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,18 +8,22 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
-import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.MyAnimelistGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,7 +34,7 @@ public class DiscoverPopularFragmentObject extends Fragment {
 
     private PopularViewModel.TYPE type;
     private String TAG = "PopularFragmentObject";
-    private GridRecyclerAdapter<MyAnimelistAnimeData> gridRecyclerAdapter;
+    private MyAnimelistGridRecyclerAdapter gridRecyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
     private Button prevButton;
     private Button nextButton;
@@ -94,29 +86,7 @@ public class DiscoverPopularFragmentObject extends Fragment {
         prevButton.setOnClickListener(v -> prev(v));
 
         dataList = new ArrayList<>();
-        gridRecyclerAdapter = new GridRecyclerAdapter<>(dataList, getContext(), (GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>) (holder, position, data) -> {
-            holder.titleTextView.setText(data.getTitle());
-            holder.subTextTextView.setText(data.getInfo("Genres"));
-            try {
-                Glide.with(getContext())
-                        .load(data.getImages().get(0))
-                        .centerCrop()
-                        .crossFade()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.imageView);
-            } catch (Exception e) {e.printStackTrace();}
-
-            holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), MyAnimelistInfoActivity.class);
-                intent.putExtra(MyAnimelistInfoActivity.INTENT_ANIMELIST_DATA_KEY, data);
-                startActivity(intent);
-            });
-
-            if(data.getMalScoreString() != null) {
-                holder.scoreTextView.setVisibility(View.VISIBLE);
-                holder.scoreTextView.setText(data.getMalScoreString());
-            }
-        });
+        gridRecyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getContext());
 
         RecyclerView recyclerView = view.findViewById(R.id.discover_popular_recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -130,6 +100,7 @@ public class DiscoverPopularFragmentObject extends Fragment {
             }
         });
     }
+
 
     private void updateRecyclerData(List<MyAnimelistAnimeData> myAnimelistAnimeData) {
         progressBar.setVisibility(View.GONE);

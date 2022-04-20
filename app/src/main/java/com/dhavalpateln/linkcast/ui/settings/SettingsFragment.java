@@ -1,7 +1,6 @@
 package com.dhavalpateln.linkcast.ui.settings;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -10,19 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
+import com.dhavalpateln.linkcast.uihelpers.AbstractCatalogObjectFragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public class SettingsFragment extends Fragment {
 
@@ -55,10 +49,10 @@ public class SettingsFragment extends Fragment {
 
         episodeTrackingOptions = new String[] {"Last episode watched", "Max episode watched"};
         sortOrderOptions = new String[] {
-                CatalogObjectFragment.Sort.BY_NAME.name(),
-                CatalogObjectFragment.Sort.BY_SCORE.name(),
-                CatalogObjectFragment.Sort.BY_DATE_ADDED_ASC.name(),
-                CatalogObjectFragment.Sort.BY_DATE_ADDED_DESC.name()
+                AbstractCatalogObjectFragment.Sort.BY_NAME.name(),
+                AbstractCatalogObjectFragment.Sort.BY_SCORE.name(),
+                AbstractCatalogObjectFragment.Sort.BY_DATE_ADDED_ASC.name(),
+                AbstractCatalogObjectFragment.Sort.BY_DATE_ADDED_DESC.name()
         };
 
         return root;

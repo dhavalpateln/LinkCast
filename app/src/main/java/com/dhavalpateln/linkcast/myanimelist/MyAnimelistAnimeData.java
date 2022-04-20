@@ -66,7 +66,7 @@ public class MyAnimelistAnimeData implements Serializable {
     public void setMalScoreString(String malScoreString) {
         try {
             malScoreString = String.format("%.2f", Double.valueOf(malScoreString));
-        } catch (Exception e) {}
+        } catch (Exception e) {malScoreString = null;}
         this.malScoreString = malScoreString;
     }
 

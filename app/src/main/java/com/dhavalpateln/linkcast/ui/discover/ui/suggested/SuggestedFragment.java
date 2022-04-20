@@ -1,31 +1,19 @@
 package com.dhavalpateln.linkcast.ui.discover.ui.suggested;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.AnimeAdvancedView;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.MyAnimelistGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.util.ArrayList;
@@ -38,6 +26,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SuggestedFragment#newInstance} factory method to
@@ -48,7 +42,7 @@ public class SuggestedFragment extends Fragment {
     private Map<String, List<MyAnimelistAnimeData>> userRankAnimeMap;
     private Set<Integer> userMalIDs;
     private RecyclerView recyclerView;
-    private GridRecyclerAdapter<MyAnimelistAnimeData> recyclerAdapter;
+    private MyAnimelistGridRecyclerAdapter recyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
     private ProgressDialog progressDialog;
 
@@ -82,29 +76,7 @@ public class SuggestedFragment extends Fragment {
 
         dataList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.mal_suggested_recycler_view);
-        recyclerAdapter = new GridRecyclerAdapter<>(
-                dataList,
-                getContext(),
-                (GridRecyclerAdapter.RecyclerInterface<MyAnimelistAnimeData>) (holder, position, data) -> {
-                    holder.titleTextView.setText(data.getTitle());
-                    try {
-                        Glide.with(getContext())
-                                .load(data.getImages().get(0))
-                                .centerCrop()
-                                .crossFade()
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .into(holder.imageView);
-                    } catch (Exception e) {e.printStackTrace();}
-                    holder.mainLayout.setOnClickListener(v -> {
-                        Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
-                        startActivity(intent);
-                    });
-                    if(data.getMalScoreString() != null) {
-                        holder.scoreTextView.setVisibility(View.VISIBLE);
-                        holder.scoreTextView.setText(data.getMalScoreString());
-                    }
-                }
-        );
+        recyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getContext());
 
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Please Wait...");

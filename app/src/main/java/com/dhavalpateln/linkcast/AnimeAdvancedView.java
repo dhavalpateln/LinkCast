@@ -52,7 +52,7 @@ import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
+import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.google.android.exoplayer2.MediaItem;
@@ -328,10 +328,10 @@ public class AnimeAdvancedView extends AppCompatActivity {
         statusButton.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Set Status");
-            builder.setItems(CatalogFragment.Catalogs.BASIC_TYPES, new DialogInterface.OnClickListener() {
+            builder.setItems(AnimeFragment.Catalogs.BASIC_TYPES, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    String status = CatalogFragment.Catalogs.BASIC_TYPES[which];
+                    String status = AnimeFragment.Catalogs.BASIC_TYPES[which];
                     if(animeData.getId() != null) {
                         animeData.updateData(AnimeLinkData.DataContract.DATA_STATUS, status);
                         //FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child("status").setValue(status);

@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_discover, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
+                R.id.nav_anime_catalog, R.id.nav_discover, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
                 /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
                 .setDrawerLayout(drawer)
                 .build();
@@ -178,23 +178,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
-
-    public void fourAnimeListener(View view) {
-        Intent intent = new Intent(this, AnimeWebExplorer.class);
-        startActivity(intent);
-        this.finish();
-    }
-
-    public void updateUserMetaData() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference ref = FirebaseDBHelper.getUserDataRef();
-        ref.child("displayName").setValue(user.getDisplayName());
-        ref.child("email").setValue(user.getEmail());
-        ref.child("phone").setValue(user.getPhoneNumber());
-        ref.child("photoURI").setValue(user.getPhotoUrl().toString());
-    }
-
-
 }

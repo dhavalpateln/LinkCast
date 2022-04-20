@@ -75,6 +75,7 @@ public class MangaFourLife extends MangaScrapper {
                             String chapterNum = chapterInfo.substring(1, chapterInfo.length() - 1).replaceAll("^0*", "");
                             if(chapterNum.equals(""))   chapterNum = "0";
                             String subNum = chapterInfo.substring(chapterInfo.length() - 1);
+                            if(!subNum.equals("0")) continue;
                             String chapterURL = url.replace("/manga/", "/read-online/") + "-chapter-" + chapterNum + (subNum.equals("0") ? "" : ("." + subNum)) + (index.equals("1") ? "" : ("-index-" + index)) + ".html";
                             EpisodeNode node = new EpisodeNode(chapterNum, chapterURL);
                             node.setType(type);
@@ -85,6 +86,9 @@ public class MangaFourLife extends MangaScrapper {
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
+        }
+        for(int i = 0; i < result.size(); i++) {
+            result.get(i).setEpisodeNumString(String.valueOf(result.size() - i));
         }
         return result;
     }
