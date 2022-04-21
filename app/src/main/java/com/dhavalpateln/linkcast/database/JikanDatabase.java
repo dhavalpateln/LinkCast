@@ -1,6 +1,9 @@
 package com.dhavalpateln.linkcast.database;
 
+import android.net.Uri;
+
 import com.dhavalpateln.linkcast.data.JikanCache;
+import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
@@ -149,5 +152,59 @@ public class JikanDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<MyAnimelistAnimeData> getSearchResult(AdvSearchParams searchParams, int page) {
+        List<MyAnimelistAnimeData> result = new ArrayList<>();
+
+        Uri.Builder builder = new Uri.Builder();
+        builder.appendPath("v4");
+        builder.appendPath("anime");
+
+        builder.appendQueryParameter("page", String.valueOf(page));
+        if(searchParams.getQuery() != null) builder.appendQueryParameter("q", searchParams.getQuery());
+        if(searchParams.getType() != null) builder.appendQueryParameter("type", searchParams.getType());
+        if(searchParams.getScore() != 0) builder.appendQueryParameter("score", String.valueOf(searchParams.getScore()));
+        if(searchParams.getStatus() != null) builder.appendQueryParameter("status", searchParams.getStatus());
+        if(searchParams.getOrderBy() != null) builder.appendQueryParameter("order_by", searchParams.getOrderBy());
+        if(searchParams.getSort() != null) builder.appendQueryParameter("sort", searchParams.getSort());
+
+
+        String genres = "";
+        for(Integer genreId: searchParams.getGenres()) {
+            genres += "," + genreId;
+        }
+        if(!genres.equals(""))   genres = genres.substring(1);
+        builder.appendQueryParameter("genres", genres);
+
+        String url = "https://api.jikan.moe" + builder.build().toString();
+
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
+            JSONObject jsonResponse = new JSONObject(SimpleHttpClient.getResponse(urlConnection));
+            JSONArray animeList = jsonResponse.getJSONArray("data");
+            for(int i = 0; i < animeList.length(); i++) {
+                JSONObject animeData = animeList.getJSONObject(i);
+                MyAnimelistAnimeData animelistAnimeData = new MyAnimelistAnimeData();
+                animelistAnimeData.setUrl(animeData.getString("url"));
+                animelistAnimeData.setTitle(animeData.getString("title"));
+                animelistAnimeData.addImage(animeData.getJSONObject("images").getJSONObject("jpg").getString("image_url"));
+                animelistAnimeData.setMalScoreString(animeData.getString("score"));
+
+                String genresString = "";
+                JSONArray genresArray = animeData.getJSONArray("genres");
+                for(int genreNum = 0; genreNum < genresArray.length(); genreNum++) {
+                    genresString += "," + genresArray.getJSONObject(genreNum).getString("name");
+                }
+                if(!genresString.equals(""))    genresString = genresString.substring(1);
+
+                animelistAnimeData.putInfo("Genres", genresString);
+                result.add(animelistAnimeData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

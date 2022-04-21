@@ -18,16 +18,19 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".myanimelist.MyAnimeListSearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".myanimelist.MyAnimelistCharacterActivity"
             android:exported="false"
             android:label="@string/title_activity_my_animelist_character"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".myanimelist.MyAnimelistInfoActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="false"
             android:label="@string/title_activity_my_animelist_info"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation|screenSize"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AnimeSearchActivity"
             android:exported="false" />
@@ -52,8 +55,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".manga.MangaReaderActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MangaWebExplorer"
             android:exported="false" />

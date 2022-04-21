@@ -79,7 +79,7 @@ public class SuggestedFragment extends Fragment {
         recyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getContext());
 
         progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Please Wait...");
+        progressDialog.setMessage("Generating your personal recommendations...");
         progressDialog.setCancelable(false);
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));

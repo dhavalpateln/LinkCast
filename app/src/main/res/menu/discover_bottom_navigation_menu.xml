@@ -13,10 +13,10 @@
         android:title="Popular" />
 
     <item
-        android:id="@+id/discover_genre"
+        android:id="@+id/discover_search"
         android:enabled="true"
         android:icon="@drawable/ic_filter"
-        android:title="Genres" />
+        android:title="Search" />
 
     <item
         android:id="@+id/discover_suggested"

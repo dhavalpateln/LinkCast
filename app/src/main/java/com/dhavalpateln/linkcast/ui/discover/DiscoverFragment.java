@@ -12,11 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.ui.discover.ui.genre.DiscoverGenreFragment;
+import com.dhavalpateln.linkcast.ui.discover.ui.search.DiscoverSearchFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.DiscoverPopularFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.DiscoverSeasonalFragment;
 import com.dhavalpateln.linkcast.ui.discover.ui.suggested.SuggestedFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class DiscoverFragment extends Fragment {
@@ -24,7 +23,7 @@ public class DiscoverFragment extends Fragment {
     private NavigationBarView bottomNavigationView;
     private DiscoverSeasonalFragment discoverSeasonalFragment = DiscoverSeasonalFragment.newInstance();
     private DiscoverPopularFragment discoverPopularFragment = DiscoverPopularFragment.newInstance();
-    private DiscoverGenreFragment discoverGenreFragment = DiscoverGenreFragment.newInstance();
+    private DiscoverSearchFragment discoverSearchFragment = DiscoverSearchFragment.newInstance();
     private SuggestedFragment discoverSuggestedFragment = SuggestedFragment.newInstance();
 
     public DiscoverFragment() {
@@ -57,8 +56,8 @@ public class DiscoverFragment extends Fragment {
                     case R.id.discover_popular:
                         getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverPopularFragment).commit();
                         return true;
-                    case R.id.discover_genre:
-                        getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverGenreFragment).commit();
+                    case R.id.discover_search:
+                        getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverSearchFragment).commit();
                         return true;
                     case R.id.discover_suggested:
                         getParentFragmentManager().beginTransaction().replace(R.id.discover_fill_fragment, discoverSuggestedFragment).commit();
