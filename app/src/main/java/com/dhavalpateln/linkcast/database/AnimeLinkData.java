@@ -31,6 +31,7 @@ public class AnimeLinkData implements Serializable {
     }
 
     public String getTitle() {
+        if(title == null)   return "";
         return title;
     }
 

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.dhavalpateln.linkcast.MangaAdvancedView;
+import com.dhavalpateln.linkcast.AdvancedView;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -42,7 +42,8 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
             super.onBindViewHolder(holder, position);
             AnimeLinkData data = dataList.get(position);
             holder.openButton.setOnClickListener(v -> {
-                Intent intent = MangaAdvancedView.prepareIntent(getContext(), data);
+                Intent intent = AdvancedView.prepareIntent(getContext(), data);
+                intent.putExtra(AdvancedView.INTENT_MODE_ANIME, false);
                 startActivity(intent);
             });
 

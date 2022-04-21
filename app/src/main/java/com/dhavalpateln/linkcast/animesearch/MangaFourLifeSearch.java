@@ -31,7 +31,7 @@ public class MangaFourLifeSearch extends AnimeSearch {
         for(String key: mangas.keySet()) {
             if(key.contains(term) && !resultSet.contains(mangas.get(key))) {
                 AnimeLinkData data = new AnimeLinkData();
-                data.setTitle(Utils.capFirstLetters(key));
+                data.setTitle(Utils.capFirstLetters(key).trim());
                 data.setUrl(ProvidersData.MANGAFOURLIFE.URL + "/manga/" + mangas.get(key));
                 Map<String, String> dataMap = new HashMap<>();
                 dataMap.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, "https://cover.nep.li/cover/" + mangas.get(key) + ".jpg");

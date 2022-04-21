@@ -64,7 +64,13 @@ public class MyAnimelistDataViewModel extends ViewModel {
                         Document html = Jsoup.parse(SimpleHttpClient.getResponse(httpURLConnection));
 
                         Element titleElement = html.selectFirst("div[itemprop=name]");
-                        myAnimelistAnimeData.setTitle(titleElement.selectFirst("h1").text());
+                        if(titleElement == null) {
+                            titleElement = html.selectFirst("span[itemprop=name]");
+                            myAnimelistAnimeData.setTitle(titleElement.text());
+                        }
+                        else {
+                            myAnimelistAnimeData.setTitle(titleElement.selectFirst("h1").text());
+                        }
 
                         // GET INFOS
                         Elements infoElements = html.select("div.spaceit_pad");

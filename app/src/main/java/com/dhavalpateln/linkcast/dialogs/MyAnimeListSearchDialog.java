@@ -7,18 +7,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
-import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 
@@ -36,19 +31,20 @@ public class MyAnimeListSearchDialog extends DialogFragment {
     private String searchTerm;
     private EditText searchEditText;
     private List<MyAnimelistAnimeData> dataList;
-    private MyAnimelistAnimeData myAnimelistAnimeData;
+    private boolean isAnime;
     private RecyclerView recyclerView;
     private DialogAnimeListAdapter recyclerAdapter;
     private SourceSelectedListener sourceSelectedListener;
 
     public MyAnimeListSearchDialog(SourceSelectedListener sourceSelectedListener) {
-        this("", sourceSelectedListener);
+        this("", true, sourceSelectedListener);
     }
-    public MyAnimeListSearchDialog(String searchTerm, SourceSelectedListener sourceSelectedListener) {
+    public MyAnimeListSearchDialog(String searchTerm, boolean isAnime, SourceSelectedListener sourceSelectedListener) {
         super();
         this.searchTerm = searchTerm;
         dataList = new ArrayList<>();
         this.sourceSelectedListener = sourceSelectedListener;
+        this.isAnime = isAnime;
     }
 
     public interface SourceSelectedListener {
@@ -116,6 +112,10 @@ public class MyAnimeListSearchDialog extends DialogFragment {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.animeImageView);
 
+            holder.openButton.setVisibility(View.GONE);
+            holder.deleteButton.setVisibility(View.GONE);
+            holder.editButton.setVisibility(View.GONE);
+
             holder.mainLayout.setOnClickListener(v -> {
                 sourceSelectedListener.onSourceSelected(data);
                 MyAnimeListSearchDialog.this.getDialog().cancel();
@@ -135,7 +135,7 @@ public class MyAnimeListSearchDialog extends DialogFragment {
 
         @Override
         protected List<MyAnimelistAnimeData> doInBackground(Void... voids) {
-            return MyAnimelistSearch.anime(searchEditText.getText().toString());
+            return MyAnimelistSearch.search(searchEditText.getText().toString(), isAnime);
         }
     }
 }

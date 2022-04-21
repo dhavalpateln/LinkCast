@@ -154,18 +154,31 @@ public class AnimeInfoFragment extends Fragment {
             if (!sliderImageURLs.contains(imageURL)) sliderImageURLs.add(imageURL);
         }
         imageSliderAdapter.notifyDataSetChanged();
-        String[] infoKeys = {
-                "Type",
-                "Episodes",
-                "Status",
-                "Aired",
-                "Premiered",
-                "Broadcast",
-                "Producers",
-                "Licensors",
-                "Studios",
-                "Source"
-        };
+        String[] infoKeys;
+        if(myAnimelistAnimeData.getUrl().contains("/anime/")) {
+            infoKeys = new String[] {
+                    "Type",
+                    "Episodes",
+                    "Status",
+                    "Aired",
+                    "Premiered",
+                    "Broadcast",
+                    "Producers",
+                    "Licensors",
+                    "Studios",
+                    "Source"
+            };
+        }
+        else {
+            infoKeys = new String[] {
+                    "Type",
+                    "Volumes",
+                    "Chapters",
+                    "Status",
+                    "Published",
+                    "Authors"
+            };
+        }
 
         boolean initialView = true;
         LinearLayout.LayoutParams dividerLayoutParams = new LinearLayout.LayoutParams(

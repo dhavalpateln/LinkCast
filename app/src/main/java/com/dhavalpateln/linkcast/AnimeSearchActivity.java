@@ -2,7 +2,6 @@ package com.dhavalpateln.linkcast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,21 +17,14 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
@@ -100,21 +92,15 @@ public class AnimeSearchActivity extends AppCompatActivity {
             holder.openButton.setOnClickListener(v -> {
                 AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
                 Intent intent;
-                if(animeSearch.isMangeSource()) {
-                    if(animeSearch.isAdvanceModeSource()) {
-                        intent = MangaAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
-                    }
-                    else {
-                        intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-                    }
+                if(animeSearch.isAdvanceModeSource()) {
+                    intent = AdvancedView.prepareIntent(getApplicationContext(), recyclerData);
+                    intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !animeSearch.isMangeSource());
+                }
+                else if(animeSearch.isMangeSource()){
+                    intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
                 }
                 else {
-                    if(animeSearch.isAdvanceModeSource()) {
-                        intent = AnimeAdvancedView.prepareIntent(getApplicationContext(), recyclerData);
-                    }
-                    else {
-                        intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), recyclerData);
-                    }
+                    intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), recyclerData);
                 }
                 startActivity(intent);
             });

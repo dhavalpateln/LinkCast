@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyAnimelistSearch {
-    public static List<MyAnimelistAnimeData> anime(String term) {
-        String searchUrl = "https://myanimelist.net/search/prefix.json?type=anime&keyword=" + Uri.encode(term) + "&v=1";
+    public static List<MyAnimelistAnimeData> search(String term, boolean anime) {
+
+        String searchUrl = "https://myanimelist.net/search/prefix.json?type=" + (anime ? "anime" : "manga") + "&keyword=" + Uri.encode(term) + "&v=1";
         List<MyAnimelistAnimeData> result = new ArrayList<>();
         try {
             HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(searchUrl);

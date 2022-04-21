@@ -1,21 +1,13 @@
 package com.dhavalpateln.linkcast.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.AnimeAdvancedView;
-import com.dhavalpateln.linkcast.AnimeWebExplorer;
-import com.dhavalpateln.linkcast.MangaAdvancedView;
-import com.dhavalpateln.linkcast.MangaWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
-import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 
 import java.util.List;
 

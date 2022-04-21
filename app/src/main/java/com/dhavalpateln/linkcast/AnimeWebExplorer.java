@@ -24,7 +24,6 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
-import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -50,9 +49,6 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -289,7 +285,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
             AnimeSource animeSource = getAnimeSource(sourceTerm);
             if(animeSource != null) {
                 if(useAdvancedMode && animeSource.isAdvancedModeUrl(sourceTerm)) {
-                    Intent intent = new Intent(AnimeWebExplorer.this, AnimeAdvancedView.class);
+                    Intent intent = new Intent(AnimeWebExplorer.this, AdvancedView.class);
                     intent.putExtra("source", animeSource.getAnimeSourceName());
                     intent.putExtra("url", url);
                     intent.putExtra("intentFrom", "AnimeWebExplorer");
@@ -339,7 +335,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
                 if(useAdvancedMode) {
                     if(animeSource.getAnimeSourceName().equals("animepahe.com")) {
                         if(animeSource.isAdvancedModeUrl(urlString)) {
-                            Intent intent = new Intent(AnimeWebExplorer.this, AnimeAdvancedView.class);
+                            Intent intent = new Intent(AnimeWebExplorer.this, AdvancedView.class);
                             intent.putExtra("source", animeSource.getAnimeSourceName());
                             intent.putExtra("url", urlString + ":::" + currentWebViewURI);
                             intent.putExtra("intentFrom", "AnimeWebExplorer");

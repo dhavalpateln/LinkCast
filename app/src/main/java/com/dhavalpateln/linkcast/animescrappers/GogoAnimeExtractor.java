@@ -6,6 +6,7 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,7 +30,9 @@ public class GogoAnimeExtractor extends AnimeScrapper {
 
     @Override
     public void configConnection(HttpURLConnection urlConnection) {
+        //SimpleHttpClient.setBrowserUserAgent(urlConnection);
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+        urlConnection.setRequestProperty("Referer", ProvidersData.GOGOANIME.URL);
     }
 
     @Override
@@ -41,7 +44,20 @@ public class GogoAnimeExtractor extends AnimeScrapper {
     public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         List<EpisodeNode> result = new ArrayList<>();
         try {
-            String htmlContent = getHttpContent(episodeListUrl);
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(episodeListUrl);
+            configConnection(urlConnection);
+            if(SimpleHttpClient.getResponseCode(urlConnection) == 301) {
+                episodeListUrl = urlConnection.getHeaderField("Location").replace("http://", "https://");
+                urlConnection = SimpleHttpClient.getURLConnection(episodeListUrl);
+                configConnection(urlConnection);
+            }
+
+            //Uri gogoURI = Uri.parse(episodeListUrl);
+
+            Log.d(TAG, "Url = " + episodeListUrl);
+            String htmlContent = SimpleHttpClient.getResponse(urlConnection);
+            //Document html = Jsoup.parse(htmlContent);
+
             Pattern idPattern = Pattern.compile("value=\"(.*?)\".*class=\"movie_id\"");
             String id = null;
             for(String line: htmlContent.split("\n")) {
