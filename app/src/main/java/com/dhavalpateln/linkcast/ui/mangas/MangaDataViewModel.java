@@ -29,10 +29,6 @@ public class MangaDataViewModel extends ViewModel {
     }
 
     private void loadData() {
-        /*for(String catalogType: CatalogFragment.CATALOG_TYPE) {
-            MutableLiveData<Map<String, AnimeLinkData>> liveData = new MutableLiveData<>();
-            livaDataMap.put(catalogType, liveData);
-        }*/
         data.setValue(new HashMap<>());
         FirebaseDBHelper.getUserMangaWebExplorerLinkRef().addChildEventListener(new ChildEventListener() {
             @Override

@@ -10,15 +10,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
-import com.dhavalpateln.linkcast.dialogs.SearchDialog;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -32,7 +29,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -43,9 +39,6 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_anime_catalog, R.id.nav_discover, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
-                /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
+                R.id.nav_anime_catalog, R.id.nav_manga_catalog, R.id.nav_discover, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
+                R.id.nav_downloads, R.id.nav_settings, R.id.nav_feedback, R.id.nav_about)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);

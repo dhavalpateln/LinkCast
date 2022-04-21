@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class StoredAnimeLinkData {
     private static StoredAnimeLinkData storedAnimeLinkData;
-    private Map<String, AnimeLinkData> cache;
+    private Map<String, AnimeLinkData> animeCache;
     private Map<String, AnimeLinkData> mangaCache;
 
     public static StoredAnimeLinkData getInstance() {
@@ -14,17 +14,17 @@ public class StoredAnimeLinkData {
         return storedAnimeLinkData;
     }
 
-    public void updateCache(Map<String, AnimeLinkData> cache) {
-        this.cache = cache;
+    public void updateAnimeCache(Map<String, AnimeLinkData> cache) {
+        this.animeCache = cache;
     }
 
-    public Map<String, AnimeLinkData> getCache() {
-        return this.cache;
+    public Map<String, AnimeLinkData> getAnimeCache() {
+        return this.animeCache;
     }
 
     public AnimeLinkData getAnimeLinkData(String id) {
-        if(this.cache == null || !this.cache.containsKey(id))   return null;
-        return this.cache.get(id);
+        if(this.animeCache == null || !this.animeCache.containsKey(id))   return null;
+        return this.animeCache.get(id);
     }
 
     public void updateMangaCache(Map<String, AnimeLinkData> cache) {

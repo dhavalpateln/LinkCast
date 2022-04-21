@@ -23,9 +23,9 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="menu_downloads">Downloads</string>
-    <string name="menu_manga_links">Manga Links</string>
+    <string name="menu_manga_links">Manga</string>
     <string name="exo_controls_full_screen_description">Fullscreen</string>
-    <string name="menu_anime_catalog">Catalog</string>
+    <string name="menu_anime_catalog">Anime</string>
 
 
     <string-array name="source_list">
@@ -44,4 +44,6 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_manga_catalog">Manga</string>
+    <string name="menu_about">About</string>
 </resources>

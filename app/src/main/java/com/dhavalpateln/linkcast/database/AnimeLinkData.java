@@ -28,6 +28,7 @@ public class AnimeLinkData implements Serializable {
         public static final String DATA_MYANIMELIST_ID = "malid";
         public static final String DATA_MYANIMELIST_URL = "malurl";
         public static final String DATA_USER_SCORE = "userscore";
+        public static final String DATA_LINK_TYPE = "linktype";
     }
 
     public String getTitle() {
@@ -68,6 +69,8 @@ public class AnimeLinkData implements Serializable {
                 return "Episode - 0";
             case DataContract.DATA_USER_SCORE:
                 return "0";
+            case DataContract.DATA_LINK_TYPE:
+                return "Anime";
             default:
                 return null;
         }
@@ -75,10 +78,6 @@ public class AnimeLinkData implements Serializable {
 
     public void updateData(String key, String value) {
         updateData(key, value, true, true);
-    }
-
-    public void updateData(String key, String value, boolean updateFirebase) {
-        updateData(key, value, updateFirebase, true);
     }
 
     public void updateData(String key, String value, boolean updateFirebase, boolean isAnime) {

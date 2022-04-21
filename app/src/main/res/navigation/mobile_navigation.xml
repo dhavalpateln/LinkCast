@@ -9,8 +9,13 @@
     <fragment
         android:id="@+id/nav_anime_catalog"
         android:name="com.dhavalpateln.linkcast.ui.animes.AnimeFragment"
-        android:label="Home"
-        tools:layout="@layout/fragment_catalog" />
+        android:label="@string/menu_anime_catalog" />
+
+    <fragment
+        android:id="@+id/nav_manga_catalog"
+        android:name="com.dhavalpateln.linkcast.ui.mangas.MangaFragment"
+        android:label="@string/menu_manga_catalog"
+        tools:layout="@layout/fragment_manga" />
 
     <fragment
         android:id="@+id/nav_discover"
@@ -18,11 +23,7 @@
         android:label="@string/menu_discover"
         tools:layout="@layout/fragment_discover" />
 
-    <fragment
-        android:id="@+id/nav_manga_links"
-        android:name="com.dhavalpateln.linkcast.ui.mangas.MangaFragment"
-        android:label="@string/menu_manga_links"
-        tools:layout="@layout/fragment_manga" />
+
     <fragment
         android:id="@+id/nav_downloads"
         android:name="com.dhavalpateln.linkcast.ui.download.DownloadFragment"
@@ -48,8 +49,8 @@
         tools:layout="@layout/fragment_feedback" />
 
     <fragment
-        android:id="@+id/nav_faq"
+        android:id="@+id/nav_about"
         android:name="com.dhavalpateln.linkcast.ui.faq.FAQFragment"
-        android:label="@string/menu_faq"
+        android:label="@string/menu_about"
         tools:layout="@layout/fragment_faq" />
 </navigation>

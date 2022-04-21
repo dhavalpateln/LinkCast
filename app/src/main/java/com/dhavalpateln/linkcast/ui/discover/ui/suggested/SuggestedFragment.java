@@ -90,7 +90,7 @@ public class SuggestedFragment extends Fragment {
 
     private void updateUserRankAnimeMap() {
         if(userRankAnimeMap == null) {
-            Map<String, AnimeLinkData> userAnimeMap = StoredAnimeLinkData.getInstance().getCache();
+            Map<String, AnimeLinkData> userAnimeMap = StoredAnimeLinkData.getInstance().getAnimeCache();
             userMalIDs = new HashSet<>();
             userRankAnimeMap = new HashMap<>();
             for (int i = 0; i <= 10; i++) {

@@ -1,25 +1,45 @@
 package com.dhavalpateln.linkcast.animesearch;
 
+import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class BookmarkedSearch extends AnimeSearch {
 
     private ArrayList<AnimeLinkData> data;
+    private boolean mangaLoaded = false;
+    private boolean animeLoaded = false;
+
+    public BookmarkedSearch() {
+        this.data = new ArrayList<>();
+    }
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
         term = term.toLowerCase();
+        if(!mangaLoaded && StoredAnimeLinkData.getInstance().getMangaCache() != null) {
+            mangaLoaded = true;
+            loadData(StoredAnimeLinkData.getInstance().getMangaCache());
+        }
+        if(!animeLoaded && StoredAnimeLinkData.getInstance().getAnimeCache() != null) {
+            animeLoaded = true;
+            loadData(StoredAnimeLinkData.getInstance().getAnimeCache());
+        }
         ArrayList<AnimeLinkData> result = new ArrayList<>();
-        if(this.data != null) {
-            for (AnimeLinkData animeLinkData : this.data) {
-                if ((animeLinkData.getTitle() + " (" + animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE) + ")").toLowerCase().contains(term)) {
-                    result.add(animeLinkData);
-                }
+        for (AnimeLinkData animeLinkData : this.data) {
+            if ((animeLinkData.getTitle() + " (" + animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE) + ")").toLowerCase().contains(term)) {
+                result.add(animeLinkData);
             }
         }
         return result;
+    }
+
+    public void loadData(Map<String, AnimeLinkData> sourceCache) {
+        for(Map.Entry<String, AnimeLinkData> entry: sourceCache.entrySet()) {
+            this.data.add(entry.getValue());
+        }
     }
 
     public void updateData(ArrayList<AnimeLinkData> data) {

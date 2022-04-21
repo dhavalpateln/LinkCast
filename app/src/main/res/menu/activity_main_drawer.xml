@@ -8,16 +8,16 @@
         <item
             android:id="@+id/nav_anime_catalog"
             android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="@string/menu_home" />
+            android:title="@string/menu_anime_catalog" />
+        <item
+            android:id="@+id/nav_manga_catalog"
+            android:icon="@android:drawable/ic_menu_gallery"
+            android:title="@string/menu_manga_catalog" />
         <item
             android:id="@+id/nav_discover"
             android:icon="@android:drawable/ic_menu_search"
             android:title="@string/menu_discover" />
 
-        <item
-            android:id="@+id/nav_manga_links"
-            android:icon="@android:drawable/ic_menu_gallery"
-            android:title="@string/menu_manga_links" />
         <item
             android:id="@+id/nav_downloads"
             android:icon="@android:drawable/stat_sys_download_done"
@@ -45,9 +45,9 @@
                 android:icon="@drawable/ic_menu_send"
                 android:title="@string/menu_feedback" />
             <item
-                android:id="@+id/nav_faq"
+                android:id="@+id/nav_about"
                 android:icon="@android:drawable/ic_dialog_info"
-                android:title="@string/menu_faq" />
+                android:title="@string/menu_about" />
         </menu>
     </item>
 

@@ -94,7 +94,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 Intent intent;
                 if(animeSearch.isAdvanceModeSource()) {
                     intent = AdvancedView.prepareIntent(getApplicationContext(), recyclerData);
-                    intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !animeSearch.isMangeSource());
+                    boolean isMangaSource = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
+                            !recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
+                            animeSearch.isMangeSource();
+                    intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !isMangaSource);
                 }
                 else if(animeSearch.isMangeSource()){
                     intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
@@ -172,7 +175,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
 
-        SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
+        /*SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
         viewModel.getData().observe(this, stringAnimeLinkDataMap -> {
             Log.d(TAG, "Data changed");
             ArrayList<AnimeLinkData> bookmarkedData = new ArrayList<>();
@@ -182,10 +185,8 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 bookmarkedData.add(entry.getValue());
             }
             bookmarkedSearch.updateData(bookmarkedData);
-            if(sourceSpinner.getSelectedItem().toString().equals(bookmarkedSearch.getName())) {
-                updateRecyclerData(bookmarkedSearch.search(searchEditText.getText().toString()));
-            }
-        });
+
+        });*/
 
 
         searchEditText.addTextChangedListener(new TextWatcher() {

@@ -14,7 +14,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SharedAnimeLinkDataViewModel extends ViewModel {
@@ -53,7 +52,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 animeLinkData.setId(snapshot.getKey());
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateAnimeCache(map);
             }
 
             @Override
@@ -63,7 +62,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 animeLinkData.setId(snapshot.getKey());
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateAnimeCache(map);
             }
 
             @Override
@@ -71,7 +70,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 Map<String, AnimeLinkData> map = data.getValue();
                 map.remove(snapshot.getKey());
                 data.setValue(map);
-                StoredAnimeLinkData.getInstance().updateCache(map);
+                StoredAnimeLinkData.getInstance().updateAnimeCache(map);
             }
 
             @Override

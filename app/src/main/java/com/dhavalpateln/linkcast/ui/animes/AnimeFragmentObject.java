@@ -13,6 +13,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.mangas.MangaDataViewModel;
 
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         super.onViewCreated(view, savedInstanceState);
 
         SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
+        new ViewModelProvider(getActivity()).get(MangaDataViewModel.class).getData(); // load manga cache
 
         viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
             Log.d(TAG, "Data changed");
