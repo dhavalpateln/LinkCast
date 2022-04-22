@@ -3,6 +3,7 @@
     <string-array name="feedback_subjects">
         <item>General</item>
         <item>Bug Report</item>
+        <item>Report ads</item>
         <item>Feature Request</item>
     </string-array>
 </resources>
