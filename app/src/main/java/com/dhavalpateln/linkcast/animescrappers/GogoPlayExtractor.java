@@ -39,17 +39,13 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.annotation.RequiresApi;
 
 public class GogoPlayExtractor extends AnimeScrapper {
-    private String TAG = "VidStream";
-    private String GOGOANIME_ENCRYPT_KEY = "93106165734640459728346589106791";
-    private String GOGOANIME_DECRYPT_KEY = "97952160493714852094564712118349";
-    private String GOGOANIME_SECRET = "63976882873559819639988080820907";
-    private String GOGOANIME_IV = "9728346589106791";
-    private String CUSTOM_PADDER = "\u0008\u000e\u0003\u0008\t\u0003\u0004\t";
+    private String TAG = "GogoPlay";
 
     private class GogoAnimeKeys {
         byte[] key1;
         byte[] key2;
         byte[] iv;
+        String encrytedDataValue;
     }
 
     public GogoPlayExtractor() {
@@ -67,10 +63,6 @@ public class GogoPlayExtractor extends AnimeScrapper {
     }
 
     private String pad(String s) {
-        /*int lastChars = CUSTOM_PADDER.length() - (s.length() % 16);
-        if(lastChars < 0) lastChars *= -1;
-        if(s.length() == 8) lastChars = CUSTOM_PADDER.length();
-        return s + CUSTOM_PADDER.substring(CUSTOM_PADDER.length() - lastChars);*/
         char padChar = (char) (s.length() % 16);
         int padLength = 16 - (s.length() % 16);
         for(int i = 0; i < padLength; i++) s += padChar;
@@ -140,6 +132,12 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 keyList.add(matcher.group(2));
             }
 
+            Pattern encrytedDataPattern = Pattern.compile("data-value=\"(.+?)\"");
+            Matcher encrytedDataMatcher = encrytedDataPattern.matcher(response);
+            if(encrytedDataMatcher.find()) {
+                keys.encrytedDataValue = encrytedDataMatcher.group(1);
+            }
+
             if(keyList.get(1).length() > 16) {
                 keys.key1 = Utils.unhexlify(keyList.get(0));
                 keys.key2 = Utils.unhexlify(keyList.get(2));
@@ -168,20 +166,41 @@ public class GogoPlayExtractor extends AnimeScrapper {
                 String hostName = "https://" + uri.getHost();
                 String contentId = uri.getQueryParameter("id");
                 GogoAnimeKeys gogoAnimeKeys = fetchKeys(episodeUrl);
-                //byte[] GOGOANIME_KEY = getGogoAnimeKey(contentId, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8));
-                Uri vidStreamUri = new Uri.Builder()
-                        .appendPath("encrypt-ajax.php")
-                        .appendQueryParameter("id", encrypt(uri.getQueryParameter("id"), gogoAnimeKeys.key1, gogoAnimeKeys.iv))
-                        .appendQueryParameter("alias", uri.getQueryParameter("id"))
-                        .build();
 
-                Log.d(TAG, hostName + vidStreamUri.toString());
+                String decrytedData = decrypt(gogoAnimeKeys.encrytedDataValue, gogoAnimeKeys.key1, gogoAnimeKeys.iv)
+                        .replaceAll("^[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+", "")
+                        .replaceAll("[\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\n\u000b\u000c\r\u000e\u000f\u0010]+$", "");
+
+                //byte[] GOGOANIME_KEY = getGogoAnimeKey(contentId, GOGOANIME_IV.getBytes(StandardCharsets.UTF_8));
+                Uri.Builder vidStreamUriBuilder = new Uri.Builder()
+                        .appendPath("encrypt-ajax.php");
+
+
+                for(String params: decrytedData.split("&")) {
+                    String[] queryKeyValue = params.split("=", 2);
+                    if(queryKeyValue.length == 2)   {
+                        if(queryKeyValue[1].equals("")) continue;
+                        if(queryKeyValue[0].equals("title"))    continue;
+                        vidStreamUriBuilder = vidStreamUriBuilder.appendQueryParameter(queryKeyValue[0], queryKeyValue[1]);
+                    }
+                }
+
+                vidStreamUriBuilder = vidStreamUriBuilder
+                        .appendQueryParameter("id", encrypt(contentId, gogoAnimeKeys.key1, gogoAnimeKeys.iv));
+                        //.appendQueryParameter("alias", uri.getQueryParameter("id"));
+
+                Uri vidStreamUri = vidStreamUriBuilder.build();
+
+
 
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("x-requested-with", "XMLHttpRequest");
                 headerMap.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
                 headerMap.put("referer", hostName);
-                String response = getHttpContent(hostName + vidStreamUri.toString(), headerMap);
+
+                String url = hostName + vidStreamUri.toString() + "&alias=" + contentId;
+                Log.d(TAG, url);
+                String response = getHttpContent(url, headerMap);
                 JSONObject jsonObject = new JSONObject(response);
 
                 String dataResponse = decrypt(jsonObject.getString("data"), gogoAnimeKeys.key2, gogoAnimeKeys.iv);
