@@ -27,6 +27,11 @@ public class StoredAnimeLinkData {
         return this.animeCache.get(id);
     }
 
+    public AnimeLinkData getMangaLinkData(String id) {
+        if(this.mangaCache == null || !this.mangaCache.containsKey(id))   return null;
+        return this.mangaCache.get(id);
+    }
+
     public void updateMangaCache(Map<String, AnimeLinkData> cache) {
         this.mangaCache = cache;
     }

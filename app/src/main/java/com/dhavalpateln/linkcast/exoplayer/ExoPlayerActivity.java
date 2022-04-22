@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.exoplayer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -7,21 +8,21 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.cast.framework.CastContext;
 
@@ -37,6 +38,9 @@ public class ExoPlayerActivity extends AppCompatActivity {
     public static final String MEDIA_URL = "url";
     public static final String FILE_TYPE = "file_type";
 
+    private final String ARG_FIRST_LOAD = "firstload";
+    private final String ARG_PLAYBACK_POSITION = "position";
+
     public enum FileTypes {
         LOCAL,
         URL
@@ -51,8 +55,9 @@ public class ExoPlayerActivity extends AppCompatActivity {
     private boolean saveProgress = true;
     private String id = null;
     private String episodeNum = null;
-    private boolean usedIntent = false;
+    private boolean firstLoad = false;
     private FileTypes fileType;
+    private Handler handler = new Handler();
 
     @Override
     protected void onStart() {
@@ -92,6 +97,13 @@ public class ExoPlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(ARG_FIRST_LOAD, firstLoad);
+        outState.putLong(ARG_PLAYBACK_POSITION, playbackPosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -118,6 +130,12 @@ public class ExoPlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(savedInstanceState != null) {
+            firstLoad = savedInstanceState.getBoolean(ARG_FIRST_LOAD, false);
+            playbackPosition = savedInstanceState.getLong(ARG_PLAYBACK_POSITION, 0);
+        }
+
         setContentView(R.layout.activity_exo_player);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -151,10 +169,12 @@ public class ExoPlayerActivity extends AppCompatActivity {
         if(intent.hasExtra(ID)) id = intent.getStringExtra(ID);
         if(intent.hasExtra(EPISODE_NUM)) episodeNum = intent.getStringExtra(EPISODE_NUM);
 
-        if(!usedIntent) {
-            usedIntent = true;
-            if(intent.hasExtra(LAST_VIEW_POINT)) {
-                playbackPosition = Long.valueOf(intent.getStringExtra(LAST_VIEW_POINT));
+        if(!firstLoad) {
+            firstLoad = true;
+            if (id != null && episodeNum != null) {
+                AnimeLinkData animeLinkData = StoredAnimeLinkData.getInstance().getAnimeLinkData(id);
+                String lastViewPoint = animeLinkData.getAnimeMetaData(episodeNum);
+                if (lastViewPoint != null) playbackPosition = Long.valueOf(lastViewPoint);
             }
         }
 
@@ -183,7 +203,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
         player.seekTo(currentWindow, playbackPosition);
         // Prepare the player.
         player.prepare();
-
+        handler.postDelayed(new ProgressChecker(), 15000);
     }
 
     public void toggleFullscreen(View view) {
@@ -206,6 +226,15 @@ public class ExoPlayerActivity extends AppCompatActivity {
         player.seekTo(player.getCurrentPosition() + 85000L);
     }
 
-
+    private class ProgressChecker implements Runnable {
+        @Override
+        public void run() {
+            if(player != null) {
+                playbackPosition = player.getCurrentPosition();
+                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
+                handler.postDelayed(this, 10000);
+            }
+        }
+    }
 
 }

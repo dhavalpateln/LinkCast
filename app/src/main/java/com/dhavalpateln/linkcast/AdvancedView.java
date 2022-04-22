@@ -357,8 +357,8 @@ public class AdvancedView extends AppCompatActivity {
 
         CastContext castContext = CastContext.getSharedInstance();
         long playbackPosition = 0;
-        if(getIntent().hasExtra("data-" + episodeNum)) {
-            playbackPosition = Long.valueOf(getIntent().getStringExtra("data-" + episodeNum));
+        if(animeData.getData().containsKey(episodeNum)) {
+            playbackPosition = Long.valueOf(animeData.getData().get(episodeNum));
         }
 
         if(canCast && castContext.getCastState() == CastState.CONNECTED) {
@@ -392,8 +392,8 @@ public class AdvancedView extends AppCompatActivity {
             }
 
             if(episodeNum != null) intent.putExtra(ExoPlayerActivity.EPISODE_NUM, episodeNum);
-            if(getIntent().hasExtra("data-" + episodeNum)) {
-                intent.putExtra(ExoPlayerActivity.LAST_VIEW_POINT, getIntent().getStringExtra("data-" + episodeNum));
+            if(animeData.getData().containsKey(episodeNum)) {
+                intent.putExtra(ExoPlayerActivity.LAST_VIEW_POINT, animeData.getData().get(episodeNum));
             }
             startActivity(intent);
 
@@ -609,22 +609,6 @@ public class AdvancedView extends AppCompatActivity {
                     default:
                         return true;
                 }
-                /*switch (item.getItemId()) {
-                    case R.id.av_bookmark:
-                        saveProgress();
-                        return true;
-                    case R.id.av_basic_mode:
-                        Intent intent = new Intent(AnimeAdvancedView.this, AnimeWebExplorer.class);
-                        intent.putExtra("source", "saved");
-                        intent.putExtra("search", getIntent().getStringExtra("url"));
-                        intent.putExtra("title", animeTitleTextView.getText().toString());
-                        intent.putExtra("advancedMode", false);
-                        startActivity(intent);
-                        finish();
-                        return true;
-                    default:
-                        return true;
-                }*/
             }
         });
         popupMenu.show();

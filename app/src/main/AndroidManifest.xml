@@ -51,6 +51,7 @@
         <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
+            android:supportsPictureInPicture="true"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
