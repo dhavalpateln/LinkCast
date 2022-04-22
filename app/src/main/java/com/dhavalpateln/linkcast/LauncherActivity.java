@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dhavalpateln.linkcast.data.AppInfo;
 import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
@@ -57,39 +58,40 @@ public class LauncherActivity extends AppCompatActivity {
             }
         });
 
+        FirebaseDBHelper.getValue(FirebaseDBHelper.getAppDataRef(), dataSnapshot -> {
+            AppInfo appinfo = AppInfo.getInstance();
+            appinfo.updateData(dataSnapshot);
+
+            if(!appinfo.getApkVersion().equals(APP_VERSION)) {
+                Intent updateIntent = new Intent(LauncherActivity.this, UpdateActivity.class);
+                startActivity(updateIntent);
+            }
+            else {
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if(firebaseUser == null) {
+                    List<AuthUI.IdpConfig> providers = Arrays.asList(
+                            new AuthUI.IdpConfig.GoogleBuilder().build());
+
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(providers)
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+                else {
+                    updateUserMetaData();
+                    Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
+                    startActivity(mainActivity);
+                    finish();
+                }
+            }
+        });
+
         FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), new ValueCallback() {
             @Override
             public void onValueObtained(DataSnapshot dataSnapshot) {
-                String version = dataSnapshot.getValue().toString();
-                if(!version.equals(APP_VERSION)) {
-                    Intent updateIntent = new Intent(LauncherActivity.this, UpdateActivity.class);
-                    startActivity(updateIntent);
-                }
-                else {
 
-
-                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if(firebaseUser == null) {
-                        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                                new AuthUI.IdpConfig.EmailBuilder().build(),
-                                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                        startActivityForResult(
-                                AuthUI.getInstance()
-                                        .createSignInIntentBuilder()
-                                        .setAvailableProviders(providers)
-                                        .build(),
-                                RC_SIGN_IN);
-                    }
-                    else {
-                        updateUserMetaData();
-                        //throw new RuntimeException("Test Crash");
-                        //Intent mainActivity = new Intent(LauncherActivity.this, AnimeWebExplorer.class);
-                        Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
-                        startActivity(mainActivity);
-                        finish();
-                    }
-                }
 
             }
         });

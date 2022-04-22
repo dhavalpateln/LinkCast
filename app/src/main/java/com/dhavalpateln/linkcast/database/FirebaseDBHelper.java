@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 
 public class FirebaseDBHelper {
 
-    private static DatabaseReference getAppDataRef() {
+    public static DatabaseReference getAppDataRef() {
         return FirebaseDB.getInstance().getReference("app");
     }
     public static DatabaseReference getAppVersionRef() {

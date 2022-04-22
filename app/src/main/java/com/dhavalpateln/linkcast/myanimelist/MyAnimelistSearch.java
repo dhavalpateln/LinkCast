@@ -111,6 +111,7 @@ public class MyAnimelistSearch {
         List<MyAnimelistAnimeData> result = new ArrayList<>();
         try {
             HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(searchUrl);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
             JSONObject httpContent = new JSONObject(SimpleHttpClient.getResponse(urlConnection));
             JSONArray searchResult = httpContent.getJSONArray("categories").getJSONObject(0).getJSONArray("items");
             for(int i = 0; i < searchResult.length(); i++) {

@@ -50,7 +50,7 @@
 
     <fragment
         android:id="@+id/nav_about"
-        android:name="com.dhavalpateln.linkcast.ui.faq.FAQFragment"
+        android:name="com.dhavalpateln.linkcast.ui.about.AboutFragment"
         android:label="@string/menu_about"
-        tools:layout="@layout/fragment_faq" />
+        tools:layout="@layout/fragment_about" />
 </navigation>

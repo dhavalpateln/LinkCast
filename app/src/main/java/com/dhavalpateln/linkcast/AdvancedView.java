@@ -290,7 +290,7 @@ public class AdvancedView extends AppCompatActivity {
                             break;
                         }
                     }
-                    if(exactMatch == null) {
+                    if(exactMatch == null && checkSearchResult.size() > 0) {
                         exactMatch = checkSearchResult.get(0);
                     }
                     MyAnimelistAnimeData finalExactMatch = exactMatch;
@@ -549,6 +549,7 @@ public class AdvancedView extends AppCompatActivity {
 
                     totalEpisode = episodeListData.size();
                     updateEpisodeProgress();
+                    episodeRecyclerView.scrollToPosition(totalEpisode - currentEpisode);
                 });
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,8 +1,6 @@
-package com.dhavalpateln.linkcast.ui.faq;
+package com.dhavalpateln.linkcast.ui.about;
 
 import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +12,14 @@ import androidx.fragment.app.Fragment;
 
 import com.dhavalpateln.linkcast.R;
 
-public class FAQFragment extends Fragment {
+public class AboutFragment extends Fragment {
 
     private LinearLayout toExapnd;
     private CardView cardView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_faq, container, false);
+        View root = inflater.inflate(R.layout.fragment_about, container, false);
         /*toExapnd = root.findViewById(R.id.toexpand);
         cardView = root.findViewById(R.id.card);
         root.findViewById(R.id.card).setOnClickListener(new View.OnClickListener() {

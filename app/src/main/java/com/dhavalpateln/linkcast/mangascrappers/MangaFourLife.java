@@ -54,7 +54,7 @@ public class MangaFourLife extends MangaScrapper {
                 for (Element infoElement : infoElements) {
                     String[] infos = infoElement.text().split(":");
                     if (infos[0].trim().equalsIgnoreCase("type")) {
-                        if (infos[1].trim().equalsIgnoreCase("manhwa")) {
+                        if (!infos[1].trim().equalsIgnoreCase("manga")) {
                             type = EpisodeNode.EpisodeType.MANHWA;
                         }
                         break;
