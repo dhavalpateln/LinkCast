@@ -32,6 +32,7 @@ out/
 .gradle/
 gradle*
 build/
+*/com_crashlytics_build_id.xml
 
 # Local configuration file (sdk path, etc)
 local.properties

@@ -82,15 +82,13 @@ public class StatusFragment extends Fragment {
                 GogoAnimeExtractor extractor = new GogoAnimeExtractor();
                 GogoAnimeSearch searcher = new GogoAnimeSearch();
 
-                searchSuccess = !searcher.search("hero academia").isEmpty();
-                episodeListSuccess = !extractor.getEpisodeList("https://gogoanime.fi/category/one-piece").isEmpty();
+                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia");
+                episodeListSuccess = !episodeList.isEmpty();
 
-                boolean finalSearchSuccess = searchSuccess;
-                boolean finalEpisodeListSuccess = episodeListSuccess;
-                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
+                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
 
                 List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls("https://gogoanime.fi/boku-no-hero-academia-episode-13", episodeURLs);
+                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
                 Set<String> extractedSources = new HashSet<>();
                 for (VideoURLData videoURLData : episodeURLs) {
                     extractedSources.add(videoURLData.getSource().toLowerCase());
@@ -101,9 +99,8 @@ public class StatusFragment extends Fragment {
                 });
             } catch (Exception e) {
                 boolean finalEpisodeListSuccess1 = episodeListSuccess;
-                boolean finalSearchSuccess1 = searchSuccess;
                 uiHandler.post(() -> {
-                    markStatus(browsingStatus, finalSearchSuccess1 && finalEpisodeListSuccess1);
+                    markStatus(browsingStatus, finalEpisodeListSuccess1);
                     markStatus(gogoplayStatus, false);
                     markStatus(sbStatus, false);
                 });

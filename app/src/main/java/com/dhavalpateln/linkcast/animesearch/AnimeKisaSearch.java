@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.animesearch;
 
+import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
 import java.io.IOException;

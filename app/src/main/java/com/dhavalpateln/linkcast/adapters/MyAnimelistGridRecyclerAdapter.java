@@ -29,8 +29,6 @@ public class MyAnimelistGridRecyclerAdapter extends GridRecyclerAdapter<MyAnimel
         holder.titleTextView.setText(data.getTitle());
         if(!data.getInfo("Genres").equals("N/A"))
             holder.subTextTextView.setText(data.getInfo("Genres"));
-        else
-            holder.subTextTextView.setVisibility(View.GONE);
         try {
             Glide.with(mcontext)
                     .load(data.getImages().get(0))

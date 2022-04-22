@@ -47,7 +47,7 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
 
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
@@ -191,10 +191,10 @@ public class AnimeKisaTVExtractor extends AnimeScrapper {
                 }
             }
             return getEpisodeList(data.getUrl());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

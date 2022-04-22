@@ -9,13 +9,13 @@
     <item
         android:id="@+id/discover_popular"
         android:enabled="true"
-        android:icon="@drawable/ic_star"
+        android:icon="@drawable/ic_baseline_star_24"
         android:title="Popular" />
 
     <item
         android:id="@+id/discover_search"
         android:enabled="true"
-        android:icon="@drawable/ic_filter"
+        android:icon="@drawable/ic_baseline_manage_search_24"
         android:title="Search" />
 
     <item

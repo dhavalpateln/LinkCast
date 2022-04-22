@@ -4,24 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/text_send"
+    <Spinner
+        android:id="@+id/feedback_subject_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:text="Send Feedback/Report Bug/Request Feature"/>
-    <EditText
-        android:id="@+id/feedback_subject_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="Subject"
-        android:inputType="text"
-        android:maxLines="1"/>
+        android:layout_margin="15dp"
+        />
     <EditText
         android:id="@+id/feedback_message_edit_text"
         android:layout_width="match_parent"

@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
-import com.dhavalpateln.linkcast.ui.feedback.CrashReportActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DatabaseReference;
@@ -165,10 +164,7 @@ public class MangaWebExplorer extends AppCompatActivity {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
-                    Intent crashIntent = new Intent(getApplicationContext(), CrashReportActivity.class);
-                    crashIntent.putExtra("subject", "Crash");
-                    crashIntent.putExtra("message", sw.toString());
-                    startActivity(crashIntent);
+
                 }
             }
 

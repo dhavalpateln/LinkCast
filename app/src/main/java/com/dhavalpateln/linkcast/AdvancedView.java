@@ -72,6 +72,7 @@ import java.util.concurrent.Executors;
 public class AdvancedView extends AppCompatActivity {
 
     private static final int WEB_VIEW_REQUEST_CODE = 1;
+    private static final int CHANGE_SOURCE_REQUEST_CODE = 2;
     private static final String TAG = "AdvanceView";
 
     public static final String INTENT_ANIME_LINK_DATA = "animedata";
@@ -275,6 +276,37 @@ public class AdvancedView extends AppCompatActivity {
                 //startPlayer(url, episodeNum, headers, true);
             }
         }
+        else if(requestCode == CHANGE_SOURCE_REQUEST_CODE) {
+            if(resultCode == Activity.RESULT_OK) {
+                AnimeLinkData changedSourceData = (AnimeLinkData) data.getSerializableExtra(AnimeSearchActivity.RESULT_ANIMELINKDATA);
+
+                mExecutor.execute(() -> {
+                    String formattedTitle = changedSourceData.getTitle().replaceAll("\\(.*\\)", "").trim();
+                    List<MyAnimelistAnimeData> checkSearchResult = MyAnimelistSearch.search(formattedTitle, isAnimeMode);
+                    MyAnimelistAnimeData exactMatch = null;
+                    for (MyAnimelistAnimeData myAnimelistAnimeData : checkSearchResult) {
+                        if (myAnimelistAnimeData.getTitle().equalsIgnoreCase(formattedTitle)) {
+                            exactMatch = myAnimelistAnimeData;
+                            break;
+                        }
+                    }
+                    if(exactMatch == null) {
+                        exactMatch = checkSearchResult.get(0);
+                    }
+                    MyAnimelistAnimeData finalExactMatch = exactMatch;
+                    uiHandler.post(() -> {
+                        if(finalExactMatch != null && String.valueOf(finalExactMatch.getId()).equals(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID))) {
+                            animeData.copyFrom(changedSourceData);
+                            animeData.updateAll(isAnimeMode);
+                            mExecutor.execute(new ExtractAnimeData());
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Does not match", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                });
+            }
+        }
     }
 
     private void openCastDialog(String url, String episodeNum, HashMap<String, String> headers, boolean canCast) {
@@ -468,9 +500,10 @@ public class AdvancedView extends AppCompatActivity {
                 }
 
                 if(selectedMyAnimelistAnimeData == null) {
-                    myAnimelistSearchResult = MyAnimelistSearch.search(animeData.getTitle(), isAnimeMode);
+                    String formattedTitle = animeData.getTitle().replaceAll("\\(.*\\)", "").trim();
+                    myAnimelistSearchResult = MyAnimelistSearch.search(formattedTitle, isAnimeMode);
                     for (MyAnimelistAnimeData myAnimelistAnimeData : myAnimelistSearchResult) {
-                        if (myAnimelistAnimeData.getTitle().equalsIgnoreCase(animeData.getTitle().trim())) {
+                        if (myAnimelistAnimeData.getTitle().equalsIgnoreCase(formattedTitle)) {
                             selectedMyAnimelistAnimeData = myAnimelistAnimeData;
                             break;
                         }
@@ -483,11 +516,15 @@ public class AdvancedView extends AppCompatActivity {
                     if(selectedMyAnimelistAnimeData != null) {
                         animeData.updateData(
                                 AnimeLinkData.DataContract.DATA_MYANIMELIST_ID,
-                                String.valueOf(selectedMyAnimelistAnimeData.getId())
+                                String.valueOf(selectedMyAnimelistAnimeData.getId()),
+                                true,
+                                isAnimeMode
                         );
                         animeData.updateData(
                                 AnimeLinkData.DataContract.DATA_MYANIMELIST_URL,
-                                String.valueOf(selectedMyAnimelistAnimeData.getUrl())
+                                String.valueOf(selectedMyAnimelistAnimeData.getUrl()),
+                                true,
+                                isAnimeMode
                         );
                     }
                 }
@@ -543,6 +580,7 @@ public class AdvancedView extends AppCompatActivity {
         else {
             popupMenu.getMenu().add("Favorite");
         }
+        popupMenu.getMenu().add("Change source");
         popupMenu.getMenu().add("Reselect MAL Info");
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -551,14 +589,18 @@ public class AdvancedView extends AppCompatActivity {
                 switch (item.getTitle().toString()) {
                     case "Favorite":
                         item.setTitle("Unfavorite");
-                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "true");
+                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "true", true, isAnimeMode);
                         return true;
                     case "Unfavorite":
                         item.setTitle("Favorite");
-                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false");
+                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false", true, isAnimeMode);
                         return true;
                     case "Reselect MAL Info":
                         selectFromSearchDialog();
+                        return true;
+                    case "Change source":
+                        Intent intent = AnimeSearchActivity.prepareChangeSourceIntent(AdvancedView.this, animeData, isAnimeMode);
+                        startActivityForResult(intent, CHANGE_SOURCE_REQUEST_CODE);
                         return true;
                     case "Bookmark":
                         saveProgress();
@@ -598,11 +640,15 @@ public class AdvancedView extends AppCompatActivity {
             selectedMyAnimelistAnimeData = myAnimelistAnimeData;
             animeData.updateData(
                     AnimeLinkData.DataContract.DATA_MYANIMELIST_ID,
-                    String.valueOf(selectedMyAnimelistAnimeData.getId())
+                    String.valueOf(selectedMyAnimelistAnimeData.getId()),
+                    true,
+                    isAnimeMode
             );
             animeData.updateData(
                     AnimeLinkData.DataContract.DATA_MYANIMELIST_URL,
-                    String.valueOf(selectedMyAnimelistAnimeData.getUrl())
+                    String.valueOf(selectedMyAnimelistAnimeData.getUrl()),
+                    true,
+                    isAnimeMode
             );
             startAnimeInfoActivity(selectedMyAnimelistAnimeData);
         });

@@ -50,6 +50,7 @@ public class NineAnimeSearch extends AnimeSearch {
 
                 animeData.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, element.getElementsByTag("img").get(0).attr("src"));
                 animeData.put(AnimeLinkData.DataContract.DATA_MODE, "advanced");
+                animeData.put(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.NINEANIME.NAME);
 
                 animeLinkData.setUrl(ProvidersData.NINEANIME.URL + animeInfoElement.attr("href"));
                 animeLinkData.setTitle(animeInfoElement.text());

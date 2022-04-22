@@ -7,15 +7,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_anime_catalog"
-            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:icon="@drawable/ic_movie"
             android:title="@string/menu_anime_catalog" />
         <item
             android:id="@+id/nav_manga_catalog"
-            android:icon="@android:drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_book"
             android:title="@string/menu_manga_catalog" />
         <item
             android:id="@+id/nav_discover"
-            android:icon="@android:drawable/ic_menu_search"
+            android:icon="@drawable/ic_baseline_public_24"
             android:title="@string/menu_discover" />
 
         <item

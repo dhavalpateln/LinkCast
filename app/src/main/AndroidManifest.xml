@@ -74,7 +74,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".ui.feedback.CrashReportActivity" />
         <activity
             android:name=".AnimeWebExplorer"
             android:exported="false"

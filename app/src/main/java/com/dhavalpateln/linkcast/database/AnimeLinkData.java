@@ -76,10 +76,6 @@ public class AnimeLinkData implements Serializable {
         }
     }
 
-    public void updateData(String key, String value) {
-        updateData(key, value, true, true);
-    }
-
     public void updateData(String key, String value, boolean updateFirebase, boolean isAnime) {
         getData().put(key, value);
         if(updateFirebase && getId() != null) {
