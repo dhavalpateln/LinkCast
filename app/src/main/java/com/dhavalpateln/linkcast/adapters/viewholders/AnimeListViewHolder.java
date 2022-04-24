@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.adapters.viewholders;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
@@ -19,6 +20,7 @@ public class AnimeListViewHolder extends RecyclerView.ViewHolder {
     public Button deleteButton;
     public Button editButton;
     public TextView scoreTextView;
+    public LinearLayout buttonHolder;
     public ConstraintLayout mainLayout;
 
     public AnimeListViewHolder(@NonNull View itemView) {
@@ -31,5 +33,6 @@ public class AnimeListViewHolder extends RecyclerView.ViewHolder {
         this.openButton = itemView.findViewById(R.id.open_button_catalog_recycler);
         this.deleteButton = itemView.findViewById(R.id.delete_button_catalog_recycler);
         this.editButton = itemView.findViewById(R.id.edit_button_catalog_recycler);
+        this.buttonHolder = itemView.findViewById(R.id.list_object_buttons_holder_linearlayout);
     }
 }

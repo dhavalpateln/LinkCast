@@ -46,6 +46,7 @@ import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.EpisodeNoteDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
+import com.dhavalpateln.linkcast.dialogs.ViewNotesDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
@@ -644,6 +645,7 @@ public class AdvancedView extends AppCompatActivity {
                 popupMenu.getMenu().add("Favorite");
             }
             popupMenu.getMenu().add("Change source");
+            popupMenu.getMenu().add("View notes");
             popupMenu.getMenu().add("Reselect MAL Info");
 
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -667,6 +669,10 @@ public class AdvancedView extends AppCompatActivity {
                             return true;
                         case "Bookmark":
                             saveProgress();
+                            return true;
+                        case "View notes":
+                            ViewNotesDialog viewNotesDialog = new ViewNotesDialog(episodeListData);
+                            viewNotesDialog.show(getSupportFragmentManager(), "NotesDialog");
                             return true;
                         default:
                             return true;
