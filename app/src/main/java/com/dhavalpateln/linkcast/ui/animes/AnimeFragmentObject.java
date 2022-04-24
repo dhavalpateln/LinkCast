@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.dhavalpateln.linkcast.AdvancedView;
+import com.dhavalpateln.linkcast.MainActivity;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -66,6 +67,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         super.onViewCreated(view, savedInstanceState);
 
         SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
+
         new ViewModelProvider(getActivity()).get(MangaDataViewModel.class).getData(); // load manga cache
 
         viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {

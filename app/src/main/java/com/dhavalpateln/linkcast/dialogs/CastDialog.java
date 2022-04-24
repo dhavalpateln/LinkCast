@@ -23,7 +23,7 @@ import com.google.android.material.button.MaterialButton;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CastDialog extends DialogFragment {
+public class CastDialog extends LinkCastDialog {
 
     private String title;
     private String url;
@@ -52,13 +52,16 @@ public class CastDialog extends DialogFragment {
     }
 
 
+    @Override
+    public int getContentLayout() {
+        return R.layout.cast_dialog;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.cast_dialog, null);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
         LinearLayout layout = view.findViewById(R.id.castDialogLinearLayout);
         for(String key: map.keySet()) {
             MaterialButton button = new MaterialButton(getContext());
@@ -78,12 +81,6 @@ public class CastDialog extends DialogFragment {
             });
             layout.addView(button);
         }
-
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
-
-        return builder.create();
+        return dialog;
     }
 }

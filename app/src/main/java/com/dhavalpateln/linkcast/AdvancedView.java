@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -38,8 +40,10 @@ import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
+import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
+import com.dhavalpateln.linkcast.dialogs.EpisodeNoteDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
@@ -60,6 +64,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
+import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,6 +94,7 @@ public class AdvancedView extends AppCompatActivity {
     private Button statusButton;
     private Button episodeProgressButton;
     private Button scoreButton;
+    private Button optionsButton;
     private int currentEpisode = 0;
     private int totalEpisode = 0;
     private boolean saveProgress = true;
@@ -111,6 +117,9 @@ public class AdvancedView extends AppCompatActivity {
         public void onBindViewHolder(EpisodeRecyclerViewHolder holder, int position, Object data) {
             EpisodeNode episodeNode = (EpisodeNode) data;
             holder.episodeNumTextView.setText(episodeNode.getEpisodeNumString());
+            if(episodeNode.getNote() != null) {
+                holder.noteIndicator.setVisibility(View.VISIBLE);
+            }
             holder.mainLayout.setOnClickListener(v -> {
                 if(!episodeUpdateMode) {
                     mExecutor.execute(new OpenEpisodeNodeTask(episodeNode));
@@ -125,6 +134,31 @@ public class AdvancedView extends AppCompatActivity {
                 animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + currentEpisode, true, isAnimeMode);
                 updateEpisodeProgress();
                 episodeUpdateMode = false;
+            });
+            holder.mainLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if(animeData.getId() != null) {
+                        EpisodeNoteDialog episodeNoteDialog = new EpisodeNoteDialog(episodeNode.getNote(), new EpisodeNoteDialog.NoteChangeListener() {
+                            @Override
+                            public void onNoteUpdated(String note) {
+                                FirebaseDBHelper.getNotesRef(animeData.getId()).child(episodeNode.getEpisodeNumString()).setValue(note);
+                                episodeNode.setNote(note);
+                                holder.noteIndicator.setVisibility(View.VISIBLE);
+                            }
+
+                            @Override
+                            public void onNoteRemoved() {
+                                FirebaseDBHelper.getNotesRef(animeData.getId()).child(episodeNode.getEpisodeNumString()).setValue(null);
+                                episodeNode.setNote(null);
+                                holder.noteIndicator.setVisibility(View.GONE);
+                            }
+                        });
+                        episodeNoteDialog.show(getSupportFragmentManager(), "NoteDialog");
+
+                    }
+                    return true;
+                }
             });
         }
     }
@@ -142,6 +176,7 @@ public class AdvancedView extends AppCompatActivity {
         statusButton = findViewById(R.id.advanced_view_status_button);
         episodeProgressButton = findViewById(R.id.advanced_view_episode_progress_button);
         scoreButton = findViewById(R.id.anime_user_score_button);
+        optionsButton = findViewById(R.id.advanced_options_button);
 
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), findViewById(R.id.mediaRouteButton));
 
@@ -163,6 +198,10 @@ public class AdvancedView extends AppCompatActivity {
                 }
             }
             animeData.setData(data);
+        }
+
+        if(animeData.getId() == null) {
+            optionsButton.setText("Bookmark");
         }
 
         String animeDataEpisodeNum = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM);
@@ -545,8 +584,6 @@ public class AdvancedView extends AppCompatActivity {
 
                     Collections.sort(episodeListData, (node1, node2) -> (int) (node2.getEpisodeNum() - node1.getEpisodeNum()));
 
-                    adapter.notifyDataSetChanged();
-
                     totalEpisode = episodeListData.size();
                     updateEpisodeProgress();
                     episodeRecyclerView.scrollToPosition(totalEpisode - currentEpisode);
@@ -554,7 +591,26 @@ public class AdvancedView extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            uiHandler.post(() -> progressDialog.dismiss());
+            uiHandler.post(() -> {
+                if(animeData.getId() != null) {
+                    FirebaseDBHelper.getValue(FirebaseDBHelper.getNotesRef(animeData.getId()), dataSnapshot -> {
+                        Map<String, String> notesMap = (Map<String, String>) dataSnapshot.getValue();
+                        if (notesMap != null) {
+                            for (EpisodeNode episodeNode : episodeListData) {
+                                if (notesMap.containsKey(episodeNode.getEpisodeNumString())) {
+                                    episodeNode.setNote(notesMap.get(episodeNode.getEpisodeNumString()));
+                                }
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        progressDialog.dismiss();
+                    });
+                }
+                else {
+                    adapter.notifyDataSetChanged();
+                    progressDialog.dismiss();
+                }
+            });
         }
     }
 
@@ -563,8 +619,8 @@ public class AdvancedView extends AppCompatActivity {
             animeData.setId(Utils.getCurrentTime());
         }
         animeData.updateAll(isAnimeMode);
-        Toast.makeText(getApplicationContext(), "Progress saved", Toast.LENGTH_LONG).show();
-
+        Toast.makeText(getApplicationContext(), "Bookmarked", Toast.LENGTH_LONG).show();
+        adapter.notifyDataSetChanged();
     }
 
     public void save(View view) {
@@ -572,46 +628,53 @@ public class AdvancedView extends AppCompatActivity {
     }
 
     public void showOptions(View view) {
-        PopupMenu popupMenu = new PopupMenu(getApplicationContext(), view);
-        //popupMenu.getMenuInflater().inflate(R.menu.advanced_view_menu, popupMenu.getMenu());
-        popupMenu.getMenu().add("Bookmark");
-        if(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true")) {
-            popupMenu.getMenu().add("Unfavorite");
+
+        if(optionsButton.getText().toString().equalsIgnoreCase("Bookmark")) {
+            saveProgress();
+            optionsButton.setText("Options");
         }
         else {
-            popupMenu.getMenu().add("Favorite");
-        }
-        popupMenu.getMenu().add("Change source");
-        popupMenu.getMenu().add("Reselect MAL Info");
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getTitle().toString()) {
-                    case "Favorite":
-                        item.setTitle("Unfavorite");
-                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "true", true, isAnimeMode);
-                        return true;
-                    case "Unfavorite":
-                        item.setTitle("Favorite");
-                        animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false", true, isAnimeMode);
-                        return true;
-                    case "Reselect MAL Info":
-                        selectFromSearchDialog();
-                        return true;
-                    case "Change source":
-                        Intent intent = AnimeSearchActivity.prepareChangeSourceIntent(AdvancedView.this, animeData, isAnimeMode);
-                        startActivityForResult(intent, CHANGE_SOURCE_REQUEST_CODE);
-                        return true;
-                    case "Bookmark":
-                        saveProgress();
-                        return true;
-                    default:
-                        return true;
-                }
+            PopupMenu popupMenu = new PopupMenu(getApplicationContext(), view);
+            //popupMenu.getMenuInflater().inflate(R.menu.advanced_view_menu, popupMenu.getMenu());
+            //popupMenu.getMenu().add("Bookmark");
+            if (animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true")) {
+                popupMenu.getMenu().add("Unfavorite");
+            } else {
+                popupMenu.getMenu().add("Favorite");
             }
-        });
-        popupMenu.show();
+            popupMenu.getMenu().add("Change source");
+            popupMenu.getMenu().add("Reselect MAL Info");
+
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getTitle().toString()) {
+                        case "Favorite":
+                            item.setTitle("Unfavorite");
+                            animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "true", true, isAnimeMode);
+                            return true;
+                        case "Unfavorite":
+                            item.setTitle("Favorite");
+                            animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false", true, isAnimeMode);
+                            return true;
+                        case "Reselect MAL Info":
+                            selectFromSearchDialog();
+                            return true;
+                        case "Change source":
+                            Intent intent = AnimeSearchActivity.prepareChangeSourceIntent(AdvancedView.this, animeData, isAnimeMode);
+                            startActivityForResult(intent, CHANGE_SOURCE_REQUEST_CODE);
+                            return true;
+                        case "Bookmark":
+                            saveProgress();
+                            return true;
+                        default:
+                            return true;
+                    }
+                }
+            });
+            popupMenu.show();
+        }
     }
 
     private void startAnimeInfoActivity(MyAnimelistAnimeData myAnimelistAnimeData) {

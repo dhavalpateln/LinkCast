@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
-public class LinkDownloadManagerDialog extends DialogFragment {
+public class LinkDownloadManagerDialog extends LinkCastDialog {
 
     private static final String LOCAL_DOWNLOAD = "Local";
     private static final String PIMOTE_DOWNLOAD = "PiMote";
@@ -77,14 +77,16 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         this.referer = referer;
     }
 
+    @Override
+    public int getContentLayout() {
+        return R.layout.link_download_manager_dialog;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.link_download_manager_dialog, null);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
         fileNameEditText = view.findViewById(R.id.link_download_manager_fileName_EditText);
         downloadTypeSpinner = view.findViewById(R.id.link_download_manager_spinner);
         fileNameEditText.setText(this.fileName);
@@ -92,9 +94,7 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         downloadTypeSpinner.setAdapter(spinnerAdapter);
         spinnerAdapter.setNotifyOnChange(true);
         spinnerAdapter.add(LOCAL_DOWNLOAD);
-        //spinnerAdapter.add(REMOTE_DOWNLOAD);
-        // Web download not available yet
-
+        downloadTypeSpinner.setVisibility(View.GONE);
 
         FirebaseDBHelper.getUserWebDownloadQueueTypes().addChildEventListener(new ChildEventListener() {
             @Override
@@ -123,9 +123,6 @@ public class LinkDownloadManagerDialog extends DialogFragment {
             }
         });
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
         view.findViewById(R.id.link_download_manager_download_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,6 +173,6 @@ public class LinkDownloadManagerDialog extends DialogFragment {
                 LinkDownloadManagerDialog.this.getDialog().cancel();
             }
         });
-        return builder.create();
+        return dialog;
     }
 }

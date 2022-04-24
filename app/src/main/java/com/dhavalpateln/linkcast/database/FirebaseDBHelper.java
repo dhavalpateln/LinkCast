@@ -79,12 +79,21 @@ public class FirebaseDBHelper {
         return FirebaseDB.getInstance().getReference("anime_status");
     }
 
+    public static DatabaseReference getPlayBackPositionRef(String id) {
+        return getUserDataRef().child("playback").child(id);
+    }
+
+    public static DatabaseReference getNotesRef(String id) {
+        return getUserDataRef().child("notes").child(id);
+    }
+
 
     public static void removeLink(String id) {
         getUserLinkRef().child(id).setValue(null);
     }
     public static void removeAnimeLink(String id) {
-        getUserAnimeWebExplorerLinkRef().child(id).setValue(null);
+        getUserAnimeWebExplorerLinkRef(id).setValue(null);
+        getPlayBackPositionRef(id).setValue(null);
     }
 
     public static void removeMangaLink(String id) {

@@ -51,13 +51,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>-->
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@android:drawable/ic_menu_search"
-            tools:srcCompat="@android:drawable/ic_menu_search"
-            android:onClick="search"/>
+
     </LinearLayout>
 
 

@@ -41,12 +41,20 @@ public class AboutFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_about, container, false);
-        messages = new String[] {
+        /*messages = new String[] {
                 "<font color='#0A8BC5'>One</font> stop shop <font color='#0A8BC5'>for</font> <font color='#0A8BC5'>all</font> the brings joy",
                 "<font color='#0A8BC5'>Smart</font> - Helping you decide your next memorable show",
                 "<font color='#0A8BC5'>Free</font> - Not all good things are :)",
                 "<font color='#0A8BC5'>No ads</font> - Use feedback to report if you see one",
                 "<font color='#0A8BC5'>Incredibly fast</font> - Official sites may make thousands of requests while Linkcast just enough requests(3-5) to get the job done"
+        };*/
+        messages = new String[] {
+                "<font color='#0A8BC5'>One</font> stop shop <font color='#0A8BC5'>for</font> <font color='#0A8BC5'>all</font> that brings joy",
+                "<font color='#0A8BC5'>Incredibly fast</font>",
+                "<font color='#0A8BC5'>Efficient</font>",
+                "<font color='#0A8BC5'>Smart</font>",
+                "<font color='#0A8BC5'>Free</font>",
+                "<font color='#0A8BC5'>No ads</font>"
         };
         return root;
     }

@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,7 @@ import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 
 import java.util.Map;
 
-public class BookmarkLinkDialog extends DialogFragment {
+public class BookmarkLinkDialog extends LinkCastDialog {
     private SearchDialog.SearchButtonClickListener searchButtonClickListener;
     private EditText bookmarkEditText;
     private Spinner animeStatusSpinner;
@@ -34,13 +35,16 @@ public class BookmarkLinkDialog extends DialogFragment {
         this.data = data;
     }
 
+    @Override
+    public int getContentLayout() {
+        return R.layout.bookmark_edit_dialog;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.bookmark_edit_dialog, null);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
         bookmarkEditText = view.findViewById(R.id.bookmark_edit_text);
         animeStatusSpinner = view.findViewById(R.id.bookmark_edit_spinner);
         bookmarkEditText.setText(bookmarkLinkTitle);
@@ -55,7 +59,6 @@ public class BookmarkLinkDialog extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
         view.findViewById(R.id.bookmark_edit_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +75,7 @@ public class BookmarkLinkDialog extends DialogFragment {
                 BookmarkLinkDialog.this.getDialog().cancel();
             }
         });
-        return builder.create();
+        return dialog;
     }
 
 }

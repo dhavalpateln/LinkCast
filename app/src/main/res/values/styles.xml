@@ -24,6 +24,8 @@
         <item name="android:contentDescription">@string/exo_controls_pause_description</item>
     </style>
 
-
+    <style name="LinkCastDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@drawable/dialog_border_square_thin</item>
+    </style>
 
 </resources>

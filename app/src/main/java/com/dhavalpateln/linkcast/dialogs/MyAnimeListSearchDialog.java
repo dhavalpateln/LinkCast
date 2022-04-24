@@ -26,7 +26,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyAnimeListSearchDialog extends DialogFragment {
+public class MyAnimeListSearchDialog extends LinkCastDialog {
 
     private String searchTerm;
     private EditText searchEditText;
@@ -51,17 +51,16 @@ public class MyAnimeListSearchDialog extends DialogFragment {
         void onSourceSelected(MyAnimelistAnimeData myAnimelistAnimeData);
     }
 
+    @Override
+    public int getContentLayout() {
+        return R.layout.dialog_myanimelist_search;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_myanimelist_search, null);
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
 
         recyclerAdapter = new DialogAnimeListAdapter(dataList, getContext());
 
@@ -88,7 +87,7 @@ public class MyAnimeListSearchDialog extends DialogFragment {
 
         new MALSearchTask().execute();
 
-        return builder.create();
+        return dialog;
     }
 
     private class DialogAnimeListAdapter extends ListRecyclerAdapter<MyAnimelistAnimeData> {

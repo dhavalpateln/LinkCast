@@ -20,11 +20,11 @@ public class BookmarkedSearch extends AnimeSearch {
     public ArrayList<AnimeLinkData> search(String term) {
         term = term.toLowerCase();
         this.data.clear();
-        if(StoredAnimeLinkData.getInstance().getMangaCache() != null) {
-            loadData(StoredAnimeLinkData.getInstance().getMangaCache());
-        }
         if(StoredAnimeLinkData.getInstance().getAnimeCache() != null) {
             loadData(StoredAnimeLinkData.getInstance().getAnimeCache());
+        }
+        if(StoredAnimeLinkData.getInstance().getMangaCache() != null) {
+            loadData(StoredAnimeLinkData.getInstance().getMangaCache());
         }
         ArrayList<AnimeLinkData> result = new ArrayList<>();
         for (AnimeLinkData animeLinkData : this.data) {

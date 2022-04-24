@@ -17,6 +17,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.gms.cast.framework.CastContext;
+import com.google.firebase.database.DataSnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -156,7 +158,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
             this.playbackPosition = player.getCurrentPosition();
             player.release();
             if(saveProgress && id != null && episodeNum != null) {
-                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
+                FirebaseDBHelper.getPlayBackPositionRef(id).child(episodeNum).setValue(String.valueOf(playbackPosition));
             }
         }
         player = null;
@@ -169,14 +171,7 @@ public class ExoPlayerActivity extends AppCompatActivity {
         if(intent.hasExtra(ID)) id = intent.getStringExtra(ID);
         if(intent.hasExtra(EPISODE_NUM)) episodeNum = intent.getStringExtra(EPISODE_NUM);
 
-        if(!firstLoad) {
-            firstLoad = true;
-            if (id != null && episodeNum != null) {
-                AnimeLinkData animeLinkData = StoredAnimeLinkData.getInstance().getAnimeLinkData(id);
-                String lastViewPoint = animeLinkData.getAnimeMetaData(episodeNum);
-                if (lastViewPoint != null) playbackPosition = Long.valueOf(lastViewPoint);
-            }
-        }
+
 
         Map<String, String> headerMap = new HashMap<>();
         if(intent.hasExtra("Referer")) {
@@ -203,6 +198,23 @@ public class ExoPlayerActivity extends AppCompatActivity {
         player.seekTo(currentWindow, playbackPosition);
         // Prepare the player.
         player.prepare();
+        if(!firstLoad) {
+            firstLoad = true;
+            if (id != null && episodeNum != null) {
+                FirebaseDBHelper.getValue(FirebaseDBHelper.getPlayBackPositionRef(id).child(episodeNum), dataSnapshot -> {
+                    if(dataSnapshot.getValue() != null) {
+                        playbackPosition = Long.valueOf(dataSnapshot.getValue().toString());
+                        if(player != null) {
+                            player.seekTo(currentWindow, playbackPosition);
+                        }
+                    }
+                });
+
+                /*AnimeLinkData animeLinkData = StoredAnimeLinkData.getInstance().getAnimeLinkData(id);
+                String lastViewPoint = animeLinkData.getAnimeMetaData(episodeNum);
+                if (lastViewPoint != null) playbackPosition = Long.valueOf(lastViewPoint);*/
+            }
+        }
         handler.postDelayed(new ProgressChecker(), 15000);
     }
 
@@ -229,9 +241,9 @@ public class ExoPlayerActivity extends AppCompatActivity {
     private class ProgressChecker implements Runnable {
         @Override
         public void run() {
-            if(player != null) {
+            if(player != null && id != null) {
                 playbackPosition = player.getCurrentPosition();
-                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child(episodeNum).setValue(String.valueOf(playbackPosition));
+                FirebaseDBHelper.getPlayBackPositionRef(id).child(episodeNum).setValue(String.valueOf(playbackPosition));
                 handler.postDelayed(this, 10000);
             }
         }

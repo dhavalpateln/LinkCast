@@ -19,7 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import java.util.List;
 import java.util.Map;
 
-public class AdvancedSourceSelector extends DialogFragment {
+public class AdvancedSourceSelector extends LinkCastDialog {
 
     private List<VideoURLData> sources;
     private OnClickListener listener;
@@ -38,21 +38,17 @@ public class AdvancedSourceSelector extends DialogFragment {
     }
 
 
+    @Override
+    public int getContentLayout() {
+        return R.layout.advanced_source_selector_dialog;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.advanced_source_selector_dialog, null);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
         LinearLayout layout = view.findViewById(R.id.advancedSourceSelectorDialogLinearLayout);
-        String[] order;
-        /*if(sources.containsKey("order")) {
-            order = sources.get("order").getUrl().split(",");
-        }
-        else {
-            order = sources.keySet().toArray(new String[0]);
-        }*/
 
         for(VideoURLData source: sources) {
             if(source.equals("dummy")) {
@@ -75,10 +71,6 @@ public class AdvancedSourceSelector extends DialogFragment {
             });
             layout.addView(button);
         }
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
-
-        return builder.create();
+        return dialog;
     }
 }

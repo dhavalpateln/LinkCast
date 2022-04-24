@@ -6,6 +6,7 @@ public class EpisodeNode {
     private String url;
     private EpisodeType type;
     private int season;
+    private String note;
 
     public enum EpisodeType {
         ANIME,
@@ -57,4 +58,12 @@ public class EpisodeNode {
     public boolean isAnime() {  return type == EpisodeType.ANIME;  }
     public boolean isManga() {  return type == EpisodeType.MANGA;  }
     public boolean isManhwa() {  return type == EpisodeType.MANHWA;  }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 }
