@@ -27,9 +27,12 @@ import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
+import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -63,6 +66,7 @@ public class StatusFragment extends Fragment {
         gogoanimeTest(statusContainer);
         nineanimeTest(statusContainer);
         animepaheTest(statusContainer);
+        manga4lifeTest(statusContainer);
     }
 
     private void gogoanimeTest(LinearLayout container) {
@@ -195,9 +199,47 @@ public class StatusFragment extends Fragment {
         });
     }
 
+    private void manga4lifeTest(LinearLayout container) {
+        LinearLayout divider = generateHeaderView(ProvidersData.MANGAFOURLIFE.NAME);
+        ConstraintLayout browsingStatus = generateStatusView("Browsing");
+        ConstraintLayout mangas = generateStatusView("Manga");
+        container.addView(divider);
+        container.addView(browsingStatus);
+        container.addView(mangas);
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            boolean episodeListSuccess = false;
+            try {
+                MangaFourLife extractor = new MangaFourLife();
+                MangaFourLifeSearch searcher = new MangaFourLifeSearch();
+
+                searcher.init();
+                List<EpisodeNode> episodeList = browse(searcher, extractor, "my hero academia");
+                episodeListSuccess = !episodeList.isEmpty();
+
+                boolean finalEpisodeListSuccess = episodeListSuccess;
+                uiHandler.post(() -> markStatus(browsingStatus, finalEpisodeListSuccess));
+
+                List<String> imageURLs = extractor.getPages(episodeList.get(0).getUrl());
+
+                uiHandler.post(() -> {
+                    markStatus(mangas, !imageURLs.isEmpty());
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                markStatus(browsingStatus, episodeListSuccess);
+                markStatus(mangas, false);
+            }
+        });
+    }
+
     private List<EpisodeNode> browse(AnimeSearch searcher, AnimeScrapper extractor, String searchTerm) {
         List<AnimeLinkData> searchResult = searcher.search(searchTerm);
         return extractor.extractData(searchResult.get(0));
+    }
+    private List<EpisodeNode> browse(AnimeSearch searcher, MangaScrapper extractor, String searchTerm) {
+        List<AnimeLinkData> searchResult = searcher.search(searchTerm);
+        return extractor.getChapters(searchResult.get(0).getUrl());
     }
 
     private void markStatus(ConstraintLayout statusConstraintLayout, boolean success) {

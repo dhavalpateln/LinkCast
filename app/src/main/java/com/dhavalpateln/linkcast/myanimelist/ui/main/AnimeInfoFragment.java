@@ -20,10 +20,13 @@ import android.widget.TextView;
 import com.dhavalpateln.linkcast.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
+import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimeListSearchActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.adapters.SliderAdapter;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.divider.MaterialDivider;
 import com.google.android.material.textview.MaterialTextView;
 import com.smarteist.autoimageslider.SliderView;
@@ -58,6 +61,7 @@ public class AnimeInfoFragment extends Fragment {
     private TextView popularityTextView;
     private TextView englishTitleTextView;
     private Button searchAnimeButton;
+    private FlexboxLayout genreFlexBox;
 
     public AnimeInfoFragment() {
         // Required empty public constructor
@@ -95,6 +99,8 @@ public class AnimeInfoFragment extends Fragment {
         englishTitleTextView = view.findViewById(R.id.mal_info_anime_english_title);
         searchAnimeButton = view.findViewById(R.id.mal_anime_search_button);
         sliderView = view.findViewById(R.id.anime_info_img_slider);
+        genreFlexBox = view.findViewById(R.id.genres_flex_box_layout);
+
         imageSliderAdapter = new SliderAdapter(getActivity(), sliderImageURLs, (imageList, position) -> {
             Intent intent = new Intent(getActivity(), MangaReaderActivity.class);
             intent.putExtra(MangaReaderActivity.INTENT_REVERSE, false);
@@ -133,7 +139,6 @@ public class AnimeInfoFragment extends Fragment {
             Intent searchIntent = new Intent(getContext(), AnimeSearchActivity.class);
             searchIntent.putExtra(AnimeSearchActivity.INTENT_SEARCH_TERM, myAnimelistAnimeData.getTitle());
             startActivity(searchIntent);
-            getActivity().finish();
         });
 
         rankTextView.setText(myAnimelistAnimeData.getInfo("Ranked"));
@@ -178,6 +183,12 @@ public class AnimeInfoFragment extends Fragment {
                     "Published",
                     "Authors"
             };
+        }
+
+        genreFlexBox.removeAllViews();
+        for(String genreName: myAnimelistAnimeData.getGenres()) {
+            TextView genreTextView = getGenreTextView(genreName);
+            genreFlexBox.addView(genreTextView);
         }
 
         boolean initialView = true;
@@ -276,5 +287,22 @@ public class AnimeInfoFragment extends Fragment {
         keyTextView.setText(key);
         valueTextView.setText(value);
         return view;
+    }
+
+    private TextView getGenreTextView(String genreName) {
+        TextView textView = new TextView(getContext());
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(24, 4, 24, 4);
+        textView.setLayoutParams(layoutParams);
+        textView.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        textView.setTextSize(16);
+        textView.setText(genreName);
+        textView.setOnClickListener(v -> {
+            AdvSearchParams searchParams = new AdvSearchParams();
+            searchParams.addGenre(genreName);
+            Intent intent = MyAnimeListSearchActivity.prepareIntent(getContext(), searchParams);
+            startActivity(intent);
+        });
+        return textView;
     }
 }

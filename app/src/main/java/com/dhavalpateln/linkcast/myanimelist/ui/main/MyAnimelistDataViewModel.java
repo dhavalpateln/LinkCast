@@ -85,6 +85,12 @@ public class MyAnimelistDataViewModel extends ViewModel {
                                         infoValue = infoElement.selectFirst("span.score-label").text();
                                         //infoValue = String.format("%.2f", Double.valueOf(infoValue.trim().split(" ")[0]));
                                         break;
+                                    case "Genres":
+                                        Elements genreElements = infoElement.select("span[itemprop=genre]");
+                                        for(Element genreElement: genreElements) {
+                                            myAnimelistAnimeData.addGenre(genreElement.text());
+                                        }
+                                        break;
                                     case "Ranked":
                                         infoValue = html.selectFirst("span.numbers.ranked").selectFirst("strong").text();
                                     case "Popularity":

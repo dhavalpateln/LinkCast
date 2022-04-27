@@ -3,6 +3,8 @@ package com.dhavalpateln.linkcast.data;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Map;
 public class JikanCache {
     private static JikanCache jikanCache;
     private Map<String, List<MyAnimelistAnimeData>> queryCache;
+    private Map<String, JSONObject> rawCache;
     private Map<String, MyAnimelistAnimeData> animeInfoCache;
     private Map<String, MyAnimelistCharacterData> charactersCache;
     private List<String> seasonListCache;
@@ -19,6 +22,7 @@ public class JikanCache {
         queryCache = new HashMap<>();
         animeInfoCache = new HashMap<>();
         charactersCache = new HashMap<>();
+        rawCache = new HashMap<>();
         seasonListCache = null;
     }
 
@@ -32,6 +36,7 @@ public class JikanCache {
         animeInfoCache.put(url, data);
     }
     public void storeCache(String url, MyAnimelistCharacterData data) { charactersCache.put(url, data); }
+    public void storeCache(String url, JSONObject data) { rawCache.put(url, data); }
 
     public MyAnimelistAnimeData getInfo(String url) {
         if(animeInfoCache.containsKey(url)) {
@@ -50,6 +55,13 @@ public class JikanCache {
     public MyAnimelistCharacterData getCharacterData(String url) {
         if(charactersCache.containsKey(url)) {
             return charactersCache.get(url);
+        }
+        return null;
+    }
+
+    public JSONObject getRawData(String url) {
+        if(rawCache.containsKey(url)) {
+            return rawCache.get(url);
         }
         return null;
     }

@@ -45,6 +45,11 @@ public class ViewNotesDialog extends LinkCastDialog {
         NotesRecyclerAdapter recyclerAdapter = new NotesRecyclerAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(recyclerAdapter);
+
+        if(noteEpisodeNodes.size() == 0) {
+            view.findViewById(R.id.dialog_view_notes_instruction).setVisibility(View.VISIBLE);
+        }
+
         return dialog;
     }
 

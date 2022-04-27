@@ -178,6 +178,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/mal_info_anime_english_title" />
 
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/genres_flex_box_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:flexWrap="wrap"
+            app:alignItems="stretch"
+            app:alignContent="stretch"
+            app:justifyContent="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/mal_title_info_divider">
+
+
+
+        </com.google.android.flexbox.FlexboxLayout>
+
         <LinearLayout
             android:id="@+id/mal_info_stats_linear_layout"
             android:layout_width="match_parent"
@@ -190,7 +206,7 @@
             android:background="@drawable/layout_border_square"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mal_title_info_divider">
+            app:layout_constraintTop_toBottomOf="@id/genres_flex_box_layout">
 
             <TextView
                 android:layout_width="match_parent"

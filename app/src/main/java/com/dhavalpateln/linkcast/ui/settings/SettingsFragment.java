@@ -28,7 +28,9 @@ public class SettingsFragment extends Fragment {
     private TextView listSortOrderValue;
     private String[] sortOrderOptions;
 
-
+    private LinearLayout bookmarkDeleteView;
+    private TextView bookmarkDeleteValue;
+    private String[] bookmarkDeleteOptions;
 
 
     private SharedPreferences prefs;
@@ -44,8 +46,12 @@ public class SettingsFragment extends Fragment {
 
         episodeTrackerView = root.findViewById(R.id.settings_episode_tracker);
         episodeTrackerValue = root.findViewById(R.id.settings_episode_tracker_value);
+
         listSortOrderView = root.findViewById(R.id.settings_anime_sort_order);
         listSortOrderValue = root.findViewById(R.id.settings_anime_sort_order_value);
+
+        bookmarkDeleteView = root.findViewById(R.id.settings_bookmark_delete);
+        bookmarkDeleteValue = root.findViewById(R.id.settings_bookmark_delete_value);
 
         episodeTrackingOptions = new String[] {"Last episode watched", "Max episode watched"};
         sortOrderOptions = new String[] {
@@ -53,6 +59,10 @@ public class SettingsFragment extends Fragment {
                 AbstractCatalogObjectFragment.Sort.BY_SCORE.name(),
                 AbstractCatalogObjectFragment.Sort.BY_DATE_ADDED_ASC.name(),
                 AbstractCatalogObjectFragment.Sort.BY_DATE_ADDED_DESC.name()
+        };
+        bookmarkDeleteOptions = new String[] {
+                "Ask",
+                "Do not ask"
         };
 
         return root;
@@ -66,6 +76,7 @@ public class SettingsFragment extends Fragment {
 
         episodeTrackerValue.setText(episodeTrackingOptions[prefs.getInt(SharedPrefContract.EPISODE_TRACKING, SharedPrefContract.EPISODE_TRACKING_DEFAULT)]);
         listSortOrderValue.setText(prefs.getString(SharedPrefContract.ANIME_LIST_SORT_ORDER, SharedPrefContract.ANIME_LIST_SORT_DEFAULT));
+        bookmarkDeleteValue.setText(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "Ask"));
 
         episodeTrackerView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -87,6 +98,18 @@ public class SettingsFragment extends Fragment {
                 editor.putString(SharedPrefContract.ANIME_LIST_SORT_ORDER, sortOrderOptions[which]);
                 editor.commit();
                 listSortOrderValue.setText(sortOrderOptions[which]);
+            });
+            builder.show();
+        });
+
+        bookmarkDeleteView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Choose option");
+            builder.setItems(bookmarkDeleteOptions, (dialog, which) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, bookmarkDeleteOptions[which]);
+                editor.commit();
+                bookmarkDeleteValue.setText(bookmarkDeleteOptions[which]);
                 //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
             });
             builder.show();

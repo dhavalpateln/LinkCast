@@ -2,7 +2,9 @@ package com.dhavalpateln.linkcast.ui.mangas;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.dhavalpateln.linkcast.AdvancedView;
@@ -10,6 +12,8 @@ import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
+import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 
@@ -22,6 +26,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MangaFragmentObject extends AbstractCatalogObjectFragment {
+
+    private SharedPreferences prefs;
 
     public static MangaFragmentObject newInstance(String catalogType) {
         MangaFragmentObject fragment = new MangaFragmentObject();
@@ -48,7 +54,15 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
             });
 
             holder.deleteButton.setOnClickListener(v -> {
-                FirebaseDBHelper.removeMangaLink(data.getId());
+                if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
+                    ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
+                        FirebaseDBHelper.removeMangaLink(data.getId());
+                    });
+                    confirmationDialog.show(getParentFragmentManager(), "Confirm");
+                }
+                else {
+                    FirebaseDBHelper.removeMangaLink(data.getId());
+                }
             });
             holder.editButton.setVisibility(View.GONE);
         }
@@ -58,6 +72,7 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MangaDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MangaDataViewModel.class);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
             dataList.clear();
             for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {

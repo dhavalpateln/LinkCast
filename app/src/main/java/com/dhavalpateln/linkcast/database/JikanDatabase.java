@@ -3,11 +3,13 @@ package com.dhavalpateln.linkcast.database;
 import android.net.Uri;
 
 import com.dhavalpateln.linkcast.data.JikanCache;
+import com.dhavalpateln.linkcast.dialogs.EpisodeInfoDialog;
 import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.SeasonalViewModel;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
@@ -206,5 +208,28 @@ public class JikanDatabase {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public int getEpisodeInfo(List<EpisodeNode> episodeNodes, int page, String id) {
+        try {
+            String url = "https://api.jikan.moe/v4/anime/" + id + "/episodes" + "?page=" + page;
+            JSONObject jikanResult = cache.getRawData(url);
+            if(jikanResult == null) {
+                jikanResult = getJikanResult(url);
+                cache.storeCache(url, jikanResult);
+            }
+            JSONArray episodeList = jikanResult.getJSONArray("data");
+            for(int i = 0; i < episodeList.length(); i++) {
+                JSONObject episodeInfo = episodeList.getJSONObject(i);
+                EpisodeNode node = new EpisodeNode(episodeInfo.getString("mal_id"), null);
+                node.setTitle(episodeInfo.getString("title"));
+                node.setFiller(episodeInfo.getBoolean("filler"));
+                episodeNodes.add(node);
+            }
+            return jikanResult.getJSONObject("pagination").getInt("last_visible_page");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

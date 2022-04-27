@@ -4,9 +4,11 @@ public class EpisodeNode {
     private double episodeNum;
     private String episodeNumString;
     private String url;
+    private String title;
     private EpisodeType type;
     private int season;
     private String note;
+    private boolean isFiller;
 
     public enum EpisodeType {
         ANIME,
@@ -20,6 +22,7 @@ public class EpisodeNode {
         this.url = url;
         this.type = EpisodeType.ANIME;
         this.season = 0;
+        this.isFiller = false;
     }
 
     public double getEpisodeNum() {
@@ -65,5 +68,21 @@ public class EpisodeNode {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public boolean isFiller() {
+        return isFiller;
+    }
+
+    public void setFiller(boolean filler) {
+        isFiller = filler;
     }
 }

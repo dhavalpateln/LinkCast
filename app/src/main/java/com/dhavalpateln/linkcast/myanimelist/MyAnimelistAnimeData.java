@@ -22,6 +22,7 @@ public class MyAnimelistAnimeData implements Serializable {
     private Set<MyAnimelistAnimeData> prequels;
     private Set<MyAnimelistAnimeData> sequels;
     private Set<MyAnimelistAnimeData> sideStory;
+    private Set<String> genres;
     private List<MyAnimelistCharacterData> characters;
     private List<MyAnimelistAnimeData> recommendations;
 
@@ -35,6 +36,7 @@ public class MyAnimelistAnimeData implements Serializable {
         prequels = new HashSet<>();
         sequels = new HashSet<>();
         sideStory = new HashSet<>();
+        genres = new HashSet<>();
         characters = new ArrayList<>();
         recommendations = new ArrayList<>();
         searchScore = 0;
@@ -175,6 +177,14 @@ public class MyAnimelistAnimeData implements Serializable {
         if(!this.recommendations.contains(data)) {
             this.recommendations.add(data);
         }
+    }
+
+    public Set<String> getGenres() {
+        return genres;
+    }
+
+    public void addGenre(String genre) {
+        this.genres.add(genre);
     }
 
     @Override

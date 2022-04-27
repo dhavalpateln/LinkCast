@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast;
 
 import static com.dhavalpateln.linkcast.utils.Utils.getCurrentTime;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -21,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,6 +45,7 @@ import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
+import com.dhavalpateln.linkcast.dialogs.EpisodeInfoDialog;
 import com.dhavalpateln.linkcast.dialogs.EpisodeNoteDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
@@ -105,6 +108,7 @@ public class AdvancedView extends AppCompatActivity {
     private MyAnimelistAnimeData selectedMyAnimelistAnimeData;
     private SharedPreferences prefs;
     private boolean isAnimeMode;
+    private int currentIndex = -1;
     private Executor mExecutor = Executors.newCachedThreadPool();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -121,6 +125,12 @@ public class AdvancedView extends AppCompatActivity {
             if(episodeNode.getNote() != null) {
                 holder.noteIndicator.setVisibility(View.VISIBLE);
             }
+            /*if(currentIndex == holder.getBindingAdapterPosition()) {
+                holder.selectedIndicator.setVisibility(View.VISIBLE);
+            }
+            else {
+                holder.selectedIndicator.setVisibility(View.GONE);
+            }*/
             holder.mainLayout.setOnClickListener(v -> {
                 if(!episodeUpdateMode) {
                     mExecutor.execute(new OpenEpisodeNodeTask(episodeNode));
@@ -135,6 +145,8 @@ public class AdvancedView extends AppCompatActivity {
                 animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + currentEpisode, true, isAnimeMode);
                 updateEpisodeProgress();
                 episodeUpdateMode = false;
+                currentIndex = holder.getBindingAdapterPosition();
+                //adapter.notifyDataSetChanged();
             });
             holder.mainLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -646,7 +658,10 @@ public class AdvancedView extends AppCompatActivity {
             }
             popupMenu.getMenu().add("Change source");
             popupMenu.getMenu().add("View notes");
-            popupMenu.getMenu().add("Reselect MAL Info");
+            if(isAnimeMode) {
+                popupMenu.getMenu().add("Episodes Info");
+            }
+            popupMenu.getMenu().add("Select MAL Info");
 
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
@@ -660,12 +675,22 @@ public class AdvancedView extends AppCompatActivity {
                             item.setTitle("Favorite");
                             animeData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, "false", true, isAnimeMode);
                             return true;
-                        case "Reselect MAL Info":
+                        case "Select MAL Info":
                             selectFromSearchDialog();
                             return true;
                         case "Change source":
                             Intent intent = AnimeSearchActivity.prepareChangeSourceIntent(AdvancedView.this, animeData, isAnimeMode);
                             startActivityForResult(intent, CHANGE_SOURCE_REQUEST_CODE);
+                            return true;
+                        case "Episodes Info":
+                            if(selectedMyAnimelistAnimeData == null) {
+                                selectFromSearchDialog();
+                                Toast.makeText(getApplicationContext(), "Match not found", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                EpisodeInfoDialog episodeInfoDialog = new EpisodeInfoDialog(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID), episodeListData.size());
+                                episodeInfoDialog.show(getSupportFragmentManager(), "InfoDialog");
+                            }
                             return true;
                         case "Bookmark":
                             saveProgress();
@@ -704,7 +729,8 @@ public class AdvancedView extends AppCompatActivity {
                     true,
                     isAnimeMode
             );
-            startAnimeInfoActivity(selectedMyAnimelistAnimeData);
+            Toast.makeText(getApplicationContext(), "MAL selected", Toast.LENGTH_LONG).show();
+            //startAnimeInfoActivity(selectedMyAnimelistAnimeData);
         });
         myAnimeListSearchDialog.show(getSupportFragmentManager(), "MALSearch");
     }

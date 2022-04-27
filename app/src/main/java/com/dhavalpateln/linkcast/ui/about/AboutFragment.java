@@ -68,7 +68,8 @@ public class AboutFragment extends Fragment {
         windowsButton = view.findViewById(R.id.about_share_windows_image_view);
 
         androidButton.setOnClickListener(v -> copyLink("apklink", AppInfo.getInstance().getApkURL()));
-        windowsButton.setOnClickListener(v -> copyLink("winlink", AppInfo.getInstance().getWinURL()));
+        windowsButton.setOnClickListener(v -> Toast.makeText(getContext(), "Coming Soon!", Toast.LENGTH_LONG).show());
+        //windowsButton.setOnClickListener(v -> copyLink("winlink", AppInfo.getInstance().getWinURL()));
 
         aboutTextView.setText(Html.fromHtml(messages[currentMessage]));
 

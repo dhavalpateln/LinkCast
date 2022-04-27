@@ -10,11 +10,13 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -40,7 +42,9 @@ import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
+import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 import com.dhavalpateln.linkcast.ui.animes.SharedAnimeLinkDataViewModel;
@@ -72,6 +76,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private BookmarkedSearch bookmarkedSearch;
     private ArrayList<AnimeLinkData> filteredData;
     private ExtractSearchResult extractSearchResult;
+    private SharedPreferences prefs;
 
     private String currentSource = "SAVED";
 
@@ -131,28 +136,46 @@ public class AnimeSearchActivity extends AppCompatActivity {
             });
             if(recyclerData.getId() != null) {
                 holder.deleteButton.setVisibility(View.VISIBLE);
-                holder.editButton.setVisibility(View.VISIBLE);
+                holder.editButton.setVisibility(View.GONE);
                 holder.deleteButton.setOnClickListener(v -> {
 
                     boolean isMangaSource = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
                             !recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
                             animeSearch.isMangeSource();
-                    if(isMangaSource) {
-                        FirebaseDBHelper.removeMangaLink(recyclerData.getId());
-                        StoredAnimeLinkData.getInstance().getMangaCache().remove(recyclerData.getId());
+
+                    if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
+                        ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
+                            if(isMangaSource) {
+                                FirebaseDBHelper.removeMangaLink(recyclerData.getId());
+                                StoredAnimeLinkData.getInstance().getMangaCache().remove(recyclerData.getId());
+                            }
+                            else {
+                                FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
+                                StoredAnimeLinkData.getInstance().getAnimeCache().remove(recyclerData.getId());
+                            }
+                        });
+                        confirmationDialog.show(getSupportFragmentManager(), "Confirm");
                     }
                     else {
-                        FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
-                        StoredAnimeLinkData.getInstance().getAnimeCache().remove(recyclerData.getId());
+                        if(isMangaSource) {
+                            FirebaseDBHelper.removeMangaLink(recyclerData.getId());
+                            StoredAnimeLinkData.getInstance().getMangaCache().remove(recyclerData.getId());
+                        }
+                        else {
+                            FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
+                            StoredAnimeLinkData.getInstance().getAnimeCache().remove(recyclerData.getId());
+                        }
                     }
+
+
                     this.dataArrayList.remove(position);
                     adapter.notifyDataSetChanged();
                 });
-                holder.editButton.setOnClickListener(v -> {
+                /*holder.editButton.setOnClickListener(v -> {
                     // TODO: add more fields to edit
                     BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
                     dialog.show(getSupportFragmentManager(), "bookmarkEdit");
-                });
+                });*/
             }
         }
     }
@@ -164,6 +187,8 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
         searchEditText = findViewById(R.id.editTextSearchBar);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         progressDialog = new ProgressDialog(AnimeSearchActivity.this);
         progressDialog.setMessage("Please Wait...");
@@ -360,7 +385,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     public static Intent prepareChangeSourceIntent(Context context, AnimeLinkData animeLinkData, boolean isAnime) {
         Intent intent = new Intent(context, AnimeSearchActivity.class);
         intent.putExtra(INTENT_CHANGE_SOURCE, isAnime ? "anime" : "manga");
-        intent.putExtra(INTENT_SEARCH_TERM, animeLinkData.getTitle());
+        intent.putExtra(INTENT_SEARCH_TERM, animeLinkData.getTitle().replaceAll("\\(.*\\)", "").trim());
         return intent;
     }
 

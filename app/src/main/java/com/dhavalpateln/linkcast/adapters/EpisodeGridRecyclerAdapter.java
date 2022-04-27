@@ -52,6 +52,7 @@ public abstract class EpisodeGridRecyclerAdapter<T> extends RecyclerView.Adapter
 
         public TextView episodeNumTextView;
         public ConstraintLayout mainLayout;
+        public View selectedIndicator;
         public View noteIndicator;
 
         public EpisodeRecyclerViewHolder(@NonNull View itemView) {
@@ -59,6 +60,7 @@ public abstract class EpisodeGridRecyclerAdapter<T> extends RecyclerView.Adapter
             this.mainLayout = (ConstraintLayout) itemView;
             this.episodeNumTextView = itemView.findViewById(R.id.advanced_view_episode_num);
             this.noteIndicator = itemView.findViewById(R.id.episode_note_indicator_image_view);
+            this.selectedIndicator = itemView.findViewById(R.id.episode_note_current_indicator);
         }
     }
 

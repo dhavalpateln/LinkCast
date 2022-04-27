@@ -47,7 +47,7 @@ public class MyAnimeListSearchActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.adv_search_result_recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(MyAnimeListSearchActivity.this, 2));
-        recyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getApplicationContext());
+        recyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, MyAnimeListSearchActivity.this);
         recyclerView.setAdapter(recyclerAdapter);
 
         updateData();
