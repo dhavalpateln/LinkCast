@@ -201,42 +201,6 @@ public class AnimeWebExplorer extends AppCompatActivity {
         }
 
         currentWebViewURI = animeExplorerWebView.getUrl();
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                    if (calledIntent.getStringExtra("source").equals("saved")) {
-                        if(!calledIntent.hasExtra("id")) {
-                            calledIntent.putExtra("id", getCurrentTime());
-                        }
-                        FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                                .child(calledIntent.getStringExtra("id"))
-                                .child("url")
-                                .setValue(currentWebViewURI);
-
-                        AnimeSource animeSource = getAnimeSource(currentWebViewURI);
-                        if(animeSource != null) {
-                            animeSource.updateBookmarkPage(currentWebViewURI, calledIntent.getStringExtra("id"), calledIntent.getStringExtra("title"));
-                        }
-                        Snackbar.make(view, "Bookmark Updated", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    } else {
-                        animeLinkDBRef = FirebaseDBHelper.getUserAnimeWebExplorerLinkRef();
-                        String time = getCurrentTime();
-                        Map<String, Object> update = new HashMap<>();
-                        update.put(time + "/title", getAnimeTitle(false));
-                        update.put(time + "/url", currentWebViewURI);
-                        animeLinkDBRef.updateChildren(update);
-                        Snackbar.make(view, "Added the link to Bookmarks", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-
-
-            }
-
-        });
     }
 
     private class MyWebViewClient extends WebViewClient {

@@ -125,12 +125,15 @@ public class AdvancedView extends AppCompatActivity {
             if(episodeNode.getNote() != null) {
                 holder.noteIndicator.setVisibility(View.VISIBLE);
             }
-            /*if(currentIndex == holder.getBindingAdapterPosition()) {
+            else {
+                holder.noteIndicator.setVisibility(View.GONE);
+            }
+            if(currentIndex == holder.getBindingAdapterPosition()) {
                 holder.selectedIndicator.setVisibility(View.VISIBLE);
             }
             else {
                 holder.selectedIndicator.setVisibility(View.GONE);
-            }*/
+            }
             holder.mainLayout.setOnClickListener(v -> {
                 if(!episodeUpdateMode) {
                     mExecutor.execute(new OpenEpisodeNodeTask(episodeNode));
@@ -146,7 +149,7 @@ public class AdvancedView extends AppCompatActivity {
                 updateEpisodeProgress();
                 episodeUpdateMode = false;
                 currentIndex = holder.getBindingAdapterPosition();
-                //adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
             });
             holder.mainLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
