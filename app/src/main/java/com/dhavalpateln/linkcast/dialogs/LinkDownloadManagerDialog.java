@@ -107,12 +107,7 @@ public class LinkDownloadManagerDialog extends LinkCastDialog {
                 LinkDownloadManagerDialog.this.getDialog().cancel();
             }
         });
-        view.findViewById(R.id.link_download_manager_cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LinkDownloadManagerDialog.this.getDialog().cancel();
-            }
-        });
+        view.findViewById(R.id.link_download_manager_cancel_button).setOnClickListener(v -> LinkDownloadManagerDialog.this.getDialog().cancel());
         return dialog;
     }
 }

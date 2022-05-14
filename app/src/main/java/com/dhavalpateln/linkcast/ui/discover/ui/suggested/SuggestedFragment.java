@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.MyAnimelistGridRecyclerAdapter;
@@ -23,7 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
@@ -45,8 +48,9 @@ public class SuggestedFragment extends Fragment {
     private MyAnimelistGridRecyclerAdapter recyclerAdapter;
     private List<MyAnimelistAnimeData> dataList;
     private ProgressDialog progressDialog;
+    private Button rerollButton;
 
-    private Executor executor = Executors.newCachedThreadPool();
+    private ExecutorService executor = Executors.newCachedThreadPool();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public SuggestedFragment() {
@@ -76,6 +80,7 @@ public class SuggestedFragment extends Fragment {
 
         dataList = new ArrayList<>();
         recyclerView = view.findViewById(R.id.mal_suggested_recycler_view);
+        rerollButton = view.findViewById(R.id.reroll_recommendation_button);
         recyclerAdapter = new MyAnimelistGridRecyclerAdapter(dataList, getContext());
 
         progressDialog = new ProgressDialog(getContext());
@@ -86,6 +91,11 @@ public class SuggestedFragment extends Fragment {
         recyclerView.setAdapter(recyclerAdapter);
 
         generateRecommendations();
+
+        rerollButton.setOnClickListener(v -> {
+            dataList.clear();
+            generateRecommendations();
+        });
     }
 
     private void updateUserRankAnimeMap() {
@@ -118,6 +128,21 @@ public class SuggestedFragment extends Fragment {
         }
     }
 
+    private class ExtractAnimeRecommendation implements Callable<Void> {
+
+        private MyAnimelistAnimeData animeData;
+
+        public ExtractAnimeRecommendation(MyAnimelistAnimeData animeData) {
+            this.animeData = animeData;
+        }
+
+        @Override
+        public Void call() {
+            MyAnimeListDatabase.getInstance().getRecommendations(this.animeData);
+            return null;
+        }
+    }
+
     private void generateRecommendations() {
         executor.execute(() -> {
 
@@ -143,8 +168,12 @@ public class SuggestedFragment extends Fragment {
                         finalCandidates.add(baseCandidates.get(i));
                     }
 
+                    List<ExtractAnimeRecommendation> extractTasks = new ArrayList<>();
+                    for (MyAnimelistAnimeData candidate : finalCandidates)  extractTasks.add(new ExtractAnimeRecommendation(candidate));
+
+                    executor.invokeAll(extractTasks);
                     for (MyAnimelistAnimeData candidate : finalCandidates) {
-                        MyAnimeListDatabase.getInstance().getRecommendations(candidate);
+                        //MyAnimeListDatabase.getInstance().getRecommendations(candidate);
                         List<MyAnimelistAnimeData> candidateRecommendations = candidate.getRecommendations();
                         List<MyAnimelistAnimeData> selectedRecommendations = new ArrayList<>(5);
                         for (int i = 0; i < candidateRecommendations.size() && selectedRecommendations.size() <= 5; i++) {
