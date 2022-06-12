@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dhavalpateln.linkcast">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.dhavalpateln.linkcast" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
@@ -16,7 +25,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true" >
         <activity
             android:name=".myanimelist.MyAnimeListSearchActivity"
             android:exported="false" />
@@ -51,8 +60,8 @@
         <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
-            android:supportsPictureInPicture="true"
             android:exported="false"
+            android:supportsPictureInPicture="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".manga.MangaReaderActivity"
@@ -69,7 +78,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
@@ -82,7 +91,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MALReceiverActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -98,7 +107,7 @@
         <service
             android:name=".services.FirebaseNotificationService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -106,7 +115,7 @@
 
         <activity
             android:name=".LauncherActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -120,7 +129,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MediaReceiver"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

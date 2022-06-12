@@ -37,7 +37,7 @@ public class XStreamExtractor extends AnimeScrapper {
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
-            String searchUrl = episodeUrl.replace("/f/", "/api/source/");
+            String searchUrl = episodeUrl.replace("/v/", "/api/source/");
             Log.d(TAG, searchUrl);
             String jsonSearchResultString = postHttpContent(searchUrl);
             JSONObject jsonSearchResult = new JSONObject(jsonSearchResultString);

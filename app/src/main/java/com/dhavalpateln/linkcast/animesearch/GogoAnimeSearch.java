@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +19,8 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class GogoAnimeSearch extends AnimeSearch {
 
@@ -34,7 +37,15 @@ public class GogoAnimeSearch extends AnimeSearch {
         String searchUrl = ProvidersData.GOGOANIME.URL + "/search.html?keyword=" + Uri.encode(term);
         try {
             //JSONObject searchResult = new JSONObject(getHttpContent(searchUrl));
-            String htmlContent = getHttpContent(searchUrl);
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(searchUrl);
+            //urlConnection.setInstanceFollowRedirects(true);
+            if(SimpleHttpClient.getResponseCode(urlConnection) == 301) {
+                String movedLocation = urlConnection.getHeaderField("Location").replace("http://", "https://");
+                urlConnection = SimpleHttpClient.getURLConnection(movedLocation);
+                //configConnection(urlConnection);
+            }
+
+            String htmlContent = SimpleHttpClient.getResponse(urlConnection);
             Document doc = Jsoup.parse(htmlContent);
             Elements elements = doc.select("div.img");
             for(Element element: elements) {

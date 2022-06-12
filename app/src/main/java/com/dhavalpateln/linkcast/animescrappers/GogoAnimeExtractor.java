@@ -55,6 +55,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
             //Uri gogoURI = Uri.parse(episodeListUrl);
 
             Log.d(TAG, "Url = " + episodeListUrl);
+            Uri sourceURI = Uri.parse(episodeListUrl);
             String htmlContent = SimpleHttpClient.getResponse(urlConnection);
             //Document html = Jsoup.parse(htmlContent);
 
@@ -89,7 +90,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
                         Matcher linkMatcher = linkPattern.matcher(line);
                         Matcher episodeNumMatcher = episodeNumPattern.matcher(lines[linenum + 1]);
                         if(linkMatcher.find() && episodeNumMatcher.find()) {
-                            result.add(new EpisodeNode(episodeNumMatcher.group(1).trim(), ProvidersData.GOGOANIME.URL + linkMatcher.group(1).trim()));
+                            result.add(new EpisodeNode(episodeNumMatcher.group(1).trim(), sourceURI.getScheme() + "://" + sourceURI.getHost() + linkMatcher.group(1).trim()));
                         }
                     }
                 }
@@ -129,6 +130,9 @@ public class GogoAnimeExtractor extends AnimeScrapper {
                             break;
                         case "streamsb":
                             extractor = new StreamSBExtractor();
+                            break;
+                        case "xstreamcdn":
+                            extractor = new XStreamExtractor();
                             break;
                     }
                     if(extractor != null) {

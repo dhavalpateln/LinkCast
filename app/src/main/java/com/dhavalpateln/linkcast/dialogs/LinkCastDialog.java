@@ -2,6 +2,8 @@ package com.dhavalpateln.linkcast.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +62,9 @@ public abstract class LinkCastDialog extends DialogFragment {
         contentContainerView.addView(contentView);
 
         builder.setView(dialogView);
-        return builder.create();
+        Dialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        return dialog;
     }
 
     public void setPositiveButton(String text, OnClickListener listener) {

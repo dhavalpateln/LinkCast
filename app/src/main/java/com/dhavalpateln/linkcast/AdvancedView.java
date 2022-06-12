@@ -33,12 +33,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.adapters.EpisodeGridRecyclerAdapter;
-import com.dhavalpateln.linkcast.animescrappers.AnimeKisaTVExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
@@ -143,7 +143,7 @@ public class AdvancedView extends AppCompatActivity {
                     currentEpisode = Math.max(currentEpisode, Integer.valueOf(episodeNode.getEpisodeNumString()));
                 }
                 else {
-                    currentEpisode = Integer.valueOf(episodeNode.getEpisodeNumString());
+                    currentEpisode = (int) episodeNode.getEpisodeNum(); //Integer.valueOf(episodeNode.getEpisodeNumString());
                 }
                 animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + currentEpisode, true, isAnimeMode);
                 updateEpisodeProgress();
@@ -253,10 +253,10 @@ public class AdvancedView extends AppCompatActivity {
         episodeRecyclerView.setAdapter(adapter);
 
         animeExtractors = new HashMap<>();
-        animeExtractors.put("animekisa.tv", new AnimeKisaTVExtractor());
         animeExtractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
         animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
         animeExtractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
+        animeExtractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
 
         mangaExtractors = new HashMap<>();
         mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
@@ -327,7 +327,9 @@ public class AdvancedView extends AppCompatActivity {
                 if(data.hasExtra(AnimeWebExplorer.RESULT_REFERER)) {
                     headers.put("Referer", data.getStringExtra(AnimeWebExplorer.RESULT_REFERER));
                 }
-                openCastDialog(url, episodeNum, headers, true);
+                VideoURLData videoURLData = new VideoURLData(url);
+                videoURLData.setHeaders(headers);
+                openCastDialog(videoURLData, episodeNum, true);
                 //startPlayer(url, episodeNum, headers, true);
             }
         }
@@ -364,13 +366,13 @@ public class AdvancedView extends AppCompatActivity {
         }
     }
 
-    private void openCastDialog(String url, String episodeNum, HashMap<String, String> headers, boolean canCast) {
+    private void openCastDialog(VideoURLData videoURLData, String episodeNum, boolean canCast) {
         Map<String, CastDialog.OnClickListener> map = new HashMap<>();
 
         map.put("PLAY", new CastDialog.OnClickListener() {
             @Override
             public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                startPlayer(url, episodeNum, headers, canCast);
+                startPlayer(videoURLData, episodeNum, canCast);
                 castDialog.close();
             }
         });
@@ -390,26 +392,29 @@ public class AdvancedView extends AppCompatActivity {
                 castDialog.close();
             }
         });
-        map.put("DOWNLOAD", new CastDialog.OnClickListener() {
-            @Override
-            public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                String referer = data.containsKey("Referer") ? data.get("Referer") : null;
-                LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, animeTitleTextView.getText().toString() + " - " + animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM) + ".mp4", referer, new LinkDownloadManagerDialog.LinkDownloadListener() {
-                    @Override
-                    public void onDownloadComplete() {
-                        Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                linkDownloadManagerDialog.show(getSupportFragmentManager(), "Download");
-                castDialog.close();
-            }
-        });
-        CastDialog castDialog = new CastDialog("", url, map, headers);
+        if(videoURLData.getUrl().replace("mp4upload", "").contains(".mp4")) {
+            map.put("DOWNLOAD", new CastDialog.OnClickListener() {
+                @Override
+                public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
+                    String referer = data.containsKey("Referer") ? data.get("Referer") : null;
+                    LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(url, animeTitleTextView.getText().toString() + " - " + animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM) + ".mp4", referer, new LinkDownloadManagerDialog.LinkDownloadListener() {
+                        @Override
+                        public void onDownloadComplete() {
+                            Toast.makeText(getApplicationContext(), "Download Completed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    linkDownloadManagerDialog.show(getSupportFragmentManager(), "Download");
+                    castDialog.close();
+                }
+            });
+        }
+        CastDialog castDialog = new CastDialog("", videoURLData.getUrl(), map, videoURLData.getHeaders());
         castDialog.show(getSupportFragmentManager(), "CastDialog");
     }
 
-    public void startPlayer(String url, String episodeNum, HashMap<String, String> headers, boolean canCast) {
+    public void startPlayer(VideoURLData videoURLData, String episodeNum, boolean canCast) {
 
+        String url = videoURLData.getUrl();
         CastContext castContext = CastContext.getSharedInstance();
         long playbackPosition = 0;
         if(animeData.getData().containsKey(episodeNum)) {
@@ -431,11 +436,13 @@ public class AdvancedView extends AppCompatActivity {
                     .setClipStartPositionMs(playbackPosition)
                     .build();
             castPlayer.setMediaItem(mediaItem);
+
             castPlayer.setPlayWhenReady(true);
             castPlayer.prepare();
         }
         else {
-            Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+            Intent intent = ExoPlayerActivity.prepareIntent(getApplicationContext(), animeData, videoURLData, episodeNum);
+            /*Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
             intent.putExtra("url", url);
             intent.putExtra("saveProgress", saveProgress);
             if(animeData.getId() != null)  intent.putExtra("id", animeData.getId());
@@ -449,7 +456,7 @@ public class AdvancedView extends AppCompatActivity {
             if(episodeNum != null) intent.putExtra(ExoPlayerActivity.EPISODE_NUM, episodeNum);
             if(animeData.getData().containsKey(episodeNum)) {
                 intent.putExtra(ExoPlayerActivity.LAST_VIEW_POINT, animeData.getData().get(episodeNum));
-            }
+            }*/
             startActivity(intent);
 
         }
@@ -492,7 +499,7 @@ public class AdvancedView extends AppCompatActivity {
                                     if(videoURLData.getTitle().toLowerCase().startsWith("xstreamcdn")) {
                                         canCast = false;
                                     }
-                                    openCastDialog(videoURLData.getUrl(), node.getEpisodeNumString(), (HashMap<String, String>) videoURLData.getHeaders(), canCast);
+                                    openCastDialog(videoURLData, node.getEpisodeNumString(), canCast);
                                 }
                                 else {
                                     Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
@@ -600,7 +607,7 @@ public class AdvancedView extends AppCompatActivity {
 
                     Collections.sort(episodeListData, (node1, node2) -> (int) (node2.getEpisodeNum() - node1.getEpisodeNum()));
 
-                    totalEpisode = episodeListData.size();
+                    totalEpisode = (int) episodeListData.get(0).getEpisodeNum();
                     updateEpisodeProgress();
                     episodeRecyclerView.scrollToPosition(totalEpisode - currentEpisode);
                 });

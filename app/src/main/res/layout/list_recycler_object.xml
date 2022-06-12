@@ -11,6 +11,7 @@
     android:layout_marginRight="2dp"
     android:layout_height="130dp"
     android:clipChildren="true"
+    android:focusable="true"
     >
 
     <ImageView

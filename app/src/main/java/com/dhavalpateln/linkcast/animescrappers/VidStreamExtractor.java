@@ -6,11 +6,13 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -33,6 +35,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class VidStreamExtractor extends AnimeScrapper {
 
     private String TAG = "VidStream";
+    private static String BASE64_TABLE = "51wJ0FDq/UVCefLopEcmK3ni4WIQztMjZdSYOsbHr9R2h7PvxBGAuglaN8+kXT6y";
 
     public VidStreamExtractor() {
         super();
@@ -57,23 +60,19 @@ public class VidStreamExtractor extends AnimeScrapper {
                 String host = embedMatcher.group(1);
                 String slug = embedMatcher.group(2);
                 String infoUrl;
-                if(host.equals("https://mcloud.to/")) {
-                    infoUrl = host + "info/" + slug;
-                    Pattern sKeyPattern = Pattern.compile("window\\.skey = '(.+?)'");
-                    Matcher sKeyMatcher = sKeyPattern.matcher(getHttpContent(episodeUrl, "https://9anime.to/"));
-                    if(sKeyMatcher.find()) {
-                        infoUrl += "?skey=" + Uri.encode(sKeyMatcher.group(1));
-                    }
-                }
-                else {
-                    infoUrl = host + "info/" + slug;
-                }
+
+                HttpURLConnection cipherKeyAPI = SimpleHttpClient.getURLConnection("https://raw.githubusercontent.com/justfoolingaround/animdl-provider-benchmarks/master/api/selgen.json");
+                String cipherKey = new JSONObject(SimpleHttpClient.getResponse(cipherKeyAPI)).getString("cipher_key");
+
+                String cipher = NineAnimeExtractor.getCipher(cipherKey, NineAnimeExtractor.encrypt(slug, BASE64_TABLE));
+                //byte[] c = cipher.getBytes(StandardCharsets.UTF_8);
+                infoUrl = host + "info/" + NineAnimeExtractor.encrypt(cipher, BASE64_TABLE).replace("/", "_");
 
                 JSONObject infoContent = new JSONObject(
                         getHttpContent(infoUrl, episodeUrl)
                 );
 
-                JSONArray sources = infoContent.getJSONObject("media").getJSONArray("sources");
+                JSONArray sources = infoContent.getJSONObject("data").getJSONObject("media").getJSONArray("sources");
                 for(int i = 0; i < sources.length(); i++) {
                     String videoURL = sources.getJSONObject(i).getString("file");
                     String title = Uri.parse(host).getHost().split("\\.")[0];

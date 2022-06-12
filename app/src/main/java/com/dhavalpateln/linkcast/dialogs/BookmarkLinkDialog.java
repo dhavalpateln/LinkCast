@@ -56,13 +56,18 @@ public class BookmarkLinkDialog extends LinkCastDialog {
             statusTypes = MangaFragment.Catalog.BASIC_TYPES;
         }
 
-        for(String status: statusTypes) {
-            spinnerContent.add(status);
+        int initialStatusSelected = 0;
+        for(int i = 0; i < statusTypes.length; i++) {
+            spinnerContent.add(statusTypes[i]);
+            if(statusTypes[i].equals(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)))  initialStatusSelected = i;
         }
         animeStatusSpinner.setAdapter(spinnerContent);
+        animeStatusSpinner.setSelection(initialStatusSelected);
+
 
         ArrayAdapter<String> scoreContent = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
         animeScoreSpinner.setAdapter(scoreContent);
+        animeScoreSpinner.setSelection(Integer.valueOf(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE)));
 
         setPositiveButton("Update", (dialog1, view1) -> {
             animeLinkData.updateData(AnimeLinkData.DataContract.DATA_STATUS, animeStatusSpinner.getSelectedItem().toString(), true, isAnime);

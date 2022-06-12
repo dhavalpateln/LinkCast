@@ -39,6 +39,7 @@ import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
@@ -206,17 +207,19 @@ public class AnimeSearchActivity extends AppCompatActivity {
         sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         searchers = new HashMap<>();
-        searchers.put("animekisa.tv", new AnimeKisaSearch());
-        searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
+        //searchers.put("animekisa.tv", new AnimeKisaSearch());
+        //searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
         searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
         searchers.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheSearch());
+        searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
 
         String[] order = new String[] {
                 //ProvidersData.ANIMEKISASITE.NAME,
                 ProvidersData.GOGOANIME.NAME,
+                ProvidersData.ZORO.NAME,
                 ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 ProvidersData.MANGAFOURLIFE.NAME
@@ -225,6 +228,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
             if(getIntent().getStringExtra(INTENT_CHANGE_SOURCE).equals("anime")) {
                 order = new String[] {
                         ProvidersData.GOGOANIME.NAME,
+                        ProvidersData.ZORO.NAME,
                         ProvidersData.NINEANIME.NAME,
                         ProvidersData.ANIMEPAHE.NAME
                 };

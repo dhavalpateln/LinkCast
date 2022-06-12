@@ -24,11 +24,13 @@ import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
@@ -64,6 +66,7 @@ public class StatusFragment extends Fragment {
         LinearLayout statusContainer = view.findViewById(R.id.status_container_linear_layout);
 
         gogoanimeTest(statusContainer);
+        zoroTest(statusContainer);
         nineanimeTest(statusContainer);
         animepaheTest(statusContainer);
         manga4lifeTest(statusContainer);
@@ -74,10 +77,12 @@ public class StatusFragment extends Fragment {
         ConstraintLayout browsingStatus = generateStatusView("Browsing");
         ConstraintLayout gogoplayStatus = generateStatusView("GogoPlay");
         ConstraintLayout sbStatus = generateStatusView("StreamSB");
+        ConstraintLayout xStreamStatus = generateStatusView("XStream");
         container.addView(divider);
         container.addView(browsingStatus);
         container.addView(gogoplayStatus);
         container.addView(sbStatus);
+        container.addView(xStreamStatus);
 
         executor.execute(() -> {
             boolean searchSuccess = false;
@@ -86,7 +91,7 @@ public class StatusFragment extends Fragment {
                 GogoAnimeExtractor extractor = new GogoAnimeExtractor();
                 GogoAnimeSearch searcher = new GogoAnimeSearch();
 
-                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia");
+                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia 5");
                 episodeListSuccess = !episodeList.isEmpty();
 
                 uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
@@ -100,6 +105,7 @@ public class StatusFragment extends Fragment {
                 uiHandler.post(() -> {
                     markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
                     markStatus(sbStatus, extractedSources.contains("streamsb"));
+                    markStatus(xStreamStatus, extractedSources.contains("xstream"));
                 });
             } catch (Exception e) {
                 boolean finalEpisodeListSuccess1 = episodeListSuccess;
@@ -107,6 +113,7 @@ public class StatusFragment extends Fragment {
                     markStatus(browsingStatus, finalEpisodeListSuccess1);
                     markStatus(gogoplayStatus, false);
                     markStatus(sbStatus, false);
+                    markStatus(xStreamStatus, false);
                 });
             }
         });
@@ -199,6 +206,53 @@ public class StatusFragment extends Fragment {
         });
     }
 
+    private void zoroTest(LinearLayout container) {
+        LinearLayout divider = generateHeaderView(ProvidersData.ZORO.NAME);
+        ConstraintLayout browsingStatus = generateStatusView("Browsing");
+        ConstraintLayout rapidCloud = generateStatusView("RapidCloud");
+        ConstraintLayout sbStatus = generateStatusView("StreamSB");
+        ConstraintLayout streamTape = generateStatusView("StreamTape");
+        container.addView(divider);
+        container.addView(browsingStatus);
+        container.addView(rapidCloud);
+        container.addView(sbStatus);
+        container.addView(streamTape);
+
+        executor.execute(() -> {
+            boolean searchSuccess = false;
+            boolean episodeListSuccess = false;
+            try {
+                ZoroExtractor extractor = new ZoroExtractor();
+                ZoroSearch searcher = new ZoroSearch();
+
+                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia 5");
+                episodeListSuccess = !episodeList.isEmpty();
+
+                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
+
+                List<VideoURLData> episodeURLs = new ArrayList<>();
+                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
+                Set<String> extractedSources = new HashSet<>();
+                for (VideoURLData videoURLData : episodeURLs) {
+                    extractedSources.add(videoURLData.getSource());
+                }
+                uiHandler.post(() -> {
+                    markStatus(sbStatus, extractedSources.contains(ProvidersData.STREAMSB.NAME));
+                    markStatus(streamTape, extractedSources.contains(ProvidersData.STREAMTAPE.NAME));
+                    markStatus(rapidCloud, extractedSources.contains(ProvidersData.RAPIDCLOUD.NAME));
+                });
+            } catch (Exception e) {
+                boolean finalEpisodeListSuccess1 = episodeListSuccess;
+                uiHandler.post(() -> {
+                    markStatus(browsingStatus, finalEpisodeListSuccess1);
+                    markStatus(rapidCloud, false);
+                    markStatus(sbStatus, false);
+                    markStatus(streamTape, false);
+                });
+            }
+        });
+    }
+
     private void manga4lifeTest(LinearLayout container) {
         LinearLayout divider = generateHeaderView(ProvidersData.MANGAFOURLIFE.NAME);
         ConstraintLayout browsingStatus = generateStatusView("Browsing");
@@ -232,6 +286,7 @@ public class StatusFragment extends Fragment {
             }
         });
     }
+
 
     private List<EpisodeNode> browse(AnimeSearch searcher, AnimeScrapper extractor, String searchTerm) {
         List<AnimeLinkData> searchResult = searcher.search(searchTerm);

@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class NineAnimeExtractor extends AnimeScrapper {
 
     private String TAG = "NINEANIME";
-    private final String BASE64_TABLE = "0wMrYU+ixjJ4QdzgfN2HlyIVAt3sBOZnCT9Lm7uFDovkb/EaKpRWhqXS5168ePcG";
+    private final static String BASE64_TABLE = "c/aUAorINHBLxWTy3uRiPt8J+vjsOheFG1E0q2X9CYwDZlnmd4Kb5M6gSVzfk7pQ";
     private final String NORMAL_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private Map<Character, Character> tableMap;
     private String nineAnimeBaseUrl;
@@ -56,7 +56,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    private String getCipher(String key, String text) {
+    public static String getCipher(String key, String text) {
         String cipher = "";
         int xcrypto = 0;
 
@@ -84,7 +84,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return cipher;
     }
 
-    private String justify(String data, char extra, int length, char mode) {
+    private static String justify(String data, char extra, int length, char mode) {
         String toAppend = "";
         for(int i = data.length(); i < length; i++) toAppend += extra;
         if(mode == 'l') {
@@ -94,7 +94,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
         }
     }
 
-    private List<String> wrap(String data, int length) {
+    private static List<String> wrap(String data, int length) {
         List<String> result = new ArrayList<>();
         for(int start = 0; start < data.length(); start = start + length) {
             result.add(data.substring(start, Math.min(start + length, data.length())));
@@ -103,7 +103,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
     }
 
     @SuppressLint("NewApi")
-    private String translate(String data) {
+    private String translate(String data, Map<Character, Character> tableMap) {
         String result = "";
         for(int i = 0; i < data.length(); i++) {
             result += tableMap.getOrDefault(data.charAt(i), data.charAt(i));
@@ -111,7 +111,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return result;
     }
 
-    private String encrypt(String data) {
+    public static String encrypt(String data, String base64Table) {
         String result = "";
         String binData = "";
         for(int i = 0; i < data.length(); i++) {
@@ -120,15 +120,19 @@ public class NineAnimeExtractor extends AnimeScrapper {
         }
         List<String> wrappedData = wrap(binData, 6);
         for(String binNumString: wrappedData) {
-            result += BASE64_TABLE.charAt(Integer.valueOf(justify(binNumString, '0', 6, 'l'), 2));
+            result += base64Table.charAt(Integer.valueOf(justify(binNumString, '0', 6, 'l'), 2));
         }
         return result;
     }
 
-    private String decrypt(String data) {
+    private String decrypt(String data, String base64Table) {
+        Map<Character, Character> tableMap = new HashMap<>();
+        for(int i = 0; i < base64Table.length(); i++) {
+            tableMap.put(base64Table.charAt(i), NORMAL_TABLE.charAt(i));
+        }
         String result = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            byte[] b64DecodedData = Base64.getDecoder().decode(translate(data).getBytes(StandardCharsets.UTF_8));
+            byte[] b64DecodedData = Base64.getDecoder().decode(translate(data, tableMap).getBytes(StandardCharsets.UTF_8));
             for(byte b: b64DecodedData) {
                 result += (char) (b & 255);
             }
@@ -136,12 +140,12 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return result;
     }
 
-    private String encryptURL(String url) {
-        return "kr1337" + encrypt(getCipher("kr1337", Uri.encode(url)));
+    private String encryptURL(String url, String base64Table) {
+        return "kr1337" + encrypt(getCipher("kr1337", Uri.encode(url)), base64Table);
     }
 
     private String decryptURL(String url, int length) {
-        return Uri.decode(getCipher(url.substring(0, length), decrypt(url.substring(length))));
+        return Uri.decode(getCipher(url.substring(0, length), decrypt(url.substring(length), BASE64_TABLE)));
     }
 
     @Override
@@ -160,7 +164,7 @@ public class NineAnimeExtractor extends AnimeScrapper {
                 String slug = slugMatcher.group(1);
                 Uri uri = new Uri.Builder()
                         .appendQueryParameter("id", slug)
-                        .appendQueryParameter("vrf", encryptURL(slug))
+                        .appendQueryParameter("vrf", encryptURL(slug, BASE64_TABLE))
                         .build();
 
                 JSONObject responseContent = new JSONObject(getHttpContent(

@@ -1,5 +1,8 @@
 package com.dhavalpateln.linkcast.utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +37,10 @@ public class SimpleHttpClient {
         }
         String result = out.toString();
         return result;
+    }
+
+    public static JSONObject getJSONResponse(HttpURLConnection urlConnection) throws IOException, JSONException {
+        return new JSONObject(getResponse(urlConnection));
     }
 
     public static int getResponseCode(HttpURLConnection urlConnection){

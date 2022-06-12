@@ -52,4 +52,13 @@ public class ProvidersData {
     public static class MCLOUD {
         public static final String NAME = "MCLOUD";
     }
+
+    public static class ZORO {
+        public static final String NAME = "zoro";
+        public static final String URL = "https://zoro.to";
+    }
+
+    public static class RAPIDCLOUD {
+        public static final String NAME = "RapidCloud";
+    }
 }

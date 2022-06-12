@@ -16,6 +16,7 @@ import com.dhavalpateln.linkcast.data.AppInfo;
 import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -81,9 +82,18 @@ public class LauncherActivity extends AppCompatActivity {
                 }
                 else {
                     updateUserMetaData();
+
                     Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
                     startActivity(mainActivity);
                     finish();
+
+                    /*Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+                    intent.putExtra("url", "https://rnrjz.vizcloud.digital/simple/EqPFI_8QBAro1HhYl67rC8EurFwDvr2zCw57rqk+wYMnU94US2El/br/list.m3u8#.mp4");
+                    intent.putExtra("Referer", "https://vizcloud.digital/embed/2EYDX1QZRJ1Q");
+                    intent.putExtra("saveProgress", true);
+                    intent.putExtra("id", "2022-04-25-11-30-06");
+                    intent.putExtra(ExoPlayerActivity.EPISODE_NUM, "11");
+                    startActivity(intent);*/
                 }
             }
         });

@@ -16,9 +16,15 @@ import java.util.regex.Pattern;
 public class StreamTapeExtractor extends AnimeScrapper {
 
     private String TAG = "StreamTape";
+    private String displayName;
 
     public StreamTapeExtractor() {
         super();
+        displayName = ProvidersData.STREAMTAPE.NAME;
+    }
+
+    public StreamTapeExtractor(String name) {
+        this.displayName = name;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class StreamTapeExtractor extends AnimeScrapper {
             if(matcher.find()) {
                 String redirectUrl = getRedirectUrl("https:" + matcher.group(1) + matcher.group(2));
                 if(redirectUrl != null) {
-                    VideoURLData videoURLData = new VideoURLData(getDisplayName(), "StreamTape - MP4", redirectUrl, null);
+                    VideoURLData videoURLData = new VideoURLData(ProvidersData.STREAMTAPE.NAME, this.displayName, redirectUrl, null);
                     result.add(videoURLData);
                 }
                 Log.d(TAG, "complete");
@@ -57,6 +63,6 @@ public class StreamTapeExtractor extends AnimeScrapper {
 
     @Override
     public String getDisplayName() {
-        return ProvidersData.STREAMTAPE.NAME;
+        return this.displayName;
     }
 }

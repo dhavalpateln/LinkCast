@@ -1,14 +1,19 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class VideoURLData {
+public class VideoURLData implements Serializable {
     private String source;
     private String title;
     private String url;
     private String referer;
     private Map<String, String> headers;
+    private List<String> subtitles;
+    private String linkCastID;
 
     public VideoURLData(String source, String title, String url, String referer) {
         this.source = source;
@@ -16,7 +21,13 @@ public class VideoURLData {
         this.url = url;
         this.referer = referer;
         headers = new HashMap<>();
+        subtitles = new ArrayList<>();
+        linkCastID = null;
         if(hasReferer()) headers.put("Referer", this.referer);
+    }
+
+    public VideoURLData(String url) {
+        this("", "", url, null);
     }
 
     public String getSource() {
@@ -58,4 +69,32 @@ public class VideoURLData {
     public void addHeader(String key, String value) { this.headers.put(key, value); }
 
     public Map<String, String> getHeaders() { return this.headers; }
+
+    public void addSubtitle(String url) {
+        if(!subtitles.contains(url)) {
+            subtitles.add(url);
+        }
+    }
+
+    public boolean hasSubtitles() {
+        return !subtitles.isEmpty();
+    }
+
+    public List<String> getSubtitles() {return subtitles;}
+
+    public String getLinkCastID() {
+        return linkCastID;
+    }
+
+    public void setLinkCastID(String linkCastID) {
+        this.linkCastID = linkCastID;
+    }
+
+    public boolean hasLinkCastID() {
+        return this.linkCastID != null;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
 }

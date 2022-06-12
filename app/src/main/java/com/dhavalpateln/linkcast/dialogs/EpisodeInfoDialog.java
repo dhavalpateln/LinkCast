@@ -135,9 +135,11 @@ public class EpisodeInfoDialog extends LinkCastDialog {
                 adapter.notifyDataSetChanged();
             });
 
-            int total_pages = JikanDatabase.getInstance().getEpisodeInfo(dataList, page, id);
+            List<EpisodeNode> tempDataList = new ArrayList<>();
+            int total_pages = JikanDatabase.getInstance().getEpisodeInfo(tempDataList, page, id);
 
             uiHandler.post(() -> {
+                dataList.addAll(tempDataList);
                 progressBar.setVisibility(View.GONE);
                 adapter.notifyDataSetChanged();
             });
