@@ -202,6 +202,8 @@
                         android:scaleX="1.5"
                         android:scaleY="1.5"
                         android:src="@drawable/ic_round_fast_rewind_24"
+                        android:nextFocusUp="@id/exo_quality"
+                        android:nextFocusRight="@id/exo_play"
                         tools:ignore="ContentDescription,DuplicateSpeakableTextCheck" />
 
                 </androidx.cardview.widget.CardView>
@@ -220,6 +222,9 @@
                         android:layout_width="72dp"
                         android:layout_height="72dp"
                         android:src="@drawable/exo_icon_pause"
+                        android:nextFocusLeft="@id/exo_fast_rewind_button"
+                        android:nextFocusRight="@id/exo_fast_forward_button"
+                        android:nextFocusUp="@id/exo_quality"
                         tools:ignore="ContentDescription" />
 
                 </androidx.cardview.widget.CardView>
@@ -243,6 +248,9 @@
                         android:scaleX="1.5"
                         android:scaleY="1.5"
                         android:src="@drawable/ic_round_fast_forward_24"
+                        android:nextFocusLeft="@id/exo_play"
+                        android:nextFocusUp="@id/exo_quality"
+                        android:nextFocusDown="@id/exo_skip"
                         tools:ignore="ContentDescription,DuplicateSpeakableTextCheck" />
 
                 </androidx.cardview.widget.CardView>
@@ -371,6 +379,8 @@
                             android:layout_height="48dp"
                             android:backgroundTint="#00FFFFFF"
                             app:srcCompat="@drawable/ic_round_lock_open_24"
+                            android:nextFocusLeft="@id/exo_fast_forward_button"
+                            android:nextFocusDown="@id/exo_fast_forward_button"
                             tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
                     </LinearLayout>

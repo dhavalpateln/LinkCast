@@ -4,46 +4,38 @@ import static com.google.android.exoplayer2.ui.CaptionStyleCompat.EDGE_TYPE_OUTL
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
-import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.TracksInfo;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.CaptionStyleCompat;
-import com.google.android.exoplayer2.ui.DefaultTimeBar;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.dhavalpateln.linkcast.exoplayer.ExtendedTimeBar;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.ui.TrackSelectionDialogBuilder;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -51,7 +43,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.framework.CastContext;
-import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,6 +94,7 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
     private String id = null;
     private String episodeNum = null;
     private boolean firstLoad = false;
+    private boolean isTvApp = false;
     private FileTypes fileType;
     private Handler handler = new Handler();
 
@@ -203,6 +195,7 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         unLockButton = findViewById(R.id.exo_unlock);
         timebar = findViewById(R.id.exo_progress);
 
+
         videoURLData = (VideoURLData) getIntent().getSerializableExtra(VIDEO_DATA);
 
         screenRotateButton = findViewById(R.id.exo_screen);
@@ -274,6 +267,16 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         });
 
         handler.postDelayed(new ProgressChecker(), 15000);
+
+        UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+            isTvApp = true;
+            lockButton.setVisibility(View.GONE);
+            findViewById(R.id.exo_playback_speed).setVisibility(View.GONE);
+            screenRotateButton.setVisibility(View.GONE);
+            findViewById(R.id.exo_back).setVisibility(View.GONE);
+        }
+
         //exoplayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
     }
 
@@ -442,6 +445,24 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(isTvApp) {
+            exoplayerView.showController();
+            switch (event.getAction()) {
+                /*case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                    player.pause();
+                    return true;
+                case KeyEvent.KEYCODE_MEDIA_PLAY:
+                    player.play();
+                    return true;*/
+                default:
+                    return super.dispatchKeyEvent(event);
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     public static Intent prepareIntent(Context context, AnimeLinkData animeData, VideoURLData videoURLData, String episodeNum) {
 
         //videoURLData = new VideoURLData("animepahe", "title", "https://v.vrv.co/evs3/d6eaa21935ca301f291cddc347bf287b/assets/2fitb7a8qgywrac_,1890521.mp4,1890515.mp4,1890509.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly92LnZydi5jby9ldnMzL2Q2ZWFhMjE5MzVjYTMwMWYyOTFjZGRjMzQ3YmYyODdiL2Fzc2V0cy8yZml0YjdhOHFneXdyYWNfLDE4OTA1MjEubXA0LDE4OTA1MTUubXA0LDE4OTA1MDkubXA0LC51cmxzZXQvbWFzdGVyLm0zdTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTQ5MjkwODF9fX1dfQ__&Signature=At5k4Q8j6ULTzlJ8MKzLtSpewh~tr5FOv~mXuf7fLkmuAMv~iYX6HwYqImq3khEjGrYjCcdqqESBb8NxchXn1P7ePQORMk2sKHGowbh0UQHzS9RvwcSLL91lF3kmX98MgufRbV6glz1GbKD-yHPayzGtkdqk9bKfb~wN2hBivrmOg6ovpgfPQA1LrelvPYODnv0qBrX-RycnEwt2-iBNqBJVs9ykW-C3GEaHJlS93QvJdbph0ZVD8mw5jR0N4XMe0NEmWsCcgzYixxSIxWNzqxWAXeK2mJnjB~KG9PqJMzE0w7AFrNbmG4dwamMe9h2g~~o6xgvd6uhMMSpPao0NLw__&Key-Pair-Id=APKAJMWSQ5S7ZB3MF5VA", null);
@@ -455,6 +476,22 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         intent.putExtra(MEDIA_URL, videoURLData.getUrl());
         intent.putExtra("saveProgress", true);
         if(animeData.getId() != null)  intent.putExtra("id", animeData.getId());
+        return intent;
+    }
+
+    public static Intent prepareIntent(Context context, String id, VideoURLData videoURLData, String episodeNum) {
+
+        //videoURLData = new VideoURLData("animepahe", "title", "https://v.vrv.co/evs3/d6eaa21935ca301f291cddc347bf287b/assets/2fitb7a8qgywrac_,1890521.mp4,1890515.mp4,1890509.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly92LnZydi5jby9ldnMzL2Q2ZWFhMjE5MzVjYTMwMWYyOTFjZGRjMzQ3YmYyODdiL2Fzc2V0cy8yZml0YjdhOHFneXdyYWNfLDE4OTA1MjEubXA0LDE4OTA1MTUubXA0LDE4OTA1MDkubXA0LC51cmxzZXQvbWFzdGVyLm0zdTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTQ5MjkwODF9fX1dfQ__&Signature=At5k4Q8j6ULTzlJ8MKzLtSpewh~tr5FOv~mXuf7fLkmuAMv~iYX6HwYqImq3khEjGrYjCcdqqESBb8NxchXn1P7ePQORMk2sKHGowbh0UQHzS9RvwcSLL91lF3kmX98MgufRbV6glz1GbKD-yHPayzGtkdqk9bKfb~wN2hBivrmOg6ovpgfPQA1LrelvPYODnv0qBrX-RycnEwt2-iBNqBJVs9ykW-C3GEaHJlS93QvJdbph0ZVD8mw5jR0N4XMe0NEmWsCcgzYixxSIxWNzqxWAXeK2mJnjB~KG9PqJMzE0w7AFrNbmG4dwamMe9h2g~~o6xgvd6uhMMSpPao0NLw__&Key-Pair-Id=APKAJMWSQ5S7ZB3MF5VA", null);
+
+        Intent intent = new Intent(context, ExoPlayerActivity.class);
+        if(episodeNum != null) {
+            episodeNum = episodeNum.replace(".", "dot");
+            intent.putExtra(EPISODE_NUM, episodeNum);
+        }
+        intent.putExtra(VIDEO_DATA, videoURLData);
+        intent.putExtra(MEDIA_URL, videoURLData.getUrl());
+        intent.putExtra("saveProgress", true);
+        if(id != null)  intent.putExtra("id", id);
         return intent;
     }
 }

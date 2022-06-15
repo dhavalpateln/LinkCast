@@ -2,7 +2,6 @@ package com.dhavalpateln.linkcast;
 
 import static com.dhavalpateln.linkcast.utils.Utils.getCurrentTime;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,7 +11,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,9 +20,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -37,12 +33,12 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.database.TvActionData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
-import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.EpisodeInfoDialog;
@@ -68,7 +64,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
-import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -379,7 +374,7 @@ public class AdvancedView extends AppCompatActivity {
         map.put("WEB CAST", new CastDialog.OnClickListener() {
             @Override
             public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
-                String id = getCurrentTime();
+               /* String id = getCurrentTime();
                 Map<String, Object> update = new HashMap<>();
                 update.put(id + "/title", animeTitleTextView.getText().toString() + " - " + animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM));
                 update.put(id + "/url", url);
@@ -388,7 +383,13 @@ public class AdvancedView extends AppCompatActivity {
                         update.put(id + "/data/" + entry.getKey(), entry.getValue());
                     }
                 }
-                FirebaseDBHelper.getUserLinkRef().updateChildren(update);
+                FirebaseDBHelper.getUserLinkRef().updateChildren(update);*/
+                TvActionData tvActionData = new TvActionData();
+                tvActionData.setAction("Play");
+                tvActionData.setVideoData(videoURLData);
+                tvActionData.setEpisodeNum(episodeNum);
+                tvActionData.setId(animeData.getId());
+                FirebaseDBHelper.getUserTvPlay().setValue(tvActionData);
                 castDialog.close();
             }
         });

@@ -1,27 +1,22 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.internal.StringUtil;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

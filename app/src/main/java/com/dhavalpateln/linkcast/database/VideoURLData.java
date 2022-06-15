@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.database;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,6 +14,9 @@ public class VideoURLData implements Serializable {
     private Map<String, String> headers;
     private List<String> subtitles;
     private String linkCastID;
+    private String episodeNum;
+
+    public VideoURLData() { }
 
     public VideoURLData(String source, String title, String url, String referer) {
         this.source = source;
@@ -77,7 +80,7 @@ public class VideoURLData implements Serializable {
     }
 
     public boolean hasSubtitles() {
-        return !subtitles.isEmpty();
+        return subtitles != null && !subtitles.isEmpty();
     }
 
     public List<String> getSubtitles() {return subtitles;}
@@ -96,5 +99,17 @@ public class VideoURLData implements Serializable {
 
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public void setSubtitles(List<String> subtitles) {
+        this.subtitles = subtitles;
+    }
+
+    public String getEpisodeNum() {
+        return episodeNum;
+    }
+
+    public void setEpisodeNum(String episodeNum) {
+        this.episodeNum = episodeNum;
     }
 }

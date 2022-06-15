@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.animescrappers;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONArray;
@@ -12,9 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class XStreamExtractor extends AnimeScrapper {
 

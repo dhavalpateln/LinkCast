@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONArray;
@@ -8,9 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class EmbedSitoExtractor extends AnimeScrapper {
 

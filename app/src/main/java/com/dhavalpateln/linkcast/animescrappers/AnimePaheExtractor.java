@@ -5,6 +5,7 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -15,12 +16,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AnimePaheExtractor extends AnimeScrapper{
 

@@ -2,7 +2,6 @@ package com.dhavalpateln.linkcast.ui.status;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -23,7 +22,7 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
@@ -32,19 +31,13 @@ import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

@@ -7,7 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.UiModeManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -82,9 +84,7 @@ public class LauncherActivity extends AppCompatActivity {
                 }
                 else {
                     updateUserMetaData();
-
-                    Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
-                    startActivity(mainActivity);
+                    startMainActivity();
                     finish();
 
                     /*Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
@@ -108,8 +108,7 @@ public class LauncherActivity extends AppCompatActivity {
 
         if(!isNetworkAvailable(getApplicationContext())) {
             Toast.makeText(getApplicationContext(), "No connection", Toast.LENGTH_LONG).show();
-            Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
-            startActivity(mainActivity);
+            startMainActivity();
             finish();
         }
     }
@@ -130,8 +129,7 @@ public class LauncherActivity extends AppCompatActivity {
                 updateUserMetaData();
 
                 //Intent start = new Intent(this, AnimeWebExplorer.class);
-                Intent start = new Intent(this, MainActivity.class);
-                startActivity(start);
+                startMainActivity();
                 LauncherActivity.this.finish();
                 // ...
             } else {
@@ -142,6 +140,17 @@ public class LauncherActivity extends AppCompatActivity {
                 // ...
             }
         }
+    }
+
+    private void startMainActivity() {
+        Intent start;
+        UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+            start = new Intent(LauncherActivity.this, TVActivity.class);
+        } else {
+            start = new Intent(LauncherActivity.this, MainActivity.class);
+        }
+        startActivity(start);
     }
 
     public void updateUserMetaData() {

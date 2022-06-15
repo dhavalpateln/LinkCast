@@ -7,10 +7,9 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
-import com.dhavalpateln.linkcast.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,9 +17,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

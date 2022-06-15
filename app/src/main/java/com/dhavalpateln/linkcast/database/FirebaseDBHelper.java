@@ -72,6 +72,9 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserRemoteDownloadCode() {
         return getUserDataRef().child("remotecode");
     }
+    public static DatabaseReference getUserTvPlay() {
+        return getUserDataRef().child("tv");
+    }
     public static DatabaseReference getUserPiMoteDownloadQueue() {
         return getUserDownloadQueue().child("pimote");
     }

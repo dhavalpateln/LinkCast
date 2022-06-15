@@ -1,23 +1,19 @@
 package com.dhavalpateln.linkcast.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.animescrappers.VideoURLData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
-import java.util.Map;
 
 public class AdvancedSourceSelector extends LinkCastDialog {
 
