@@ -10,7 +10,11 @@ import android.view.View;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.TvActionData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -46,5 +50,16 @@ public class TVActivity extends AppCompatActivity {
     }
 
     public void logOut(View view) {
+
+        ConfirmationDialog dialog = new ConfirmationDialog("Log out?", () -> AuthUI.getInstance()
+                .signOut(getApplicationContext())
+                .addOnCompleteListener(task -> {
+                    Intent intent = new Intent(TVActivity.this, LauncherActivity.class);
+                    startActivity(intent);
+                    TVActivity.this.finish();
+                }));
+        dialog.show(getSupportFragmentManager(), "logout");
+
+
     }
 }
