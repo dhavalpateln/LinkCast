@@ -1,0 +1,93 @@
+{
+  "project_info": {
+    "project_number": "295950722231",
+    "firebase_url": "https://linkcast-fbdff.firebaseio.com",
+    "project_id": "linkcast-fbdff",
+    "storage_bucket": "linkcast-fbdff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295950722231:android:c2bd30e5e9633e7cdf1932",
+        "android_client_info": {
+          "package_name": "com.dhavalpateln.linkcast"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "295950722231-pos30di9usgj5iaggl0gccqlljg7bopr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dhavalpateln.linkcast",
+            "certificate_hash": "8efae2ea64b779eab05d4217164663fdbc416bba"
+          }
+        },
+        {
+          "client_id": "295950722231-pq8djtn18b3ar51nlipck7ioueb8f6po.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dhavalpateln.linkcast",
+            "certificate_hash": "e252da8664f669a6dbe4181df95392fbd5794f3a"
+          }
+        },
+        {
+          "client_id": "295950722231-vqj2vi1neee14n1i5cj0737k413hn6j3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqQLGmh8J94uHUUNJpxdML5ajAxYlNy3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "295950722231-vqj2vi1neee14n1i5cj0737k413hn6j3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295950722231:android:d86e20d2254e40e3",
+        "android_client_info": {
+          "package_name": "com.example.dhavalpatel.linkcast"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "295950722231-spa06ai8cqfgddl3gtjf6b1qtl9slm9m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dhavalpatel.linkcast",
+            "certificate_hash": "8efae2ea64b779eab05d4217164663fdbc416bba"
+          }
+        },
+        {
+          "client_id": "295950722231-vqj2vi1neee14n1i5cj0737k413hn6j3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqQLGmh8J94uHUUNJpxdML5ajAxYlNy3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "295950722231-vqj2vi1neee14n1i5cj0737k413hn6j3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
