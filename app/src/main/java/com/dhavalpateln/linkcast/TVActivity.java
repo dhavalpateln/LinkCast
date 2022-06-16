@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.TvActionData;
@@ -42,5 +43,8 @@ public class TVActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void logOut(View view) {
     }
 }

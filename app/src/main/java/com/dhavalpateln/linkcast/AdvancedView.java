@@ -371,7 +371,7 @@ public class AdvancedView extends AppCompatActivity {
                 castDialog.close();
             }
         });
-        map.put("WEB CAST", new CastDialog.OnClickListener() {
+        map.put("APP CAST", new CastDialog.OnClickListener() {
             @Override
             public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {
                /* String id = getCurrentTime();
