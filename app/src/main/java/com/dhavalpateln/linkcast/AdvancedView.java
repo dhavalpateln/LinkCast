@@ -608,7 +608,7 @@ public class AdvancedView extends AppCompatActivity {
 
                     Collections.sort(episodeListData, (node1, node2) -> (int) (node2.getEpisodeNum() - node1.getEpisodeNum()));
 
-                    totalEpisode = (int) episodeListData.get(0).getEpisodeNum();
+                    totalEpisode = episodeList.isEmpty() ? 0 : (int) episodeListData.get(0).getEpisodeNum();
                     updateEpisodeProgress();
                     episodeRecyclerView.scrollToPosition(totalEpisode - currentEpisode);
                 });

@@ -310,8 +310,10 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
 
         }
 
-        for(Map.Entry<String, String> entry: videoURLData.getHeaders().entrySet()) {
-            headerMap.put(entry.getKey(), entry.getValue());
+        if(videoURLData.getHeaders() != null) {
+            for (Map.Entry<String, String> entry : videoURLData.getHeaders().entrySet()) {
+                headerMap.put(entry.getKey(), entry.getValue());
+            }
         }
 
 
