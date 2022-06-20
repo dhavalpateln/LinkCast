@@ -699,7 +699,7 @@ public class AdvancedView extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Match not found", Toast.LENGTH_LONG).show();
                             }
                             else {
-                                EpisodeInfoDialog episodeInfoDialog = new EpisodeInfoDialog(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID), episodeListData.size());
+                                EpisodeInfoDialog episodeInfoDialog = new EpisodeInfoDialog(animeData, episodeListData.size());
                                 episodeInfoDialog.show(getSupportFragmentManager(), "InfoDialog");
                             }
                             return true;

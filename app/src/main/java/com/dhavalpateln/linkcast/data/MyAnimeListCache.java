@@ -3,6 +3,7 @@ package com.dhavalpateln.linkcast.data;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +15,14 @@ public class MyAnimeListCache {
     private Map<String, MyAnimelistAnimeData> infoCache;
     private Map<String, MyAnimelistCharacterData> characterCache;
     private Map<String, List<MyAnimelistCharacterData>> animeCharactersCache;
+    private Map<String, List<EpisodeNode>> episodeNodes;
 
     private MyAnimeListCache() {
         queryCache = new HashMap<>();
         infoCache = new HashMap<>();
         characterCache = new HashMap<>();
         animeCharactersCache = new HashMap<>();
+        episodeNodes = new HashMap<>();
     }
 
     public static MyAnimeListCache getInstance() {
@@ -38,6 +41,10 @@ public class MyAnimeListCache {
     }
     public void storeCharacterCache(String url, List<MyAnimelistCharacterData> data) {
         animeCharactersCache.put(url, data);
+    }
+
+    public void storeEpisodeNodesCache(String url, List<EpisodeNode> data) {
+        episodeNodes.put(url, data);
     }
 
     public MyAnimelistAnimeData getInfo(String url) {
@@ -64,6 +71,13 @@ public class MyAnimeListCache {
     public MyAnimelistCharacterData getCharacterData(String url) {
         if(characterCache.containsKey(url)) {
             return characterCache.get(url);
+        }
+        return null;
+    }
+
+    public List<EpisodeNode> getEpisodeNodes(String url) {
+        if(episodeNodes.containsKey(url)) {
+            return episodeNodes.get(url);
         }
         return null;
     }

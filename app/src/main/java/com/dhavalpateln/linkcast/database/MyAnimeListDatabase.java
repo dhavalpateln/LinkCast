@@ -5,8 +5,12 @@ import android.provider.MediaStore;
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -312,5 +316,31 @@ public class MyAnimeListDatabase {
 
         }
         return result;
+    }
+
+    public List<EpisodeNode> getEpisodeTitles(int page, String baseURL) {
+        String url = baseURL + "/episode?offset=" + (page * 100);
+
+        List<EpisodeNode> episodeNodes = MyAnimeListCache.getInstance().getEpisodeNodes(url);
+        if(episodeNodes != null) return episodeNodes;
+        episodeNodes = new ArrayList<>();
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
+            Document html = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+
+            Elements episodeElements = html.selectFirst("table.episode_list").select("tr.episode-list-data");
+
+            for(Element episodeElement: episodeElements) {
+                EpisodeNode node = new EpisodeNode(episodeElement.selectFirst("td.episode-number").text(), null);
+                node.setTitle(episodeElement.selectFirst("td.episode-title").selectFirst("a").text());
+                node.setFiller(episodeElement.text().contains("Filler"));
+                episodeNodes.add(node);
+            }
+            MyAnimeListCache.getInstance().storeEpisodeNodesCache(url, episodeNodes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return episodeNodes;
     }
 }

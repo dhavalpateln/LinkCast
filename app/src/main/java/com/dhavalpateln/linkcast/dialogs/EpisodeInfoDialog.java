@@ -15,7 +15,9 @@ import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.NotesViewHolder;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.JikanDatabase;
+import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import java.util.ArrayList;
@@ -35,23 +37,25 @@ public class EpisodeInfoDialog extends LinkCastDialog {
     private RecyclerView recyclerView;
     private List<EpisodeNode> dataList;
     private List<String> episodeRanges;
-    private String animeID;
+    //private String animeID;
     private EpisodeInfoAdapter adapter;
     private ProgressBar progressBar;
     private boolean firstExtract = true;
     private Handler uiHandler = new Handler(Looper.getMainLooper());
     private Executor executor = Executors.newCachedThreadPool();
     private int total_pages = 0;
+    private AnimeLinkData animeLinkData;
 
     @Override
     public int getContentLayout() {
         return R.layout.dialog_episode_info;
     }
 
-    public EpisodeInfoDialog(String id, int total_episodes) {
+    public EpisodeInfoDialog(AnimeLinkData animeLinkData, int total_episodes) {
         episodeRanges = new ArrayList<>();
         dataList = new ArrayList<>();
-        this.animeID = id;
+        //this.animeID = animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID);
+        this.animeLinkData = animeLinkData;
         double ceilVal = Math.ceil((total_episodes + 1.0) / 100);
         total_pages = (int) ceilVal;
     }
@@ -84,7 +88,7 @@ public class EpisodeInfoDialog extends LinkCastDialog {
         episodeRangeTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                executor.execute(new ExtractEpisodeInfo(i + 1, animeID));
+                executor.execute(new ExtractEpisodeInfo(i, animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_URL)));
             }
 
             @Override
@@ -120,11 +124,11 @@ public class EpisodeInfoDialog extends LinkCastDialog {
     private class ExtractEpisodeInfo implements Runnable {
 
         private int page;
-        private String id;
+        private String url;
 
-        public ExtractEpisodeInfo(int page, String id) {
+        public ExtractEpisodeInfo(int page, String url) {
             this.page = page;
-            this.id = id;
+            this.url = url;
         }
 
         @Override
@@ -135,8 +139,7 @@ public class EpisodeInfoDialog extends LinkCastDialog {
                 adapter.notifyDataSetChanged();
             });
 
-            List<EpisodeNode> tempDataList = new ArrayList<>();
-            int total_pages = JikanDatabase.getInstance().getEpisodeInfo(tempDataList, page, id);
+            List<EpisodeNode> tempDataList = MyAnimeListDatabase.getInstance().getEpisodeTitles(page, url);
 
             uiHandler.post(() -> {
                 dataList.addAll(tempDataList);
