@@ -331,6 +331,7 @@ public class AdvancedView extends AppCompatActivity {
         else if(requestCode == CHANGE_SOURCE_REQUEST_CODE) {
             if(resultCode == Activity.RESULT_OK) {
                 AnimeLinkData changedSourceData = (AnimeLinkData) data.getSerializableExtra(AnimeSearchActivity.RESULT_ANIMELINKDATA);
+                boolean forceResult = data.getBooleanExtra(AnimeSearchActivity.RESULT_FORCE, false);
 
                 mExecutor.execute(() -> {
                     String formattedTitle = changedSourceData.getTitle().replaceAll("\\(.*\\)", "").trim();
@@ -347,7 +348,7 @@ public class AdvancedView extends AppCompatActivity {
                     }
                     MyAnimelistAnimeData finalExactMatch = exactMatch;
                     uiHandler.post(() -> {
-                        if(finalExactMatch != null && String.valueOf(finalExactMatch.getId()).equals(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID))) {
+                        if(forceResult || (finalExactMatch != null && String.valueOf(finalExactMatch.getId()).equals(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID)))) {
                             animeData.copyFrom(changedSourceData);
                             animeData.updateAll(isAnimeMode);
                             mExecutor.execute(new ExtractAnimeData());

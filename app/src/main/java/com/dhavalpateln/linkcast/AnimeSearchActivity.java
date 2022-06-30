@@ -63,6 +63,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     public static final String INTENT_CHANGE_SOURCE = "changesource";
 
     public static final String RESULT_ANIMELINKDATA = "resultanimedata";
+    public static final String RESULT_FORCE = "resultforce";
 
 
     private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
@@ -98,42 +99,51 @@ public class AnimeSearchActivity extends AppCompatActivity {
             super(recyclerDataArrayList, mcontext);
         }
 
+        private void open(AnimeLinkData recyclerData, AnimeSearch animeSearch, boolean isLongClick) {
+            AnimeLinkData correctData = recyclerData;
+            if(animeSearch instanceof BookmarkedSearch) {
+                boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
+                        !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
+                        animeSearch.isMangeSource();
+                if(isMangaSource) correctData = StoredAnimeLinkData.getInstance().getMangaCache().get(recyclerData.getId());
+                else correctData = StoredAnimeLinkData.getInstance().getAnimeCache().get(recyclerData.getId());
+            }
+            Intent intent;
+            if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(RESULT_ANIMELINKDATA, correctData);
+                resultIntent.putExtra(RESULT_FORCE, isLongClick);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+                return;
+            }
+            else if(animeSearch.isAdvanceModeSource()) {
+                intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
+                boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
+                        !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
+                        animeSearch.isMangeSource();
+                intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !isMangaSource);
+            }
+            else if(animeSearch.isMangeSource()){
+                intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
+            }
+            else {
+                intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), correctData);
+            }
+            startActivity(intent);
+        }
+
         @Override
         public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
             super.onBindViewHolder(holder, position);
             AnimeLinkData recyclerData = this.dataArrayList.get(position);
             AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
             holder.openButton.setOnClickListener(v -> {
-                AnimeLinkData correctData = recyclerData;
-                if(animeSearch instanceof BookmarkedSearch) {
-                    boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
-                            !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                            animeSearch.isMangeSource();
-                    if(isMangaSource) correctData = StoredAnimeLinkData.getInstance().getMangaCache().get(recyclerData.getId());
-                    else correctData = StoredAnimeLinkData.getInstance().getAnimeCache().get(recyclerData.getId());
-                }
-                Intent intent;
-                if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra(RESULT_ANIMELINKDATA, correctData);
-                    setResult(Activity.RESULT_OK, resultIntent);
-                    finish();
-                    return;
-                }
-                else if(animeSearch.isAdvanceModeSource()) {
-                    intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
-                    boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
-                            !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                            animeSearch.isMangeSource();
-                    intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !isMangaSource);
-                }
-                else if(animeSearch.isMangeSource()){
-                    intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-                }
-                else {
-                    intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), correctData);
-                }
-                startActivity(intent);
+                open(recyclerData, animeSearch, false);
+            });
+            holder.openButton.setOnLongClickListener(v -> {
+                open(recyclerData, animeSearch, true);
+                return true;
             });
             if(recyclerData.getId() != null) {
                 holder.deleteButton.setVisibility(View.VISIBLE);

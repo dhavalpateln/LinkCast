@@ -50,11 +50,11 @@ public class AboutFragment extends Fragment {
         };*/
         messages = new String[] {
                 "<font color='#0A8BC5'>One</font> stop shop <font color='#0A8BC5'>for</font> <font color='#0A8BC5'>all</font> that brings joy",
-                "<font color='#0A8BC5'>Incredibly fast</font>",
-                "<font color='#0A8BC5'>Efficient</font>",
-                "<font color='#0A8BC5'>Smart</font>",
-                "<font color='#0A8BC5'>Free</font>",
-                "<font color='#0A8BC5'>No ads</font>"
+                //"<font color='#0A8BC5'>Incredibly fast</font>",
+                //"<font color='#0A8BC5'>Efficient</font>",
+                //"<font color='#0A8BC5'>Smart</font>",
+                //"<font color='#0A8BC5'>Free</font>",
+                //"<font color='#0A8BC5'>No ads</font>"
         };
         return root;
     }
