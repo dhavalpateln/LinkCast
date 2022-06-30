@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 
 public class FirebaseDBHelper {
 
-    private static DatabaseReference getAppDataRef() {
+    public static DatabaseReference getAppDataRef() {
         return FirebaseDB.getInstance().getReference("app");
     }
     public static DatabaseReference getAppVersionRef() {
@@ -54,6 +54,9 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserMangaWebExplorerLinkRef() {
         return getUserDataRef().child("mangawebexplorerlinks");
     }
+    public static DatabaseReference getUserMangaWebExplorerLinkRef(String id) {
+        return getUserDataRef().child("mangawebexplorerlinks").child(id);
+    }
     public static DatabaseReference getUserDownloadQueue() {
         return getUserDataRef().child("downloadqueue");
     }
@@ -69,6 +72,9 @@ public class FirebaseDBHelper {
     public static DatabaseReference getUserRemoteDownloadCode() {
         return getUserDataRef().child("remotecode");
     }
+    public static DatabaseReference getUserTvPlay() {
+        return getUserDataRef().child("tv");
+    }
     public static DatabaseReference getUserPiMoteDownloadQueue() {
         return getUserDownloadQueue().child("pimote");
     }
@@ -76,12 +82,21 @@ public class FirebaseDBHelper {
         return FirebaseDB.getInstance().getReference("anime_status");
     }
 
+    public static DatabaseReference getPlayBackPositionRef(String id) {
+        return getUserDataRef().child("playback").child(id);
+    }
+
+    public static DatabaseReference getNotesRef(String id) {
+        return getUserDataRef().child("notes").child(id);
+    }
+
 
     public static void removeLink(String id) {
         getUserLinkRef().child(id).setValue(null);
     }
     public static void removeAnimeLink(String id) {
-        getUserAnimeWebExplorerLinkRef().child(id).setValue(null);
+        getUserAnimeWebExplorerLinkRef(id).setValue(null);
+        getPlayBackPositionRef(id).setValue(null);
     }
 
     public static void removeMangaLink(String id) {

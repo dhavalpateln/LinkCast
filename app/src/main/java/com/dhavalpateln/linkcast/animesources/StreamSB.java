@@ -36,13 +36,19 @@ public class StreamSB extends AnimeSource {
         if(urlString.startsWith("https://dood.la/")) return false;
         if(urlString.startsWith("https://hydrax.net/")) return false;
         if(urlString.startsWith("https://goload.one/")) return false;
-
+        if(urlString.contains("https://sbplay.org/downloadembed/")) return true;
         if(urlString.contains("gogo-stream")) return false;
         if(urlString.contains(".css") || urlString.contains(".js")) return false;
         if(urlString.contains("google")) return false;
         if(urlString.contains("facebook")) return true;
         if(urlString.contains("opcharizardon.com")) return true;
         if(urlString.startsWith("https://sbplay.org/")) return false;
+        return true;
+    }
+
+    @Override
+    public boolean shouldOverrideURL(String urlString) {
+        if(urlString.contains("https://sbplay.org/downloadembed/")) return false;
         return true;
     }
 

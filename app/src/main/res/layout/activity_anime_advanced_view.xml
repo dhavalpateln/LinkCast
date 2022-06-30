@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AnimeAdvancedView">
+    tools:context=".AdvancedView">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,27 +38,29 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/anime_advanced_view_anime_image"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0">
 
             <androidx.mediarouter.app.MediaRouteButton
                 android:id="@+id/mediaRouteButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="4dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
                 android:id="@+id/advanced_options_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
+                android:onClick="showOptions"
                 android:text="OPTIONS"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:onClick="showOptions"/>
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/advanced_view_anime_title_text_view"
@@ -67,17 +69,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
                 android:textSize="18sp"
+                android:text="Title"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/advanced_view_anime_episode_num_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/advanced_view_anime_title_text_view" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -96,9 +90,12 @@
             android:id="@+id/advanced_view_status_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:padding="0dp"
             android:layout_weight="1"
             android:text="Status"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_movie" />
 
         <Button
             android:id="@+id/advanced_view_episode_progress_button"
@@ -106,17 +103,33 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="0/0"
-            style="@style/Widget.MaterialComponents.Button.TextButton">
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_eye">
         </Button>
 
         <Button
-            android:id="@+id/advanced_view_save_button"
+            android:id="@+id/anime_user_score_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="SAVE"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:onClick="save"/>
+            android:text="0"
+            android:onClick="updateScore"
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@drawable/ic_thumb">
+        </Button>
+
+        <Button
+            android:id="@+id/anime_info_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="INFO"
+            android:drawableTop="@drawable/ic_info"
+            android:background="#00000000"
+            android:textColor="#FFFFFF"
+            android:onClick="animeInfo"/>
 
     </LinearLayout>
 

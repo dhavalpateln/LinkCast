@@ -3,32 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_anime_catalog">
 
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.dhavalpateln.linkcast.ui.catalog.CatalogFragment"
-        android:label="Home"
-        tools:layout="@layout/fragment_catalog" />
-
-    <fragment
-        android:id="@+id/nav_anime_links"
-        android:name="com.dhavalpateln.linkcast.ui.home.HomeFragment"
-        android:label="@string/menu_anime_links"
-        tools:layout="@layout/fragment_home" />
-
-    <!--<fragment
         android:id="@+id/nav_anime_catalog"
-        android:name="com.dhavalpateln.linkcast.ui.home.HomeFragment"
-        android:label="Links"
-        tools:layout="@layout/fragment_home" />-->
+        android:name="com.dhavalpateln.linkcast.ui.animes.AnimeFragment"
+        android:label="@string/menu_anime_catalog" />
 
     <fragment
-        android:id="@+id/nav_manga_links"
+        android:id="@+id/nav_manga_catalog"
         android:name="com.dhavalpateln.linkcast.ui.mangas.MangaFragment"
-        android:label="@string/menu_manga_links"
+        android:label="@string/menu_manga_catalog"
         tools:layout="@layout/fragment_manga" />
+
+    <fragment
+        android:id="@+id/nav_discover"
+        android:name="com.dhavalpateln.linkcast.ui.discover.DiscoverFragment"
+        android:label="@string/menu_discover"
+        tools:layout="@layout/fragment_discover" />
+
+
     <fragment
         android:id="@+id/nav_downloads"
         android:name="com.dhavalpateln.linkcast.ui.download.DownloadFragment"
@@ -42,14 +37,20 @@
         tools:layout="@layout/fragment_status" />
 
     <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.dhavalpateln.linkcast.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
         android:id="@+id/nav_feedback"
         android:name="com.dhavalpateln.linkcast.ui.feedback.FeedbackFragment"
         android:label="@string/menu_feedback"
         tools:layout="@layout/fragment_feedback" />
 
     <fragment
-        android:id="@+id/nav_faq"
-        android:name="com.dhavalpateln.linkcast.ui.faq.FAQFragment"
-        android:label="@string/menu_faq"
-        tools:layout="@layout/fragment_faq" />
+        android:id="@+id/nav_about"
+        android:name="com.dhavalpateln.linkcast.ui.about.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
 </navigation>

@@ -8,22 +8,14 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.dhavalpateln.linkcast.animesearch.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
-import com.dhavalpateln.linkcast.dialogs.SearchDialog;
-import com.dhavalpateln.linkcast.exoplayer.ExoPlayerCastActivity;
-import com.dhavalpateln.linkcast.ui.RemoteCodeActivity;
-import com.dhavalpateln.linkcast.ui.download.DownloadFragment;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -37,7 +29,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -48,10 +39,6 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView displayNameTextView;
     private TextView emailTextView;
     private ImageView profileImageView;
-    private SearchDialog searchDialog;
-    private Set<String> mangaSourceList;
-    private Set<String> advancedSearchSourceList;
 
     private void checkAndRequestPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(
@@ -83,67 +67,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
 
         checkAndRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, 100);
         checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, 101);
 
         FirebaseDBHelper.getAppMetricsLastAccessedLinkRef().setValue(Utils.getCurrentTime());
 
-        mangaSourceList = new HashSet<>();//;
-        mangaSourceList.add("mangadex");
-        mangaSourceList.add("manga4life");
-
-        advancedSearchSourceList = new HashSet<>();
-        advancedSearchSourceList.add("animepahe.com");
-
-        searchDialog = new SearchDialog();
-        searchDialog.setSearchListener(new SearchDialog.SearchButtonClickListener() {
-            @Override
-            public void onSearchButtonClicked(String searchString, String source, boolean advancedMode) {
-                Intent searchIntent;
-                if(mangaSourceList.contains(source)) {
-                    searchIntent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-                }
-                else if(false && advancedMode && advancedSearchSourceList.contains(source)) {
-                    searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
-                }
-                else {
-                    searchIntent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                }
-                searchIntent.putExtra("search", searchString);
-                searchIntent.putExtra("source", source);
-                searchIntent.putExtra("advancedMode", advancedMode);
-                startActivity(searchIntent);
-            }
-        });
-
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                //Toast.makeText(getApplicationContext(), "Long Click", Toast.LENGTH_LONG).show();
-                Intent searchIntent = new Intent(getApplicationContext(), AnimeSearchActivity.class);
-                searchIntent.putExtra("search", "");
-                searchIntent.putExtra("source", "SAVED");
-                searchIntent.putExtra("advancedMode", true);
-                startActivity(searchIntent);
-                return false;
-            }
-        });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                searchDialog.show(getSupportFragmentManager(), "Search");
-            }
-        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_anime_links, R.id.nav_manga_links, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
-                /*R.id.nav_tools, R.id.nav_share,*/ R.id.nav_feedback, R.id.nav_faq)
+                R.id.nav_anime_catalog, R.id.nav_manga_catalog, R.id.nav_discover, /*R.id.nav_anime_catalog,*/ R.id.nav_status,
+                R.id.nav_downloads, R.id.nav_settings, R.id.nav_feedback, R.id.nav_about)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -235,23 +171,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
-
-    public void fourAnimeListener(View view) {
-        Intent intent = new Intent(this, AnimeWebExplorer.class);
-        startActivity(intent);
-        this.finish();
-    }
-
-    public void updateUserMetaData() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference ref = FirebaseDBHelper.getUserDataRef();
-        ref.child("displayName").setValue(user.getDisplayName());
-        ref.child("email").setValue(user.getEmail());
-        ref.child("phone").setValue(user.getPhoneNumber());
-        ref.child("photoURI").setValue(user.getPhotoUrl().toString());
-    }
-
-
 }

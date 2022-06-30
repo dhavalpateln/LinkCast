@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.dhavalpateln.linkcast">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
 
     <application
         android:allowBackup="true"
@@ -18,10 +28,29 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.status.StatusActivity"
+            android:name=".TVActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".myanimelist.MyAnimeListSearchActivity"
             android:exported="false" />
         <activity
-            android:name=".animesearch.AnimeSearchActivity"
+            android:name=".myanimelist.MyAnimelistCharacterActivity"
+            android:exported="false"
+            android:label="@string/title_activity_my_animelist_character"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".myanimelist.MyAnimelistInfoActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="@string/title_activity_my_animelist_info"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AnimeSearchActivity"
             android:exported="false" />
 
         <meta-data
@@ -32,17 +61,27 @@
             android:name=".exoplayer.ExoPlayerCastActivity"
             android:exported="false" />
         <activity
-            android:name=".AnimeAdvancedView"
+            android:name=".AdvancedView"
             android:configChanges="orientation"
+            android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".exoplayer.ExoPlayerActivity"
             android:configChanges="orientation|screenSize|layoutDirection"
+            android:exported="false"
+            android:supportsPictureInPicture="true"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".manga.MangaReaderActivity" />
-        <activity android:name=".MangaWebExplorer" />
-        <activity android:name=".ui.RemoteCodeActivity" />
+        <activity
+            android:name=".manga.MangaReaderActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MangaWebExplorer"
+            android:exported="false" />
+        <activity
+            android:name=".ui.RemoteCodeActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -54,12 +93,14 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".ui.feedback.CrashReportActivity" />
         <activity
             android:name=".AnimeWebExplorer"
+            android:exported="false"
             android:label="@string/title_activity_anime_web_explorer"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MALReceiverActivity">
+        <activity
+            android:name=".MALReceiverActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -68,7 +109,9 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".UpdateActivity" />
+        <activity
+            android:name=".UpdateActivity"
+            android:exported="false" />
 
         <service
             android:name=".services.FirebaseNotificationService"
@@ -79,18 +122,23 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".LauncherActivity">
+        <activity
+            android:name=".LauncherActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
+            android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MediaReceiver">
+        <activity
+            android:name=".MediaReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

@@ -1,15 +1,24 @@
 package com.dhavalpateln.linkcast;
 
+import static com.dhavalpateln.linkcast.utils.Utils.isInternetConnected;
+import static com.dhavalpateln.linkcast.utils.Utils.isNetworkAvailable;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.UiModeManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.dhavalpateln.linkcast.data.AppInfo;
 import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,7 +37,7 @@ import java.util.List;
 public class LauncherActivity extends AppCompatActivity {
 
     private final String TAG = "LAUNCHER_ACTIVITY";
-    private final String APP_VERSION = "v4.5.2";
+    private final String APP_VERSION = "v5.0.0";
 
     private static final int RC_SIGN_IN = 9001;
 
@@ -37,6 +46,8 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Log.i(TAG, "Started Activity");
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         FirebaseMessaging.getInstance().subscribeToTopic("update").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -50,42 +61,56 @@ public class LauncherActivity extends AppCompatActivity {
             }
         });
 
+        FirebaseDBHelper.getValue(FirebaseDBHelper.getAppDataRef(), dataSnapshot -> {
+            AppInfo appinfo = AppInfo.getInstance();
+            appinfo.updateData(dataSnapshot);
+
+            if(!appinfo.getApkVersion().equals(APP_VERSION)) {
+                Intent updateIntent = new Intent(LauncherActivity.this, UpdateActivity.class);
+                startActivity(updateIntent);
+            }
+            else {
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                if(firebaseUser == null) {
+                    List<AuthUI.IdpConfig> providers = Arrays.asList(
+                            new AuthUI.IdpConfig.GoogleBuilder().build());
+
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(providers)
+                                    .build(),
+                            RC_SIGN_IN);
+                }
+                else {
+                    updateUserMetaData();
+                    startMainActivity();
+                    finish();
+
+                    /*Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
+                    intent.putExtra("url", "https://rnrjz.vizcloud.digital/simple/EqPFI_8QBAro1HhYl67rC8EurFwDvr2zCw57rqk+wYMnU94US2El/br/list.m3u8#.mp4");
+                    intent.putExtra("Referer", "https://vizcloud.digital/embed/2EYDX1QZRJ1Q");
+                    intent.putExtra("saveProgress", true);
+                    intent.putExtra("id", "2022-04-25-11-30-06");
+                    intent.putExtra(ExoPlayerActivity.EPISODE_NUM, "11");
+                    startActivity(intent);*/
+                }
+            }
+        });
+
         FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), new ValueCallback() {
             @Override
             public void onValueObtained(DataSnapshot dataSnapshot) {
-                String version = dataSnapshot.getValue().toString();
-                if(!version.equals(APP_VERSION)) {
-                    Intent updateIntent = new Intent(LauncherActivity.this, UpdateActivity.class);
-                    startActivity(updateIntent);
-                }
-                else {
 
-
-                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                    if(firebaseUser == null) {
-                        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                                new AuthUI.IdpConfig.EmailBuilder().build(),
-                                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-                        startActivityForResult(
-                                AuthUI.getInstance()
-                                        .createSignInIntentBuilder()
-                                        .setAvailableProviders(providers)
-                                        .build(),
-                                RC_SIGN_IN);
-                    }
-                    else {
-                        updateUserMetaData();
-                        //throw new RuntimeException("Test Crash");
-                        //Intent mainActivity = new Intent(LauncherActivity.this, AnimeWebExplorer.class);
-                        Intent mainActivity = new Intent(LauncherActivity.this, MainActivity.class);
-                        startActivity(mainActivity);
-                        finish();
-                    }
-                }
 
             }
         });
+
+        if(!isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "No connection", Toast.LENGTH_LONG).show();
+            startMainActivity();
+            finish();
+        }
     }
 
     @Override
@@ -104,8 +129,7 @@ public class LauncherActivity extends AppCompatActivity {
                 updateUserMetaData();
 
                 //Intent start = new Intent(this, AnimeWebExplorer.class);
-                Intent start = new Intent(this, MainActivity.class);
-                startActivity(start);
+                startMainActivity();
                 LauncherActivity.this.finish();
                 // ...
             } else {
@@ -116,6 +140,17 @@ public class LauncherActivity extends AppCompatActivity {
                 // ...
             }
         }
+    }
+
+    private void startMainActivity() {
+        Intent start;
+        UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+            start = new Intent(LauncherActivity.this, TVActivity.class);
+        } else {
+            start = new Intent(LauncherActivity.this, MainActivity.class);
+        }
+        startActivity(start);
     }
 
     public void updateUserMetaData() {

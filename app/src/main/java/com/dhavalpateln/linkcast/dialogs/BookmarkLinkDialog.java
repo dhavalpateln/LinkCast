@@ -1,79 +1,82 @@
 package com.dhavalpateln.linkcast.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogFragment;
-import com.dhavalpateln.linkcast.ui.catalog.CatalogObjectFragment;
+import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
+import com.dhavalpateln.linkcast.ui.mangas.MangaFragment;
 
 import java.util.Map;
 
-public class BookmarkLinkDialog extends DialogFragment {
-    private SearchDialog.SearchButtonClickListener searchButtonClickListener;
-    private EditText bookmarkEditText;
+public class BookmarkLinkDialog extends LinkCastDialog {
+    private TextView bookmarkEditText;
     private Spinner animeStatusSpinner;
-    private String bookmarkLinkTitle;
-    private String id;
-    private Map<String, String> data;
+    private Spinner animeScoreSpinner;
+    private AnimeLinkData animeLinkData;
+    private boolean isAnime;
 
-    public BookmarkLinkDialog(String id, String bookmarkLinkTitle, String url, Map<String, String> data) {
+    public BookmarkLinkDialog(AnimeLinkData animeLinkData) {
         super();
-        this.id = id;
-        this.bookmarkLinkTitle = bookmarkLinkTitle;
-        this.data = data;
+        this.animeLinkData = animeLinkData;
+        this.isAnime = animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equalsIgnoreCase("anime");
+    }
+
+    @Override
+    public int getContentLayout() {
+        return R.layout.dialog_bookmark_edit;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.bookmark_edit_dialog, null);
-        bookmarkEditText = view.findViewById(R.id.bookmark_edit_text);
-        animeStatusSpinner = view.findViewById(R.id.bookmark_edit_spinner);
-        bookmarkEditText.setText(bookmarkLinkTitle);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
+        bookmarkEditText = view.findViewById(R.id.bookmark_title_text_view);
+        animeStatusSpinner = view.findViewById(R.id.bookmark_status_spinner);
+        animeScoreSpinner = view.findViewById(R.id.bookmark_score_spinner);
+        bookmarkEditText.setText(animeLinkData.getTitle());
 
-        ArrayAdapter<String> spinnerContent = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item);
-        for(String status: CatalogFragment.CATALOG_TYPE) {
-            if(!status.toLowerCase().equals("all")) {
-                spinnerContent.add(status);
-            }
+        ArrayAdapter<String> spinnerContent = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        String[] statusTypes;
+        if(isAnime) {
+            statusTypes = AnimeFragment.Catalogs.BASIC_TYPES;
+        }
+        else {
+            statusTypes = MangaFragment.Catalog.BASIC_TYPES;
+        }
+
+        int initialStatusSelected = 0;
+        for(int i = 0; i < statusTypes.length; i++) {
+            spinnerContent.add(statusTypes[i]);
+            if(statusTypes[i].equals(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)))  initialStatusSelected = i;
         }
         animeStatusSpinner.setAdapter(spinnerContent);
+        animeStatusSpinner.setSelection(initialStatusSelected);
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
-        view.findViewById(R.id.bookmark_edit_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("title")
-                        .setValue(bookmarkEditText.getText().toString());
-                FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(id).child("data").child("status")
-                        .setValue(animeStatusSpinner.getSelectedItem().toString());
-                BookmarkLinkDialog.this.getDialog().cancel();
-            }
+
+        ArrayAdapter<String> scoreContent = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+        animeScoreSpinner.setAdapter(scoreContent);
+        animeScoreSpinner.setSelection(Integer.valueOf(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE)));
+
+        setPositiveButton("Update", (dialog1, view1) -> {
+            animeLinkData.updateData(AnimeLinkData.DataContract.DATA_STATUS, animeStatusSpinner.getSelectedItem().toString(), true, isAnime);
+            animeLinkData.updateData(AnimeLinkData.DataContract.DATA_USER_SCORE, animeScoreSpinner.getSelectedItem().toString(), true, isAnime);
+            dialog1.dismiss();
         });
-        view.findViewById(R.id.bookmark_edit_cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BookmarkLinkDialog.this.getDialog().cancel();
-            }
-        });
-        return builder.create();
+
+        setNegativeButton("Cancel", (d,v) -> d.dismiss());
+        return dialog;
     }
 
 }

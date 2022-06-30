@@ -22,8 +22,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.407"
+        android:clipToOutline="true"
         android:background="@drawable/layout_round_corner"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/anime_score_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:background="@drawable/layout_round_corner_black_transparent"
+        app:layout_constraintBottom_toBottomOf="@id/anime_image_view"
+        app:layout_constraintEnd_toEndOf="@+id/anime_image_view" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
@@ -38,40 +50,54 @@
         <TextView
             android:id="@+id/catalog_recycler_object_text_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/catalog_recycler_object_sub_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintTop_toBottomOf="@+id/catalog_recycler_object_text_view"
+            tools:layout_editor_absoluteX="4dp" />
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="@+id/catalog_recycler_object_text_view"
-            tools:layout_editor_absoluteX="4dp">
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <Button
                 android:id="@+id/open_button_catalog_recycler"
-                android:text="OPEN"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="OPEN" />
 
             <Button
                 android:id="@+id/delete_button_catalog_recycler"
-                android:text="DELETE"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="DELETE" />
 
             <Button
                 android:id="@+id/edit_button_catalog_recycler"
-                android:text="EDIT"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:text="EDIT" />
 
         </LinearLayout>
 

@@ -31,20 +31,15 @@ import java.util.Map;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
-public class LinkDownloadManagerDialog extends DialogFragment {
-
-    private static final String LOCAL_DOWNLOAD = "Local";
-    private static final String PIMOTE_DOWNLOAD = "PiMote";
-    private static final String REMOTE_DOWNLOAD = "Remote";
+public class LinkDownloadManagerDialog extends LinkCastDialog {
 
     private DownloadManager.Request request;
     private LinkDownloadListener listener;
     private String fileName;
     private String source;
+    private String referer;
     private long downloadID;
     private EditText fileNameEditText;
-    private Spinner downloadTypeSpinner;
-    ArrayAdapter<String> spinnerAdapter;
 
     public interface LinkDownloadListener {
         void onDownloadComplete();
@@ -66,102 +61,53 @@ public class LinkDownloadManagerDialog extends DialogFragment {
         this.source = source;
         this.fileName = fileName.substring(0,1).toUpperCase() + fileName.substring(1);
         this.listener = listener;
+        this.referer = null;
+    }
+
+    public LinkDownloadManagerDialog(String source, String fileName, String referer, LinkDownloadListener listener) {
+        this.source = source;
+        this.fileName = fileName.substring(0,1).toUpperCase() + fileName.substring(1);
+        this.listener = listener;
+        this.referer = referer;
+    }
+
+    @Override
+    public int getContentLayout() {
+        return R.layout.link_download_manager_dialog;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        // Get the layout inflater
-        final LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.link_download_manager_dialog, null);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        View view = getContentView();
         fileNameEditText = view.findViewById(R.id.link_download_manager_fileName_EditText);
-        downloadTypeSpinner = view.findViewById(R.id.link_download_manager_spinner);
         fileNameEditText.setText(this.fileName);
-        spinnerAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item);
-        downloadTypeSpinner.setAdapter(spinnerAdapter);
-        spinnerAdapter.setNotifyOnChange(true);
-        spinnerAdapter.add(LOCAL_DOWNLOAD);
-        //spinnerAdapter.add(REMOTE_DOWNLOAD);
-        // Web download not available yet
 
-
-        FirebaseDBHelper.getUserWebDownloadQueueTypes().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                spinnerAdapter.add((String) dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(view);
         view.findViewById(R.id.link_download_manager_download_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String selectedDownloadType = (String) downloadTypeSpinner.getSelectedItem();
-                if(selectedDownloadType.equals(LOCAL_DOWNLOAD)) {
-                    request = new DownloadManager.Request(Uri.parse(source))
-                            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
-                            //.setDestinationUri(Uri.parse("/Network storage/RASPBERRYPI/pidisk1/" + fileName))
-                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "LinkCast/" + fileName)// Uri of the destination file
-                            .setTitle(fileName)// Title of the Download Notification
-                            .setDescription("Downloading " + fileName)// Description of the Download Notificatio
-                            .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
-                            .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
+                request = new DownloadManager.Request(Uri.parse(source))
+                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)// Visibility of the download Notification
+                        //.setDestinationUri(Uri.parse("/Network storage/RASPBERRYPI/pidisk1/" + fileName))
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "LinkCast/" + fileName)// Uri of the destination file
+                        .setTitle(fileName)// Title of the Download Notification
+                        .setDescription("Downloading " + fileName)// Description of the Download Notification
+                        .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
+                        .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
 
-                    DownloadManager downloadManager= (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+                if(referer != null) {
+                    request.addRequestHeader("Referer", referer);
+                }
 
-                    downloadID = downloadManager.enqueue(request);
-                }
-                else if(selectedDownloadType.equals(REMOTE_DOWNLOAD)) {
-                    Map<String, Object> childs = new HashMap<>();
-                    childs.put("filename", fileName);
-                    childs.put("url", source);
-                    FirebaseDBHelper.getUserRemoteDownloadQueue().push().updateChildren(childs);
-                    /*FirebaseDBHelper.getValue(FirebaseDBHelper.getUserRemoteDownloadCode(), new ValueCallback() {
-                        @Override
-                        public void onValueObtained(DataSnapshot dataSnapshot) {
-                            String code = (String) dataSnapshot.getValue();
-                            if(code != null) {
-                                FirebaseDBHelper.getRemoteDownloadQueue().child(code).push().setValue(source);
-                            }
-                        }
-                    });*/
-                }
-                else if(selectedDownloadType.equals(PIMOTE_DOWNLOAD)) {
-                    FirebaseDBHelper.getUserPiMoteDownloadQueue().push().setValue(source);
-                }
+
+                DownloadManager downloadManager= (DownloadManager) getContext().getSystemService(DOWNLOAD_SERVICE);
+
+                downloadID = downloadManager.enqueue(request);
                 LinkDownloadManagerDialog.this.getDialog().cancel();
             }
         });
-        view.findViewById(R.id.link_download_manager_cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LinkDownloadManagerDialog.this.getDialog().cancel();
-            }
-        });
-        return builder.create();
+        view.findViewById(R.id.link_download_manager_cancel_button).setOnClickListener(v -> LinkDownloadManagerDialog.this.getDialog().cancel());
+        return dialog;
     }
 }

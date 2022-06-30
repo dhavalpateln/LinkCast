@@ -1,17 +1,20 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class EmbedSitoExtractor extends AnimeScrapper {
 
     public EmbedSitoExtractor(String baseUrl) {
-        super(baseUrl);
+        super();
     }
 
     @Override
@@ -20,30 +23,29 @@ public class EmbedSitoExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String episodeUrl) throws IOException {
-        Map<String, String> result = new HashMap<>();
-        String searchUrl = episodeUrl.replace("https://embedsito.com/f/", "https://embedsito.com/api/source/");
-        String jsonSearchResultString = postHttpContent(searchUrl);
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
+            String searchUrl = episodeUrl.replace("https://embedsito.com/f/", "https://embedsito.com/api/source/");
+            String jsonSearchResultString = postHttpContent(searchUrl);
             JSONObject jsonSearchResult = new JSONObject(jsonSearchResultString);
             JSONArray episodeList = jsonSearchResult.getJSONArray("data");
             for(int i = 0; i < episodeList.length(); i++) {
                 JSONObject episode = episodeList.getJSONObject(i);
-                result.put(episode.getString("label"), episode.getString("file"));
+                VideoURLData urlData = new VideoURLData("Embed", "Embed - " + episode.getString("label"), episode.getString("file"), null);
+                result.add(urlData);
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     @Override
-    public String extractData() {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         return null;
     }
     @Override

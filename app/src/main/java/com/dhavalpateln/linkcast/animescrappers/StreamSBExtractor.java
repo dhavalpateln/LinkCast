@@ -1,22 +1,37 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
-import android.util.Log;
-import android.widget.Toast;
+import static com.dhavalpateln.linkcast.utils.Utils.hexlify;
 
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.utils.Utils;
+import android.net.Uri;
+import android.util.Log;
+
+import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StreamSBExtractor extends AnimeScrapper {
     private String TAG = "StreamSB";
+    private String displayName;
 
-    public StreamSBExtractor(String baseUrl) {
-        super(baseUrl);
+    public StreamSBExtractor() {
+        super();
+        displayName = ProvidersData.STREAMSB.NAME;
+    }
+
+    public StreamSBExtractor(String name) {
+        this.displayName = name;
     }
 
     @Override
@@ -25,88 +40,88 @@ public class StreamSBExtractor extends AnimeScrapper {
     }
 
     @Override
-    public Map<String, String> getEpisodeList(String episodeListUrl) throws IOException {
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         return null;
     }
 
     @Override
-    public Map<String, String> extractEpisodeUrls(String url) throws IOException {
-        Map<String, String> result = new HashMap<>();
-        Log.d(TAG, "StreamSB src");
-        if(url.contains("/e/")) {
-            url = url.replace("/e/", "/d/") + ".html";
-        }
-        for(int fullretry = 0; fullretry < 1; fullretry++) {
-            Log.d(TAG, url);
-            String streamsbContent = getHttpContent(url);
-            for (String streamsbLine : streamsbContent.split("\n")) {
-                streamsbLine = streamsbLine.trim();
-                if (streamsbLine.startsWith("<tr><td><a href=\"#\"")) {
-                    Log.d(TAG, "Found Table row");
-                    Pattern sbpattern = Pattern.compile("<tr><td><a href=\"#\" onclick=\"download_video\\((.*?)\\).*</a></td><td>(.*x.*?),");
-                    Matcher sbmatcher = sbpattern.matcher(streamsbLine);
-                    if (sbmatcher.find()) {
-                        String[] downloadVideoParams = sbmatcher.group(1).replace("'", "").split(",");
-                        String res = sbmatcher.group(2);
-                        String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
-                                "&hash=" + downloadVideoParams[2];
-                        Log.d(TAG, lastDownloadUrl);
-                        result.put(res, lastDownloadUrl);
+    public void extractEpisodeUrls(String url, List<VideoURLData> result) {
+        try {
+            Log.d(TAG, "StreamSB src");
+            Uri uri = Uri.parse(url);
 
-                        /*Log.d(TAG, "error: initial sleep");
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }*/
+            Pattern contentIDPattern = Pattern.compile("/e/([^?#&/.]+)");
+            Matcher matcher = contentIDPattern.matcher(url);
+
+            if(matcher.find()) {
+                String contentID = matcher.group(1);
+                String contentURL = "https://" + uri.getHost();
+                /*String sourceInfoURL = contentURL + "/sources41/616e696d646c616e696d646c7c7c"
+                        + new String(hexlify(contentID.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+                        + "7c7c616e696d646c616e696d646c7c7c73747265616d7362/616e696d646c616e696d646c7c7c363136653639366436343663363136653639366436343663376337633631366536393664363436633631366536393664363436633763376336313665363936643634366336313665363936643634366337633763373337343732363536313664373336327c7c616e696d646c616e696d646c7c7c73747265616d7362";*/
+                String sourceInfoURL = "https://sbplay2.com/sources43/7361696b6f757c7c"
+                        + new String(hexlify(contentID.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+                        + "7c7c7361696b6f757c7c73747265616d7362/7361696b6f757c7c363136653639366436343663363136653639366436343663376337633631366536393664363436633631366536393664363436633763376336313665363936643634366336313665363936643634366337633763373337343732363536313664373336327c7c7361696b6f757c7c73747265616d7362";
+
+                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(sourceInfoURL);
+                urlConnection.setRequestProperty("watchsb", "streamsb");
+                SimpleHttpClient.setBrowserUserAgent(urlConnection);
+
+                String responseStr = SimpleHttpClient.getResponse(urlConnection);
+                JSONObject response = new JSONObject(responseStr);
+
+                result.add(new VideoURLData(
+                        ProvidersData.STREAMSB.NAME,
+                        getDisplayName(),
+                        response.getJSONObject("stream_data").getString("file"),
+                        contentURL
+                ));
+                result.add(new VideoURLData(
+                        ProvidersData.STREAMSB.NAME,
+                        getDisplayName() + " - Backup",
+                        response.getJSONObject("stream_data").getString("backup"),
+                        contentURL
+                ));
 
 
-                        /* NOT WORKING */
-                        int retryCount = 0;
-                        while (retryCount > 0 && !result.containsKey(res)) {
-                            Log.d(TAG, "sleeping and trying");
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            String lastHTMLContent = getHttpContent(lastDownloadUrl);
-                            for (String lastHTMLLine : lastHTMLContent.split("\n")) {
-                                lastHTMLLine = lastHTMLLine.trim();
-                                if(lastHTMLLine.startsWith("<br><b class=\"err\">You have to wait ")) {
-                                    try {
-                                        Log.d(TAG, "Sleeping" + lastHTMLLine.split(" ")[5]);
-                                        Thread.sleep(Long.valueOf(lastHTMLLine.split(" ")[5]) * 1000);
-                                    } catch (Exception e) {
+            }
 
-                                    }
-                                }
-                                if (lastHTMLLine.startsWith("<a href=\"") && lastHTMLLine.contains("Direct Download Link")) {
-                                    result.put(res, lastHTMLLine.split("\"")[1]);
-                                    Log.d(TAG, "StreamSB - " + res + " : " + lastHTMLLine.split("\"")[1]);
-                                }
-                            }
-                            if (!result.containsKey(res)) {
-                                Log.d(TAG, "StreamSB-Error");
-                                result.put(res, lastDownloadUrl);
-                                FirebaseDBHelper.getUserDataRef().child("sberror").child(Utils.getCurrentTime()).child(res).setValue(lastHTMLContent);
-                            }
-                            retryCount--;
+            /*if (url.contains("/e/")) {
+                url = url.replace("/e/", "/d/") + ".html";
+            }
+            for (int fullretry = 0; fullretry < 1; fullretry++) {
+                Log.d(TAG, url);
+                String streamsbContent = getHttpContent(url);
+                for (String streamsbLine : streamsbContent.split("\n")) {
+                    streamsbLine = streamsbLine.trim();
+                    if (streamsbLine.startsWith("<tr><td><a href=\"#\"")) {
+                        Log.d(TAG, "Found Table row");
+                        Pattern sbpattern = Pattern.compile("<tr><td><a href=\"#\" onclick=\"download_video\\((.*?)\\).*</a></td><td>(.*x.*?),");
+                        Matcher sbmatcher = sbpattern.matcher(streamsbLine);
+                        if (sbmatcher.find()) {
+                            String[] downloadVideoParams = sbmatcher.group(1).replace("'", "").split(",");
+                            String res = sbmatcher.group(2);
+                            String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
+                                    "&hash=" + downloadVideoParams[2];
+                            Log.d(TAG, lastDownloadUrl);
+                            VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + res, lastDownloadUrl, null);
+                            result.add(urlData);
                         }
                     }
                 }
-            }
+            }*/
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
         }
-        return result;
     }
 
     @Override
-    public String extractData() {
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
         return null;
     }
 
     @Override
     public String getDisplayName() {
-        return null;
+        return this.displayName;
     }
 }
