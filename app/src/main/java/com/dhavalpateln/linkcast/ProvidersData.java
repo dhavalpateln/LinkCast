@@ -11,7 +11,7 @@ public class ProvidersData {
     }
     public static class GOGOANIME {
         public static final String NAME = "gogoanime";
-        public static final String URL = "https://gogoanime.sk";
+        public static final String URL = "https://gogoanime.lu";
     }
     public static class NINEANIME {
         public static final String NAME = "9anime";
