@@ -142,7 +142,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
         };
 
         WebSocket socket = new OkHttpClient().newWebSocket(
-                new Request.Builder().url("wss://ws1.rapid-cloud.ru/socket.io/?EIO=4&transport=websocket").build(),
+                new Request.Builder().url("wss://ws1.rapid-cloud.co/socket.io/?EIO=4&transport=websocket").build(),
                 listener
         );
         latch.await(30, TimeUnit.SECONDS);

@@ -60,7 +60,7 @@ public class StatusFragment extends Fragment {
 
         gogoanimeTest(statusContainer);
         zoroTest(statusContainer);
-        nineanimeTest(statusContainer);
+        //nineanimeTest(statusContainer);
         animepaheTest(statusContainer);
         manga4lifeTest(statusContainer);
     }
