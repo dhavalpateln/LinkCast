@@ -37,7 +37,8 @@ public class TVActivity extends AppCompatActivity {
                     return;
                 }
                 TvActionData data = snapshot.getValue(TvActionData.class);
-                Intent intent = ExoPlayerActivity.prepareIntent(getApplicationContext(), data.getId(), data.getVideoData(), data.getEpisodeNum());
+                Intent intent = ExoPlayerActivity.prepareIntent(getApplicationContext(), data.getId(), data.getVideoData(), data.getEpisodeNum(), data.getResumeOption());
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
 

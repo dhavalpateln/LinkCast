@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -25,7 +26,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
 
     private String TAG = "Gogoanime - Extractor";
 
-    public GogoAnimeExtractor() { }
+    public GogoAnimeExtractor(Context context) { }
 
     @Override
     public void configConnection(HttpURLConnection urlConnection) {

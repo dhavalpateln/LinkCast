@@ -56,6 +56,16 @@ public class AnimeLinkData implements Serializable {
         return data;
     }
 
+    private boolean isNumeric(String num) {
+        try {
+            double n = Double.parseDouble(num);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
     public String getAnimeMetaData(String key) {
         if(getData().containsKey(key))  return getData().get(key);
         switch (key) {
@@ -72,8 +82,15 @@ public class AnimeLinkData implements Serializable {
             case DataContract.DATA_LINK_TYPE:
                 return "Anime";
             default:
+                if(isNumeric(key)) {
+                    return "0";
+                }
                 return null;
         }
+    }
+
+    public void updateData(String key, String value, boolean isAnime) {
+        updateData(key, value, false, isAnime);
     }
 
     public void updateData(String key, String value, boolean updateFirebase, boolean isAnime) {

@@ -32,12 +32,22 @@ public class SettingsFragment extends Fragment {
     private TextView bookmarkDeleteValue;
     private String[] bookmarkDeleteOptions;
 
+    private LinearLayout resumeOptionView;
+    private TextView resumeOptionValue;
+    private String[] resumeOptions;
+
 
     private SharedPreferences prefs;
 
     public static class EpisodeTracking {
         public static int LAST_EPISODE = 0;
         public static int MAX_EPISODE = 1;
+    }
+
+    public static class RESUME {
+        public static int ALWAYS = 0;
+        public static int ASK = 1;
+        public static int ASK_FOR_COMPLETED = 2;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -53,6 +63,9 @@ public class SettingsFragment extends Fragment {
         bookmarkDeleteView = root.findViewById(R.id.settings_bookmark_delete);
         bookmarkDeleteValue = root.findViewById(R.id.settings_bookmark_delete_value);
 
+        resumeOptionView = root.findViewById(R.id.settings_resume_options);
+        resumeOptionValue = root.findViewById(R.id.settings_resume_value);
+
         episodeTrackingOptions = new String[] {"Last episode watched", "Max episode watched"};
         sortOrderOptions = new String[] {
                 AbstractCatalogObjectFragment.Sort.BY_NAME.name(),
@@ -63,6 +76,11 @@ public class SettingsFragment extends Fragment {
         bookmarkDeleteOptions = new String[] {
                 "Ask",
                 "Do not ask"
+        };
+        resumeOptions = new String[] {
+                "Always",
+                "Ask",
+                "Ask for completed"
         };
 
         return root;
@@ -77,6 +95,7 @@ public class SettingsFragment extends Fragment {
         episodeTrackerValue.setText(episodeTrackingOptions[prefs.getInt(SharedPrefContract.EPISODE_TRACKING, SharedPrefContract.EPISODE_TRACKING_DEFAULT)]);
         listSortOrderValue.setText(prefs.getString(SharedPrefContract.ANIME_LIST_SORT_ORDER, SharedPrefContract.ANIME_LIST_SORT_DEFAULT));
         bookmarkDeleteValue.setText(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "Ask"));
+        resumeOptionValue.setText(resumeOptions[prefs.getInt(SharedPrefContract.RESUME_BEHAVIOUR, SharedPrefContract.RESUME_BEHAVIOUR_DEFAULT)]);
 
         episodeTrackerView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -110,6 +129,19 @@ public class SettingsFragment extends Fragment {
                 editor.putString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, bookmarkDeleteOptions[which]);
                 editor.commit();
                 bookmarkDeleteValue.setText(bookmarkDeleteOptions[which]);
+                //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
+            });
+            builder.show();
+        });
+
+        resumeOptionView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Choose option");
+            builder.setItems(resumeOptions, (dialog, which) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(SharedPrefContract.RESUME_BEHAVIOUR, which);
+                editor.commit();
+                resumeOptionValue.setText(resumeOptions[which]);
                 //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
             });
             builder.show();

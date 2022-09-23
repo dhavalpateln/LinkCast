@@ -53,7 +53,7 @@ public class StreamSBExtractor extends AnimeScrapper {
             Pattern contentIDPattern = Pattern.compile("/e/([^?#&/.]+)");
             Matcher matcher = contentIDPattern.matcher(url);
 
-            if(matcher.find()) {
+            if(false) {
                 String contentID = matcher.group(1);
                 String contentURL = "https://" + uri.getHost();
                 /*String sourceInfoURL = contentURL + "/sources41/616e696d646c616e696d646c7c7c"
@@ -86,7 +86,7 @@ public class StreamSBExtractor extends AnimeScrapper {
 
             }
 
-            /*if (url.contains("/e/")) {
+            if (url.contains("/e/")) {
                 url = url.replace("/e/", "/d/") + ".html";
             }
             for (int fullretry = 0; fullretry < 1; fullretry++) {
@@ -101,7 +101,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                         if (sbmatcher.find()) {
                             String[] downloadVideoParams = sbmatcher.group(1).replace("'", "").split(",");
                             String res = sbmatcher.group(2);
-                            String lastDownloadUrl = "https://sbplay.org/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
+                            String lastDownloadUrl = "https://streamsss.net/dl?op=download_orig&id=" + downloadVideoParams[0] + "&mode=" + downloadVideoParams[1] +
                                     "&hash=" + downloadVideoParams[2];
                             Log.d(TAG, lastDownloadUrl);
                             VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + res, lastDownloadUrl, null);
@@ -109,7 +109,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                         }
                     }
                 }
-            }*/
+            }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

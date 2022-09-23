@@ -15,6 +15,7 @@ public class VideoURLData implements Serializable {
     private List<String> subtitles;
     private String linkCastID;
     private String episodeNum;
+    private boolean playable = false;
 
     public VideoURLData() { }
 
@@ -27,6 +28,10 @@ public class VideoURLData implements Serializable {
         subtitles = new ArrayList<>();
         linkCastID = null;
         if(hasReferer()) headers.put("Referer", this.referer);
+
+        if(this.url.replace("mp4upload", "").contains(".mp4") || this.url.contains(".m3u8")) {
+            this.playable = true;
+        }
     }
 
     public VideoURLData(String url) {
@@ -112,4 +117,10 @@ public class VideoURLData implements Serializable {
     public void setEpisodeNum(String episodeNum) {
         this.episodeNum = episodeNum;
     }
+
+    public boolean isPlayable() {
+        return this.playable;
+    }
+
+    public void setPlayable(boolean value) { this.playable = value; }
 }

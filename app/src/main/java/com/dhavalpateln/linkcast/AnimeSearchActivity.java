@@ -39,6 +39,7 @@ import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
+import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
 import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -223,6 +224,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         //searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
         searchers.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheSearch());
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
+        searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
 
@@ -232,6 +234,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 ProvidersData.ZORO.NAME,
                 ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
+                ProvidersData.TENSHI.NAME,
                 ProvidersData.MANGAFOURLIFE.NAME
         };
         if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
@@ -239,7 +242,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 order = new String[] {
                         ProvidersData.GOGOANIME.NAME,
                         ProvidersData.ZORO.NAME,
-                        //ProvidersData.NINEANIME.NAME,
+                        ProvidersData.TENSHI.NAME,
                         ProvidersData.ANIMEPAHE.NAME
                 };
             }

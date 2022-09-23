@@ -81,7 +81,7 @@ public class StatusFragment extends Fragment {
             boolean searchSuccess = false;
             boolean episodeListSuccess = false;
             try {
-                GogoAnimeExtractor extractor = new GogoAnimeExtractor();
+                GogoAnimeExtractor extractor = new GogoAnimeExtractor(getContext());
                 GogoAnimeSearch searcher = new GogoAnimeSearch();
 
                 List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia 5");

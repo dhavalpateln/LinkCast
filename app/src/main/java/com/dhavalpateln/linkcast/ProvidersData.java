@@ -61,4 +61,9 @@ public class ProvidersData {
     public static class RAPIDCLOUD {
         public static final String NAME = "RapidCloud";
     }
+
+    public static class TENSHI {
+        public static final String NAME = "Tenshi";
+        public static final String URL = "https://tenshi.moe";
+    }
 }

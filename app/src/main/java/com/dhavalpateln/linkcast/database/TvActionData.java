@@ -5,6 +5,7 @@ public class TvActionData {
     private String action;
     private String id;
     private String episodeNum;
+    private boolean resumeOption;
     public TvActionData() {}
 
     public VideoURLData getVideoData() {
@@ -37,5 +38,13 @@ public class TvActionData {
 
     public void setEpisodeNum(String episodeNum) {
         this.episodeNum = episodeNum;
+    }
+
+    public boolean getResumeOption() {
+        return resumeOption;
+    }
+
+    public void setResumeOption(boolean resumeOption) {
+        this.resumeOption = resumeOption;
     }
 }

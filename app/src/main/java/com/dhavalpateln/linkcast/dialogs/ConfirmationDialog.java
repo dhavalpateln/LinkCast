@@ -13,15 +13,36 @@ import androidx.annotation.Nullable;
 public class ConfirmationDialog extends LinkCastDialog {
 
     private String message;
-    private ConfirmationListener listener;
+    private ConfirmationListener confirmationListener;
+    private DenyListener denyListener;
+    private String mPositiveMessage = "Confirm";
+    private String mNegativeMessage = "Cancel";
 
     public interface ConfirmationListener {
         void onConfirm();
     }
 
-    public ConfirmationDialog(String message, ConfirmationListener listener) {
+    public interface DenyListener {
+        void onDenied();
+    }
+
+    public ConfirmationDialog(String message, ConfirmationListener confirmationListener) {
         this.message = message;
-        this.listener = listener;
+        this.confirmationListener = confirmationListener;
+    }
+
+    public ConfirmationDialog(String message, String confirmMessage, String denyMessage) {
+        this.message = message;
+        this.mPositiveMessage = confirmMessage;
+        this.mNegativeMessage = denyMessage;
+    }
+
+    public void setConfirmationListener(ConfirmationListener listener) {
+        this.confirmationListener = listener;
+    }
+
+    public void setDenyListener(DenyListener listener) {
+        this.denyListener = listener;
     }
 
     @Override
@@ -38,11 +59,16 @@ public class ConfirmationDialog extends LinkCastDialog {
         TextView msgTextView = view.findViewById(R.id.dialog_confirmation_message);
         msgTextView.setText(this.message);
 
-        setPositiveButton("Confirm", (d, v) -> {
-            this.listener.onConfirm();
+        setPositiveButton(mPositiveMessage, (d, v) -> {
+            if(this.confirmationListener != null) {
+                this.confirmationListener.onConfirm();
+            }
             d.dismiss();
         });
-        setNegativeButton("Cancel", (d, v) -> {
+        setNegativeButton(mNegativeMessage, (d, v) -> {
+            if(this.denyListener != null) {
+                this.denyListener.onDenied();
+            }
             d.dismiss();
         });
         return dialog;

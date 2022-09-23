@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.utils;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,13 +10,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SimpleHttpClient {
+
+    static {
+        CookieManager cookieManager = new CookieManager();
+        CookieHandler.setDefault(cookieManager);
+    }
 
     public static HttpURLConnection getURLConnection(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -52,6 +65,25 @@ public class SimpleHttpClient {
         } catch (IOException e) {
             return 500;
         }
+    }
+
+    public static String bypassDDOS(String domain) {
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection("https://check.ddos-guard.net/check.js");
+            String content = SimpleHttpClient.getResponse(urlConnection);
+            Pattern pattern = Pattern.compile("'(.*?)'");
+            Matcher matcher = pattern.matcher(content);
+            if(matcher.find()) {
+                String result = matcher.group(1);
+                HttpURLConnection cookieConnection = SimpleHttpClient.getURLConnection(domain + result);
+                SimpleHttpClient.getResponse(cookieConnection);
+                //Map<String, List<String>> properties = cookieConnection.getRequestProperties();
+                //Log.d("HttpClient", "");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 }

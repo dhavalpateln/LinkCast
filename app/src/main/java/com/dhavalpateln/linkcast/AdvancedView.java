@@ -33,6 +33,7 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
 import com.dhavalpateln.linkcast.database.TvActionData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
@@ -41,6 +42,7 @@ import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
+import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.dialogs.EpisodeInfoDialog;
 import com.dhavalpateln.linkcast.dialogs.EpisodeNoteDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
@@ -53,6 +55,7 @@ import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
+import com.dhavalpateln.linkcast.ui.AbstractCatalogFragment;
 import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.ui.mangas.MangaFragment;
 import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
@@ -249,9 +252,10 @@ public class AdvancedView extends AppCompatActivity {
 
         animeExtractors = new HashMap<>();
         animeExtractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
-        animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
+        animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(getApplicationContext()));
         animeExtractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
         animeExtractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
+        animeExtractors.put(ProvidersData.TENSHI.NAME, new TenshiExtractor());
 
         mangaExtractors = new HashMap<>();
         mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
@@ -362,6 +366,14 @@ public class AdvancedView extends AppCompatActivity {
         }
     }
 
+    private boolean askResume() {
+        int resumeOption = prefs.getInt(SharedPrefContract.RESUME_BEHAVIOUR, SharedPrefContract.RESUME_BEHAVIOUR_DEFAULT);
+        boolean askResumeConfirmation = (resumeOption == SettingsFragment.RESUME.ASK) ||
+                (resumeOption == SettingsFragment.RESUME.ASK_FOR_COMPLETED
+                        && animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS).equalsIgnoreCase(AnimeFragment.Catalogs.COMPLETED));
+        return  askResumeConfirmation;
+    }
+
     private void openCastDialog(VideoURLData videoURLData, String episodeNum, boolean canCast) {
         Map<String, CastDialog.OnClickListener> map = new HashMap<>();
 
@@ -390,6 +402,7 @@ public class AdvancedView extends AppCompatActivity {
                 tvActionData.setVideoData(videoURLData);
                 tvActionData.setEpisodeNum(episodeNum);
                 tvActionData.setId(animeData.getId());
+                tvActionData.setResumeOption(askResume());
                 FirebaseDBHelper.getUserTvPlay().setValue(tvActionData);
                 castDialog.close();
             }
@@ -443,24 +456,14 @@ public class AdvancedView extends AppCompatActivity {
             castPlayer.prepare();
         }
         else {
-            Intent intent = ExoPlayerActivity.prepareIntent(getApplicationContext(), animeData, videoURLData, episodeNum);
-            /*Intent intent = new Intent(getApplicationContext(), ExoPlayerActivity.class);
-            intent.putExtra("url", url);
-            intent.putExtra("saveProgress", saveProgress);
-            if(animeData.getId() != null)  intent.putExtra("id", animeData.getId());
-            if(headers != null) {
-                intent.putExtra("headers", headers);
-                if(headers.containsKey("Referer")) {
-                    intent.putExtra("Referer", headers.get("Referer"));
-                }
-            }
-
-            if(episodeNum != null) intent.putExtra(ExoPlayerActivity.EPISODE_NUM, episodeNum);
-            if(animeData.getData().containsKey(episodeNum)) {
-                intent.putExtra(ExoPlayerActivity.LAST_VIEW_POINT, animeData.getData().get(episodeNum));
-            }*/
+            Intent intent = ExoPlayerActivity.prepareIntent(
+                    getApplicationContext(),
+                    animeData,
+                    videoURLData,
+                    episodeNum,
+                    askResume()
+            );
             startActivity(intent);
-
         }
 
     }
@@ -496,7 +499,7 @@ public class AdvancedView extends AppCompatActivity {
                             @Override
                             public void onClick(AdvancedSourceSelector dialog, VideoURLData videoURLData) {
 
-                                if(videoURLData.getUrl().replace(".mp4upload", "").contains(".mp4") || videoURLData.getUrl().contains(".m3u8")) {
+                                if(videoURLData.isPlayable()) {
                                     boolean canCast = true;
                                     if(videoURLData.getTitle().toLowerCase().startsWith("xstreamcdn")) {
                                         canCast = false;
@@ -505,20 +508,10 @@ public class AdvancedView extends AppCompatActivity {
                                 }
                                 else {
                                     Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
-                                    intent.putExtra("search", animeTitleTextView.getText().toString());
-                                    if(videoURLData.getUrl().contains("sbplay")) {
-                                        intent.putExtra("source", "sbplay.org");
-                                        intent.putExtra("search", videoURLData.getUrl());
-                                    }
-                                    else {
-                                        intent.putExtra("source", "generic");
-                                        intent.putExtra("generic_url", videoURLData.getUrl());
-                                    }
-
+                                    intent.putExtra(AnimeWebExplorer.EXPLORE_URL, videoURLData.getUrl());
                                     intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, node.getEpisodeNumString());
                                     intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
                                     intent.putExtra("scrapper", getAnimeExtractor().getDisplayName());
-
                                     startActivityForResult(intent, WEB_VIEW_REQUEST_CODE);
                                 }
                                 dialog.close();
