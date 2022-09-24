@@ -28,6 +28,11 @@ public class ProvidersData {
         public static final String URL = "https://manga4life.com";
     }
 
+    public static class MANGAREADER {
+        public static final String NAME = "MangaReader";
+        public static final String URL = "https://mangareader.to";
+    }
+
     public static class MYANIMELIST {
         public static final String NAME = "myanimelist";
         public static final String URL = "https://myanimelist.net";

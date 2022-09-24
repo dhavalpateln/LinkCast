@@ -509,6 +509,7 @@ public class AdvancedView extends AppCompatActivity {
                                 else {
                                     Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
                                     intent.putExtra(AnimeWebExplorer.EXPLORE_URL, videoURLData.getUrl());
+                                    intent.putExtra(AnimeWebExplorer.EXPLORE_SOURCE, animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
                                     intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, node.getEpisodeNumString());
                                     intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
                                     intent.putExtra("scrapper", getAnimeExtractor().getDisplayName());

@@ -7,36 +7,11 @@ import java.net.URLEncoder;
 public class Animixplay extends AnimeSource {
 
     public Animixplay() {
-        this.animeSource = "animixplay.to";
-    }
-
-    @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        if (includeEpisode) {
-            return currentURL.split("animixplay.to/v1/")[1];
-        }
-        return currentURL.split("animixplay.to/v1/")[1].split("/ep")[0];
-    }
-
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return "https://animixplay.to/?q=" + URLEncoder.encode(searchTerm) + "&sengine=all";
     }
 
     @Override
     public boolean isCorrectSource(String term) {
         return term.contains("animixplay.to");
-    }
-
-    @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-        if (url.contains("/ep")) {
-            String episodeNum = url.split("/ep")[1];
-            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                    .child(id)
-                    .child("title")
-                    .setValue(title.split(" - EP")[0] + " - EP" + episodeNum);
-        }
     }
 
     @Override
@@ -62,8 +37,4 @@ public class Animixplay extends AnimeSource {
         return url.contains(".mp4") || url.contains(".m3u8");
     }
 
-    @Override
-    public boolean isAdvancedModeUrl(String url) {
-        return !url.startsWith("https://animixplay.to/?q=") && url.startsWith("https://animixplay.to/v1");
-    }
 }

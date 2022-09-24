@@ -1,30 +1,13 @@
 package com.dhavalpateln.linkcast.animesources;
 
+import android.net.Uri;
+
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 
 public class AnimePahe extends AnimeSource {
 
 
-    private String lastChecked = null;
     public AnimePahe() {
-        this.animeSource = "animepahe.com";
-    }
-
-    @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        if(searchTerm.equals("")) {
-            String webTitle = getLastTitle();
-            if(webTitle.contains("::")) {
-                webTitle = webTitle.split("::")[0];
-            }
-            return webTitle;
-        }
-        return searchTerm;
-    }
-
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return "https://animepahe.com/";
     }
 
     @Override
@@ -37,29 +20,19 @@ public class AnimePahe extends AnimeSource {
         if(term.contains("animepahe.com")) {
             return true;
         }
-        if(term.startsWith("https://animepahe.com")) {
-            lastChecked = term;
+        if(term.startsWith("https://pahe.win")) {
+            return true;
         }
         return false;
     }
 
     @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-        if (url.contains("animepahe.com")) {
-            String webTitle = getLastTitle();
-            if(webTitle.contains("::")) {
-                webTitle = webTitle.split("::")[0];
-            }
-            //String episodeNum = currentWebViewURI.split("/ep")[1];
-            FirebaseDBHelper.getUserAnimeWebExplorerLinkRef()
-                    .child(id)
-                    .child("title")
-                    .setValue(webTitle);
-        }
-    }
-
-    @Override
     public boolean containsAds(String urlString, boolean notFoundMP4, String currentWebViewURI) {
+
+        if(Uri.parse(currentWebViewURI).getHost().equalsIgnoreCase(Uri.parse(urlString).getHost())) {
+            return false;
+        }
+
         if(urlString.startsWith("https://matomo.kwik.cx")) return true;
         if(urlString.contains("kwik.cx")) return false;
         //if(urlString.endsWith(".ts")) return false;
@@ -80,19 +53,16 @@ public class AnimePahe extends AnimeSource {
     }
 
     @Override
-    public boolean isAdvancedModeUrl(String url) {
-        if(url.startsWith("https://animepahe.com/api?m=release")) return true;
-        return false; //url.startsWith("https://animepahe.com/anime/");
-    }
-
-    @Override
     public boolean isPlayable(String url) {
         //return false;
         return url.endsWith(".mp4") || url.contains(".m3u8");
     }
 
     @Override
-    public String getLastCheckedUrl() {
-        return this.lastChecked;
+    public boolean shouldOverrideURL(String url) {
+        if(Uri.parse(url).getHost().contains("kwik")) {
+            return true;
+        }
+        return false;
     }
 }

@@ -7,31 +7,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.dhavalpateln.linkcast.animesources.AnimeKisaCC;
-import com.dhavalpateln.linkcast.animesources.AnimeKisaTV;
 import com.dhavalpateln.linkcast.animesources.AnimePahe;
 import com.dhavalpateln.linkcast.animesources.AnimeSource;
-import com.dhavalpateln.linkcast.animesources.AnimeUltima;
 import com.dhavalpateln.linkcast.animesources.Animixplay;
-import com.dhavalpateln.linkcast.animesources.FourAnime;
 import com.dhavalpateln.linkcast.animesources.GenericSource;
-import com.dhavalpateln.linkcast.animesources.GogoAnime;
-import com.dhavalpateln.linkcast.animesources.KwikCX;
-import com.dhavalpateln.linkcast.animesources.NineAnime;
-import com.dhavalpateln.linkcast.animesources.StreamAni;
 import com.dhavalpateln.linkcast.animesources.StreamSB;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.dialogs.CastDialog;
-import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastState;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.database.DatabaseReference;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -39,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
-import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -49,13 +29,8 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AnimeWebExplorer extends AppCompatActivity {
 
@@ -65,6 +40,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
     public static final String RESULT_EPISODE_NUM = "episodenum";
 
     public static final String EXPLORE_URL = "explore_url";
+    public static final String EXPLORE_SOURCE = "explore_source";
 
     WebView animeExplorerWebView;
     String TAG = "AnimeExplorer";
@@ -107,23 +83,22 @@ public class AnimeWebExplorer extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ArrayList<AnimeSource> animeSources = new ArrayList<>();
-        animeSources.add(new Animixplay());
-        animeSources.add(new AnimeKisaCC());
-        animeSources.add(new AnimeKisaTV());
-        animeSources.add(new AnimePahe());
-        animeSources.add(new FourAnime());
-        animeSources.add(new NineAnime());
-        animeSources.add(new AnimeUltima());
-        animeSources.add(new StreamAni());
-        animeSources.add(new KwikCX());
-        animeSources.add(new StreamSB());
-        animeSources.add(new GogoAnime());
+        Map<String, AnimeSource> animeSources = new HashMap<>();
+        animeSources.put(ProvidersData.ANIMIXPLAY.NAME, new Animixplay());
+        animeSources.put(ProvidersData.ANIMEPAHE.NAME, new AnimePahe());
+        animeSources.put(ProvidersData.STREAMSB.NAME, new StreamSB());
 
         String exploreUrl = getIntent().getStringExtra(EXPLORE_URL);
-        for(AnimeSource source : animeSources) {
-            if(source.isCorrectSource(exploreUrl)) {
-                animeSource = source;
+        String exploreSource = getIntent().hasExtra(EXPLORE_SOURCE) ? getIntent().getStringExtra(EXPLORE_SOURCE) : "";
+        if(animeSources.containsKey(exploreSource)) {
+            animeSource = animeSources.get(exploreSource);
+        }
+        else {
+            for (Map.Entry<String, AnimeSource> entry : animeSources.entrySet()) {
+                AnimeSource source = entry.getValue();
+                if (source.isCorrectSource(exploreUrl)) {
+                    animeSource = source;
+                }
             }
         }
         if(animeSource == null) {
@@ -181,6 +156,9 @@ public class AnimeWebExplorer extends AppCompatActivity {
             if(animeSource != null) {
                 if(!animeSource.shouldOverrideURL(url)) return true;
                 // This is my website, so do not override; let my WebView load the page
+                if(url.contains("kwik")) {
+                    Toast.makeText(getApplicationContext(), "Use Download option here", Toast.LENGTH_LONG).show();
+                }
                 currentWebViewURI = url;
                 view.loadUrl(url);
                 return false;

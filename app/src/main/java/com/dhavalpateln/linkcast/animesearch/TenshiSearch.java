@@ -30,6 +30,7 @@ public class TenshiSearch extends AnimeSearch {
 
     private final String TAG = "TenshiSearch";
     private String csrfToken = "";
+    private boolean initComplete = false;
 
     public void init() {
         try {
@@ -41,13 +42,14 @@ public class TenshiSearch extends AnimeSearch {
             if(matcher.find()) {
                 csrfToken = matcher.group(1);
             }
+            initComplete = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public boolean requiresInit() {return true;}
+    public boolean requiresInit() {return !initComplete;}
 
     private HttpURLConnection getSearchURLConnection(String term) throws IOException {
         String searchUrl = ProvidersData.TENSHI.URL + "/anime/search";

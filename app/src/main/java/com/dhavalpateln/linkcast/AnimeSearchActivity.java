@@ -38,6 +38,7 @@ import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
+import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
 import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
 import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
@@ -227,15 +228,17 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
+        searchers.put(ProvidersData.MANGAREADER.NAME, new MangaReaderSearch());
 
         String[] order = new String[] {
                 //ProvidersData.ANIMEKISASITE.NAME,
                 ProvidersData.GOGOANIME.NAME,
                 ProvidersData.ZORO.NAME,
-                ProvidersData.NINEANIME.NAME,
+                //ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 ProvidersData.TENSHI.NAME,
-                ProvidersData.MANGAFOURLIFE.NAME
+                ProvidersData.MANGAFOURLIFE.NAME,
+                ProvidersData.MANGAREADER.NAME
         };
         if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
             if(getIntent().getStringExtra(INTENT_CHANGE_SOURCE).equals("anime")) {
@@ -247,7 +250,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 };
             }
             else {
-                order = new String[] {ProvidersData.MANGAFOURLIFE.NAME};
+                order = new String[] {
+                        ProvidersData.MANGAFOURLIFE.NAME,
+                        ProvidersData.MANGAREADER.NAME
+                };
             }
         }
 

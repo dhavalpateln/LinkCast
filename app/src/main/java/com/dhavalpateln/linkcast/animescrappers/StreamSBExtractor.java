@@ -13,6 +13,10 @@ import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -89,7 +93,25 @@ public class StreamSBExtractor extends AnimeScrapper {
             if (url.contains("/e/")) {
                 url = url.replace("/e/", "/d/") + ".html";
             }
-            for (int fullretry = 0; fullretry < 1; fullretry++) {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
+            Document doc = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+            Elements tableLinks = doc.selectFirst("table").select("a");
+            for(Element tableLink: tableLinks) {
+                String quality = tableLink.text().split(" ")[0];
+                String downloadMethod = tableLink.attr("onclick");
+                Pattern paramPattern = Pattern.compile("'(.*?)','(.?)','(.*?)'");
+                Matcher paramMatcher = paramPattern.matcher(downloadMethod);
+                if(paramMatcher.find()) {
+                    String downloadURL = "https://streamsss.net/dl?op=download_orig" +
+                            "&id=" + paramMatcher.group(1) +
+                            "&mode=" + paramMatcher.group(2) +
+                            "&hash=" + paramMatcher.group(3);
+                    VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + quality, downloadURL, null);
+                    result.add(urlData);
+                }
+            }
+
+            /*for (int fullretry = 0; fullretry < 1; fullretry++) {
                 Log.d(TAG, url);
                 String streamsbContent = getHttpContent(url);
                 for (String streamsbLine : streamsbContent.split("\n")) {
@@ -109,7 +131,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                         }
                     }
                 }
-            }
+            }*/
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }

@@ -13,16 +13,6 @@ public class GenericSource extends AnimeSource {
     }
 
     @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        return searchTerm;
-    }
-
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return this.baseUrl;
-    }
-
-    @Override
     public boolean isCorrectSource(String term) {
         if(term.startsWith("http")) {
             try {
@@ -34,10 +24,6 @@ public class GenericSource extends AnimeSource {
         return term.contains(this.hostname);
     }
 
-    @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-
-    }
 
     @Override
     public boolean containsAds(String urlString, boolean notFoundMP4, String currentWebViewURI) {

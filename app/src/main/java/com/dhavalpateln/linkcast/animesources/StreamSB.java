@@ -5,28 +5,15 @@ import android.net.Uri;
 public class StreamSB extends AnimeSource {
 
     public StreamSB() {
-        this.animeSource = "sbplay.org";
+
     }
 
-    @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        return searchTerm;
-    }
-
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return searchTerm;
-    }
 
     @Override
     public boolean isCorrectSource(String term) {
         return term.contains("sbplay.org") || term.contains("streamsss.net");
     }
 
-    @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-
-    }
 
     @Override
     public boolean containsAds(String urlString, boolean notFoundMP4, String currentWebViewURI) {
@@ -49,7 +36,7 @@ public class StreamSB extends AnimeSource {
 
     @Override
     public boolean shouldOverrideURL(String urlString) {
-        if(urlString.contains("https://sbplay.org/downloadembed/")) return false;
+        //if(urlString.contains("https://sbplay.org/downloadembed/")) return false;
         //if(urlString.contains("https://streamsss.net/")) return true;
         return false;
     }
