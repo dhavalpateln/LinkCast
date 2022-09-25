@@ -23,6 +23,11 @@ public class ProvidersData {
         public static final String URL = "https://animepahe.com";
     }
 
+    public static class CRUNCHYROLL {
+        public static final String NAME = "Crunchyroll";
+        public static final String URL = "https://www.crunchyroll.com";
+    }
+
     public static class MANGAFOURLIFE {
         public static final String NAME = "manga4life";
         public static final String URL = "https://manga4life.com";

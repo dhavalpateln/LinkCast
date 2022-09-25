@@ -31,6 +31,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.adapters.EpisodeGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
+import com.dhavalpateln.linkcast.animescrappers.CrunchyrollExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
@@ -256,6 +257,7 @@ public class AdvancedView extends AppCompatActivity {
         animeExtractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
         animeExtractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
         animeExtractors.put(ProvidersData.TENSHI.NAME, new TenshiExtractor());
+        animeExtractors.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollExtractor());
 
         mangaExtractors = new HashMap<>();
         mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
@@ -407,7 +409,7 @@ public class AdvancedView extends AppCompatActivity {
                 castDialog.close();
             }
         });
-        if(videoURLData.getUrl().replace("mp4upload", "").contains(".mp4")) {
+        if(videoURLData.isDownloadable()) {
             map.put("DOWNLOAD", new CastDialog.OnClickListener() {
                 @Override
                 public void onClick(CastDialog castDialog, String title, String url, Map<String, String> data) {

@@ -36,6 +36,7 @@ import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
+import com.dhavalpateln.linkcast.animesearch.CrunchyrollSearch;
 import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
@@ -227,6 +228,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
         searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
+        searchers.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollSearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
         searchers.put(ProvidersData.MANGAREADER.NAME, new MangaReaderSearch());
 
@@ -237,6 +239,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 //ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 ProvidersData.TENSHI.NAME,
+                ProvidersData.CRUNCHYROLL.NAME,
                 ProvidersData.MANGAFOURLIFE.NAME,
                 ProvidersData.MANGAREADER.NAME
         };

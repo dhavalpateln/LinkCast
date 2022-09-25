@@ -16,8 +16,13 @@ public class VideoURLData implements Serializable {
     private String linkCastID;
     private String episodeNum;
     private boolean playable = false;
+    private boolean downloadable = false;
 
-    public VideoURLData() { }
+    public VideoURLData() {
+        headers = new HashMap<>();
+        subtitles = new ArrayList<>();
+        linkCastID = null;
+    }
 
     public VideoURLData(String source, String title, String url, String referer) {
         this.source = source;
@@ -29,9 +34,8 @@ public class VideoURLData implements Serializable {
         linkCastID = null;
         if(hasReferer()) headers.put("Referer", this.referer);
 
-        if(this.url.replace("mp4upload", "").contains(".mp4") || this.url.contains(".m3u8")) {
-            this.playable = true;
-        }
+        this.playable = this.url.replace("mp4upload", "").contains(".mp4") || this.url.contains(".m3u8");
+        this.downloadable = url.replace("mp4upload", "").contains(".mp4");
     }
 
     public VideoURLData(String url) {
@@ -60,6 +64,8 @@ public class VideoURLData implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+        this.playable = this.url.replace("mp4upload", "").contains(".mp4") || this.url.contains(".m3u8");
+        this.downloadable = url.replace("mp4upload", "").contains(".mp4");
     }
 
     public String getReferer() {
@@ -123,4 +129,10 @@ public class VideoURLData implements Serializable {
     }
 
     public void setPlayable(boolean value) { this.playable = value; }
+
+    public boolean isDownloadable() {
+        return this.downloadable;
+    }
+
+    public void setDownloadable(boolean value) { this.downloadable = value; }
 }
