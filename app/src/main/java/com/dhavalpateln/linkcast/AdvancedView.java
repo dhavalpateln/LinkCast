@@ -52,6 +52,7 @@ import com.dhavalpateln.linkcast.dialogs.ViewNotesDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
+import com.dhavalpateln.linkcast.mangascrappers.MangaReader;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
@@ -261,6 +262,7 @@ public class AdvancedView extends AppCompatActivity {
 
         mangaExtractors = new HashMap<>();
         mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
+        mangaExtractors.put(ProvidersData.MANGAREADER.NAME, new MangaReader());
 
         Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
 

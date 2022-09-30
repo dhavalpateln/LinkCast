@@ -90,6 +90,10 @@ public class FirebaseDBHelper {
         return getUserDataRef().child("notes").child(id);
     }
 
+    public static DatabaseReference getUpdatesRef(String version) {
+        return FirebaseDB.getInstance().getReference("updates").child(version.replace(".", "dot"));
+    }
+
 
     public static void removeLink(String id) {
         getUserLinkRef().child(id).setValue(null);

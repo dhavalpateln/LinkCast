@@ -40,6 +40,7 @@ public class MangaReaderSearch extends AnimeSearch {
                 data.setUrl(ProvidersData.MANGAREADER.URL + mangaElement.selectFirst("a.manga-poster").attr("href"));
                 data.updateData(AnimeLinkData.DataContract.DATA_IMAGE_URL, mangaElement.selectFirst("a.manga-poster").selectFirst("img").attr("src"), false);
                 data.updateData(AnimeLinkData.DataContract.DATA_LINK_TYPE, "manga", false);
+                data.updateData(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.MANGAREADER.NAME, false);
                 result.add(data);
             }
         } catch (IOException e) {

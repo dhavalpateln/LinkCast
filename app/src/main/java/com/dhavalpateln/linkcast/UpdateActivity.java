@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -18,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -37,6 +39,7 @@ public class UpdateActivity extends AppCompatActivity {
 
     public final String TAG = "UPDATE_ACTIVITY";
     private TextView versionTextView;
+    private TextView updateTextView;
     private long downloadID;
     private ProgressDialog progressDialog;
 
@@ -55,7 +58,7 @@ public class UpdateActivity extends AppCompatActivity {
                 Cursor c = manager.query(query);
                 if(c.moveToFirst()) {
                     do {
-                        String name = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                        @SuppressLint("Range") String name = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
                         File mFile = new File(Uri.parse(name).getPath());
                         String path = mFile.getAbsolutePath();
                         Log.d("DOWNLOAD LISTENER", "file name: " + path);
@@ -105,13 +108,20 @@ public class UpdateActivity extends AppCompatActivity {
         registerReceiver(onNotificationClicked, new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED));
 
         versionTextView = findViewById(R.id.versionTextView);
+        updateTextView = findViewById(R.id.updatesTextView);
 
-        FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), new ValueCallback() {
-            @Override
-            public void onValueObtained(DataSnapshot dataSnapshot) {
-                String version = dataSnapshot.getValue().toString();
-                versionTextView.setText(version);
-            }
+        FirebaseDBHelper.getValue(FirebaseDBHelper.getAppVersionRef(), dataSnapshot -> {
+            String version = dataSnapshot.getValue().toString();
+            versionTextView.setText(version);
+            FirebaseDBHelper.getValue(FirebaseDBHelper.getUpdatesRef(version), updateSnapshot -> {
+                String html = "<ul>";
+                for(DataSnapshot updateChild: updateSnapshot.getChildren()) {
+                    String updateStr = updateChild.getValue().toString();
+                    html += "<li>" + updateStr + "</li>";
+                }
+                html += "</ul>";
+                updateTextView.setText(Html.fromHtml(html));
+            });
         });
 
     }
