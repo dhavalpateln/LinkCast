@@ -223,7 +223,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         //searchers.put("animekisa.tv", new AnimeKisaSearch());
         //searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
-        //searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
+        searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
         searchers.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheSearch());
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
         searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
@@ -236,7 +236,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 //ProvidersData.ANIMEKISASITE.NAME,
                 ProvidersData.GOGOANIME.NAME,
                 ProvidersData.ZORO.NAME,
-                //ProvidersData.NINEANIME.NAME,
+                ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 ProvidersData.TENSHI.NAME,
                 ProvidersData.CRUNCHYROLL.NAME,
@@ -248,6 +248,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 order = new String[] {
                         ProvidersData.GOGOANIME.NAME,
                         ProvidersData.ZORO.NAME,
+                        ProvidersData.NINEANIME.NAME,
                         ProvidersData.TENSHI.NAME,
                         ProvidersData.ANIMEPAHE.NAME
                 };

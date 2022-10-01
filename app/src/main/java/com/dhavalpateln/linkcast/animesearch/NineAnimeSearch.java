@@ -38,15 +38,15 @@ public class NineAnimeSearch extends AnimeSearch {
     public ArrayList<AnimeLinkData> search(String term) {
         ArrayList<AnimeLinkData> result = new ArrayList<>();
         try {
-            String searchURL = baseURL + "/filter?sort=views:desc&keyword=" + Uri.encode(term);
+            String searchURL = baseURL + "/filter?sort=most_relevance&keyword=" + Uri.encode(term);
             Log.d(TAG, "Search URL: " + searchURL);
             Document html = Jsoup.parse(getHttpContent(searchURL));
-            Elements animeLinks = html.select(".anime-list li");
+            Elements animeLinks = html.select("div.item");
             for(Element element: animeLinks) {
                 AnimeLinkData animeLinkData = new AnimeLinkData();
                 Map<String, String> animeData = new HashMap<>();
 
-                Element animeInfoElement = element.selectFirst(".name");
+                Element animeInfoElement = element.selectFirst("a.name");
 
                 animeData.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, element.getElementsByTag("img").get(0).attr("src"));
                 animeData.put(AnimeLinkData.DataContract.DATA_MODE, "advanced");
