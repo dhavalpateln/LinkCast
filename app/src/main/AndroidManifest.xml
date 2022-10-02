@@ -111,7 +111,8 @@
         </activity>
         <activity
             android:name=".UpdateActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <service
             android:name=".services.FirebaseNotificationService"

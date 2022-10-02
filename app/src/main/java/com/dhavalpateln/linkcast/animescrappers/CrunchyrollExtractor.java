@@ -99,6 +99,7 @@ public class CrunchyrollExtractor extends AnimeScrapper {
                         if(!streamObj.has("hardsub_lang") || streamObj.getString("hardsub_lang").equals("enUS")) {
                             VideoURLData videoURLData = new VideoURLData();
                             videoURLData.setPlayable(true);
+                            videoURLData.setDownloadable(false);
                             videoURLData.setUrl(streamObj.getString("url"));
                             videoURLData.setTitle(streamObj.getString("format"));
                             videoURLData.setSource(ProvidersData.CRUNCHYROLL.NAME);

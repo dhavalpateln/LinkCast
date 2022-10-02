@@ -362,7 +362,16 @@ public class AdvancedView extends AppCompatActivity {
                             mExecutor.execute(new ExtractAnimeData());
                         }
                         else {
-                            Toast.makeText(getApplicationContext(), "Does not match", Toast.LENGTH_LONG).show();
+                            ConfirmationDialog confirmationDialog = new ConfirmationDialog("Title does not match. Proceed with change?", new ConfirmationDialog.ConfirmationListener() {
+                                @Override
+                                public void onConfirm() {
+                                    animeData.copyFrom(changedSourceData);
+                                    animeData.updateAll(isAnimeMode);
+                                    mExecutor.execute(new ExtractAnimeData());
+                                }
+                            });
+                            confirmationDialog.show(getSupportFragmentManager(), "CANFIRM_CHANGE");
+                            //Toast.makeText(getApplicationContext(), "Does not match", Toast.LENGTH_LONG).show();
                         }
                     });
                 });

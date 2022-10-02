@@ -117,7 +117,7 @@ public class UpdateActivity extends AppCompatActivity {
                 String html = "<ul>";
                 for(DataSnapshot updateChild: updateSnapshot.getChildren()) {
                     String updateStr = updateChild.getValue().toString();
-                    html += "<li>" + updateStr + "</li>";
+                    html += "<li>&nbsp;" + updateStr + "</li>";
                 }
                 html += "</ul>";
                 updateTextView.setText(Html.fromHtml(html));
