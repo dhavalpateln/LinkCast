@@ -92,7 +92,7 @@ public class StreamSBExtractor extends AnimeScrapper {
             } catch (Exception e) {
                 Log.d(TAG, "Error finding stream url");
             }
-            if(!foundDirect) {
+            //if(!foundDirect) {
                 if (url.contains("/e/")) {
                     url = url.replace("/e/", "/d/") + ".html";
                 }
@@ -113,7 +113,7 @@ public class StreamSBExtractor extends AnimeScrapper {
                         result.add(urlData);
                     }
                 }
-            }
+            //}
         } catch (IOException e) {
             e.printStackTrace();
         }

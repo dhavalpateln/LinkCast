@@ -95,7 +95,9 @@ public class Utils {
     }
 
     public static byte[] extractBytes(byte[] data, int start, int end) {
-        if(start < 0 || end > data.length)  throw new IndexOutOfBoundsException("Out of bound data");
+        if(start < 0 || end > data.length)  {
+            throw new IndexOutOfBoundsException("Out of bound data");
+        }
         int length = end - start;
         byte[] result = new byte[length];
         for(int i = 0; i < length; i++) {

@@ -26,7 +26,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
 
     private String TAG = "Gogoanime - Extractor";
 
-    public GogoAnimeExtractor(Context context) { }
+    public GogoAnimeExtractor() { }
 
     @Override
     public void configConnection(HttpURLConnection urlConnection) {

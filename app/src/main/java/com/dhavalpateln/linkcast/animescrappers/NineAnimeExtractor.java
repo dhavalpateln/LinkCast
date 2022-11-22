@@ -176,7 +176,11 @@ public class NineAnimeExtractor extends AnimeScrapper {
 
                 Elements episodeElements = Jsoup.parse(responseContent.getString("result")).select("a[data-num]");
                 for(Element episodeElement: episodeElements) {
-                    result.add(new EpisodeNode(episodeElement.text(), episodeElement.attr("data-ids")));
+                    try {
+                        result.add(new EpisodeNode(episodeElement.text(), episodeElement.attr("data-ids")));
+                    } catch (Exception e) {
+                        result.add(new EpisodeNode(episodeElement.attr("data-num"), episodeElement.attr("data-ids")));
+                    }
                 }
                 Log.d(TAG, "Found " + result.size() + " episodes");
             }

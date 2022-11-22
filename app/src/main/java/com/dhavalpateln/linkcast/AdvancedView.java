@@ -254,7 +254,7 @@ public class AdvancedView extends AppCompatActivity {
 
         animeExtractors = new HashMap<>();
         animeExtractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
-        animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor(getApplicationContext()));
+        animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
         animeExtractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
         animeExtractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
         animeExtractors.put(ProvidersData.TENSHI.NAME, new TenshiExtractor());
@@ -411,6 +411,7 @@ public class AdvancedView extends AppCompatActivity {
                 }
                 FirebaseDBHelper.getUserLinkRef().updateChildren(update);*/
                 TvActionData tvActionData = new TvActionData();
+                tvActionData.setTimestamp(Utils.getCurrentTime());
                 tvActionData.setAction("Play");
                 tvActionData.setVideoData(videoURLData);
                 tvActionData.setEpisodeNum(episodeNum);

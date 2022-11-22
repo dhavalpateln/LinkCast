@@ -239,7 +239,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 ProvidersData.TENSHI.NAME,
-                ProvidersData.CRUNCHYROLL.NAME,
+                //ProvidersData.CRUNCHYROLL.NAME,
                 ProvidersData.MANGAFOURLIFE.NAME,
                 ProvidersData.MANGAREADER.NAME
         };
@@ -251,6 +251,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                         ProvidersData.NINEANIME.NAME,
                         ProvidersData.TENSHI.NAME,
                         ProvidersData.ANIMEPAHE.NAME
+                        //ProvidersData.CRUNCHYROLL.NAME
                 };
             }
             else {

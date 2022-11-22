@@ -123,6 +123,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
             Log.d("RCLOUD", Utils.bytesToString(decryptedData));
         } catch (Exception e) {
             Log.d(TAG, "Error deciphering key");
+            e.printStackTrace();
         }
         return new JSONArray(result);
     }
@@ -141,7 +142,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
 
                 Map<String, String> headers = new HashMap<>();
                 headers.put("referer", ProvidersData.ZORO.URL);
-                String sid = getSIDKey();
+                //String sid = getSIDKey();
                 //Map<String, String> captcha = CaptchaSolver.bypassCaptcha(episodeUrl, headers);
                 String contentID = episodeUrl.split("embed-6/")[1].split("\\?")[0];
 
@@ -152,7 +153,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
                         .appendPath("embed-6")
                         .appendPath("getSources")
                         .appendQueryParameter("id", contentID)
-                        .appendQueryParameter("sId", sid)
+                        //.appendQueryParameter("sId", sid)
                         //.appendQueryParameter("_token", captcha.getOrDefault("token", ""))
                         //.appendQueryParameter("_number", captcha.getOrDefault("number", ""))
                         .build();
@@ -177,11 +178,11 @@ public class RapidCloudExtractor extends AnimeScrapper {
                     for(String subtitle: subtitles) videoURLData.addSubtitle(subtitle);
                     videoURLData.setSource(ProvidersData.RAPIDCLOUD.NAME);
                     videoURLData.setTitle(this.displayName);
-                    videoURLData.addHeader("SID", sid);
+                    //videoURLData.addHeader("SID", sid);
                     result.add(videoURLData);
                 }
 
-                Log.d("Sid", sid);
+                //Log.d("Sid", sid);
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();

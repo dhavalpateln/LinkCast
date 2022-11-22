@@ -37,7 +37,7 @@ import java.util.List;
 public class LauncherActivity extends AppCompatActivity {
 
     private final String TAG = "LAUNCHER_ACTIVITY";
-    private final String APP_VERSION = "v5.0.1";
+    private final String APP_VERSION = "v5.0.3";
 
     private static final int RC_SIGN_IN = 9001;
 

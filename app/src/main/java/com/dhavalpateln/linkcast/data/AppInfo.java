@@ -25,7 +25,7 @@ public class AppInfo {
         this.apkVersion = dataSnapshot.child("version").getValue().toString();
         this.apkURL = dataSnapshot.child("link").getValue().toString();
         this.winVersion = dataSnapshot.child("webappver").getValue().toString();
-        this.winURL = dataSnapshot.child("webappurl").getValue().toString();
+        this.winURL = dataSnapshot.child("winlauncher").getValue().toString();
     }
 
     public String getApkVersion() {

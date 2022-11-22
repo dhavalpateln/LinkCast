@@ -5,6 +5,7 @@ public class TvActionData {
     private String action;
     private String id;
     private String episodeNum;
+    private String timestamp;
     private boolean resumeOption;
     public TvActionData() {}
 
@@ -46,5 +47,13 @@ public class TvActionData {
 
     public void setResumeOption(boolean resumeOption) {
         this.resumeOption = resumeOption;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }
