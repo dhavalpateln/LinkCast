@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 

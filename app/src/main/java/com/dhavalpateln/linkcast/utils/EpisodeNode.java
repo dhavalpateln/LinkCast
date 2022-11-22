@@ -4,6 +4,7 @@ public class EpisodeNode {
     private double episodeNum;
     private String episodeNumString;
     private String url;
+
     private String title;
     private EpisodeType type;
     private int season;

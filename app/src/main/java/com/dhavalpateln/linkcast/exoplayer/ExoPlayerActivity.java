@@ -26,6 +26,9 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
+import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
+import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -58,6 +61,8 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
     public static final String MEDIA_URL = "url";
     public static final String FILE_TYPE = "file_type";
     private static final String VIDEO_DATA = "videodata";
+    private static final String SHOULD_RESUME = "resume";
+    private static final String ANIME_DATA = "animedata";
 
     private final String ARG_FIRST_LOAD = "firstload";
     private final String ARG_PLAYBACK_POSITION = "position";
@@ -92,8 +97,10 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
     private ImageView fullScreenIcon;
     private boolean saveProgress = true;
     private String id = null;
+    private AnimeLinkData animeLinkData;
     private String episodeNum = null;
     private boolean firstLoad = false;
+    private boolean askResume = true;
     private boolean isTvApp = false;
     private FileTypes fileType;
     private Handler handler = new Handler();
@@ -197,6 +204,8 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
 
 
         videoURLData = (VideoURLData) getIntent().getSerializableExtra(VIDEO_DATA);
+        this.animeLinkData = (AnimeLinkData) getIntent().getSerializableExtra(ANIME_DATA);
+        askResume = getIntent().getBooleanExtra(SHOULD_RESUME, true);
 
         screenRotateButton = findViewById(R.id.exo_screen);
         findViewById(R.id.exo_skip).setOnClickListener(v -> {
@@ -370,12 +379,24 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
             firstLoad = true;
             if (id != null && episodeNum != null) {
                 FirebaseDBHelper.getValue(FirebaseDBHelper.getPlayBackPositionRef(id).child(episodeNum), dataSnapshot -> {
-                    if(dataSnapshot.getValue() != null) {
+                    if(dataSnapshot.getValue() != null && player != null) {
                         playbackPosition = Long.valueOf(dataSnapshot.getValue().toString());
-                        if(player != null) {
-                            player.seekTo(currentWindow, playbackPosition);
+                        player.seekTo(currentWindow, playbackPosition);
+                        if (askResume) {
+                            player.pause();
+                            ConfirmationDialog confirmationDialog = new ConfirmationDialog("Resume episode?", "Yes", "No");
+                            confirmationDialog.setConfirmationListener(() -> {
+                                player.play();
+                            });
+                            confirmationDialog.setDenyListener(() -> {
+                                playbackPosition = 0;
+                                player.seekTo(currentWindow, 0);
+                                player.play();
+                            });
+                            confirmationDialog.show(getSupportFragmentManager(), "RESUME_DIALOG");
                         }
                     }
+
                 });
 
                 /*AnimeLinkData animeLinkData = StoredAnimeLinkData.getInstance().getAnimeLinkData(id);
@@ -465,7 +486,7 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         return super.dispatchKeyEvent(event);
     }
 
-    public static Intent prepareIntent(Context context, AnimeLinkData animeData, VideoURLData videoURLData, String episodeNum) {
+    public static Intent prepareIntent(Context context, AnimeLinkData animeData, VideoURLData videoURLData, String episodeNum, boolean resume) {
 
         //videoURLData = new VideoURLData("animepahe", "title", "https://v.vrv.co/evs3/d6eaa21935ca301f291cddc347bf287b/assets/2fitb7a8qgywrac_,1890521.mp4,1890515.mp4,1890509.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly92LnZydi5jby9ldnMzL2Q2ZWFhMjE5MzVjYTMwMWYyOTFjZGRjMzQ3YmYyODdiL2Fzc2V0cy8yZml0YjdhOHFneXdyYWNfLDE4OTA1MjEubXA0LDE4OTA1MTUubXA0LDE4OTA1MDkubXA0LC51cmxzZXQvbWFzdGVyLm0zdTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTQ5MjkwODF9fX1dfQ__&Signature=At5k4Q8j6ULTzlJ8MKzLtSpewh~tr5FOv~mXuf7fLkmuAMv~iYX6HwYqImq3khEjGrYjCcdqqESBb8NxchXn1P7ePQORMk2sKHGowbh0UQHzS9RvwcSLL91lF3kmX98MgufRbV6glz1GbKD-yHPayzGtkdqk9bKfb~wN2hBivrmOg6ovpgfPQA1LrelvPYODnv0qBrX-RycnEwt2-iBNqBJVs9ykW-C3GEaHJlS93QvJdbph0ZVD8mw5jR0N4XMe0NEmWsCcgzYixxSIxWNzqxWAXeK2mJnjB~KG9PqJMzE0w7AFrNbmG4dwamMe9h2g~~o6xgvd6uhMMSpPao0NLw__&Key-Pair-Id=APKAJMWSQ5S7ZB3MF5VA", null);
 
@@ -475,13 +496,15 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
             intent.putExtra(EPISODE_NUM, episodeNum);
         }
         intent.putExtra(VIDEO_DATA, videoURLData);
+        intent.putExtra(ANIME_DATA, animeData);
         intent.putExtra(MEDIA_URL, videoURLData.getUrl());
+        intent.putExtra(SHOULD_RESUME, resume);
         intent.putExtra("saveProgress", true);
         if(animeData.getId() != null)  intent.putExtra("id", animeData.getId());
         return intent;
     }
 
-    public static Intent prepareIntent(Context context, String id, VideoURLData videoURLData, String episodeNum) {
+    public static Intent prepareIntent(Context context, String id, VideoURLData videoURLData, String episodeNum, boolean resume) {
 
         //videoURLData = new VideoURLData("animepahe", "title", "https://v.vrv.co/evs3/d6eaa21935ca301f291cddc347bf287b/assets/2fitb7a8qgywrac_,1890521.mp4,1890515.mp4,1890509.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly92LnZydi5jby9ldnMzL2Q2ZWFhMjE5MzVjYTMwMWYyOTFjZGRjMzQ3YmYyODdiL2Fzc2V0cy8yZml0YjdhOHFneXdyYWNfLDE4OTA1MjEubXA0LDE4OTA1MTUubXA0LDE4OTA1MDkubXA0LC51cmxzZXQvbWFzdGVyLm0zdTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTQ5MjkwODF9fX1dfQ__&Signature=At5k4Q8j6ULTzlJ8MKzLtSpewh~tr5FOv~mXuf7fLkmuAMv~iYX6HwYqImq3khEjGrYjCcdqqESBb8NxchXn1P7ePQORMk2sKHGowbh0UQHzS9RvwcSLL91lF3kmX98MgufRbV6glz1GbKD-yHPayzGtkdqk9bKfb~wN2hBivrmOg6ovpgfPQA1LrelvPYODnv0qBrX-RycnEwt2-iBNqBJVs9ykW-C3GEaHJlS93QvJdbph0ZVD8mw5jR0N4XMe0NEmWsCcgzYixxSIxWNzqxWAXeK2mJnjB~KG9PqJMzE0w7AFrNbmG4dwamMe9h2g~~o6xgvd6uhMMSpPao0NLw__&Key-Pair-Id=APKAJMWSQ5S7ZB3MF5VA", null);
 
@@ -492,6 +515,7 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         }
         intent.putExtra(VIDEO_DATA, videoURLData);
         intent.putExtra(MEDIA_URL, videoURLData.getUrl());
+        intent.putExtra(SHOULD_RESUME, resume);
         intent.putExtra("saveProgress", true);
         if(id != null)  intent.putExtra("id", id);
         return intent;

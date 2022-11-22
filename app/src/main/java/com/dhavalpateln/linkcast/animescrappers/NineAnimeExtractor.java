@@ -12,6 +12,7 @@ import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -35,10 +37,11 @@ public class NineAnimeExtractor extends AnimeScrapper {
 
     private String TAG = "NINEANIME";
     private final static String BASE64_TABLE = "c/aUAorINHBLxWTy3uRiPt8J+vjsOheFG1E0q2X9CYwDZlnmd4Kb5M6gSVzfk7pQ";
-    private final String NORMAL_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    private final static String NORMAL_TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private Map<Character, Character> tableMap;
     private String nineAnimeBaseUrl;
     private SharedPreferences prefs;
+    private final String DECRYPTION_CODE = "hlPeNwkncH0fq9so";
 
     public static final String SOURCE_PREF_KEY = "9animesource";
 
@@ -72,7 +75,8 @@ public class NineAnimeExtractor extends AnimeScrapper {
         int i = 0;
         int j = 0;
         for(int f = 0; f < text.length(); f++) {
-            j = (j + f) % 256;
+            //j = (j + f) % 256;
+            j = (j + 1) % 256;
             i = (i + mapping.get(j)) % 256;
             int temp = mapping.get(j);
             mapping.put(j, mapping.get(i));
@@ -124,10 +128,10 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return result;
     }
 
-    private String decrypt(String data, String base64Table) {
+    private String decrypt(String data, String table) {
         Map<Character, Character> tableMap = new HashMap<>();
-        for(int i = 0; i < base64Table.length(); i++) {
-            tableMap.put(base64Table.charAt(i), NORMAL_TABLE.charAt(i));
+        for(int i = 0; i < table.length(); i++) {
+            tableMap.put(table.charAt(i), NORMAL_TABLE.charAt(i));
         }
         String result = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -139,12 +143,12 @@ public class NineAnimeExtractor extends AnimeScrapper {
         return result;
     }
 
-    private String encryptURL(String url, String base64Table) {
-        return "kr1337" + encrypt(getCipher("kr1337", Uri.encode(url)), base64Table);
+    private String encryptURL(String url, String key) {
+        return encrypt(getCipher(key, Uri.encode(url)), NORMAL_TABLE);
     }
 
-    private String decryptURL(String url, int length) {
-        return Uri.decode(getCipher(url.substring(0, length), decrypt(url.substring(length), BASE64_TABLE)));
+    private String decryptURL(String url, String secret) {
+        return Uri.decode(getCipher(secret, decrypt(url, NORMAL_TABLE)));
     }
 
     @Override
@@ -157,24 +161,27 @@ public class NineAnimeExtractor extends AnimeScrapper {
         updateBaseUrl();
         List<EpisodeNode> result = new ArrayList<>();
         try {
-            Pattern slugPattern = Pattern.compile("/watch/[^&?/]+\\.(.*?)$");
-            Matcher slugMatcher = slugPattern.matcher(episodeListUrl);
-            if(slugMatcher.find()) {
-                String slug = slugMatcher.group(1);
-                Uri uri = new Uri.Builder()
-                        .appendQueryParameter("id", slug)
-                        .appendQueryParameter("vrf", encryptURL(slug, BASE64_TABLE))
-                        .build();
-
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(episodeListUrl);
+            if(SimpleHttpClient.getResponseCode(urlConnection) == 301) {
+                episodeListUrl = urlConnection.getHeaderField("Location").replace("http://", "https://");
+                urlConnection = SimpleHttpClient.getURLConnection(episodeListUrl);
+            }
+            String urlContent = SimpleHttpClient.getResponse(urlConnection);
+            Pattern contentIDPattern = Pattern.compile("data-id=\"(.+?)\"");
+            Matcher contentIDMatcher = contentIDPattern.matcher(urlContent);
+            if(contentIDMatcher.find()) {
+                String contentID = contentIDMatcher.group(1);
                 JSONObject responseContent = new JSONObject(getHttpContent(
-                        nineAnimeBaseUrl + "/ajax/anime/servers" + uri.toString()));
+                        nineAnimeBaseUrl + "/ajax/episode/list/" + contentID));
 
-                Document html = Jsoup.parse(responseContent.getString("html"));
-                Elements episodes = html.select("a[title][data-sources][data-base]");
-                for(Element element: episodes) {
-                    result.add(new EpisodeNode(element.attr("data-base"), element.toString()));
+                Elements episodeElements = Jsoup.parse(responseContent.getString("result")).select("a[data-num]");
+                for(Element episodeElement: episodeElements) {
+                    try {
+                        result.add(new EpisodeNode(episodeElement.text(), episodeElement.attr("data-ids")));
+                    } catch (Exception e) {
+                        result.add(new EpisodeNode(episodeElement.attr("data-num"), episodeElement.attr("data-ids")));
+                    }
                 }
-
                 Log.d(TAG, "Found " + result.size() + " episodes");
             }
         } catch (Exception e) {
@@ -206,45 +213,47 @@ public class NineAnimeExtractor extends AnimeScrapper {
     }
 
     @Override
-    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
+    public void extractEpisodeUrls(String data, List<VideoURLData> result) {
         updateBaseUrl();
         try {
-            Document doc = Jsoup.parse(episodeUrl);
-            JSONObject dataSources = new JSONObject(doc.getElementsByTag("a").get(0).attr("data-sources"));
-            Iterator<String> iter = dataSources.keys();
-            while(iter.hasNext()) {
-                String dataSource = iter.next();
-                String dataHash = dataSources.getString(dataSource);
+            JSONObject response = new JSONObject(
+                    getHttpContent(nineAnimeBaseUrl + "/ajax/server/list/" + data)
+            );
+            Document doc = Jsoup.parse(response.getString("result"));
 
-                JSONObject response = new JSONObject(
-                        getHttpContent(nineAnimeBaseUrl + "/ajax/anime/episode?id=" + Uri.encode(dataHash))
-                );
+            for(Element contentTypeContainer: doc.select("div[data-type]")) {
+                for(Element server: contentTypeContainer.select("ul > li[data-sv-id]")) {
+                    String url = decryptURL(new JSONObject(SimpleHttpClient.getResponse(
+                            SimpleHttpClient.getURLConnection(nineAnimeBaseUrl + "/ajax/server/" + server.attr("data-link-id")))
+                    ).getJSONObject("result").getString("url"), DECRYPTION_CODE);
 
-                String url = decryptURL(response.getString("url"), 6);
-                AnimeScrapper extractor;
-                try {
-                    switch (dataSource) {
-                        case "41": // VIDSTREAM
-                            extractor = new VidStreamExtractor();
-                            extractor.extractEpisodeUrls(url, result);
-                            break;
-                        case "28": // MCLOUD
-                            extractor = new MCloudExtractor();
-                            extractor.extractEpisodeUrls(url, result);
-                            break;
-                        case "43":
-                            break;
-                        case "40": // STREAMTAPE
-                            extractor = new StreamTapeExtractor();
-                            extractor.extractEpisodeUrls(url, result);
-                            break;
-                        case "35":
-                            break;
-                        default:
-                            break;
+                    try {
+                        Log.d(TAG, url);
+                        AnimeScrapper extractor;
+                        switch (server.attr("data-sv-id")) {
+                            case "41": // VIDSTREAM
+                                extractor = new VidStreamExtractor();
+                                extractor.extractEpisodeUrls(url, result);
+                                break;
+                            case "28": // MCLOUD
+                                extractor = new MCloudExtractor();
+                                extractor.extractEpisodeUrls(url, result);
+                                break;
+                            case "43":
+                                break;
+                            case "40": // STREAMTAPE
+                                extractor = new StreamTapeExtractor();
+                                extractor.extractEpisodeUrls(url, result);
+                                break;
+                            case "35":
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+
                 }
             }
         } catch (JSONException | IOException e) {

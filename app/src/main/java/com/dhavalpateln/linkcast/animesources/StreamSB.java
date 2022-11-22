@@ -5,34 +5,22 @@ import android.net.Uri;
 public class StreamSB extends AnimeSource {
 
     public StreamSB() {
-        this.animeSource = "sbplay.org";
+
     }
 
-    @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        return searchTerm;
-    }
-
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return searchTerm;
-    }
 
     @Override
     public boolean isCorrectSource(String term) {
-        return term.contains("sbplay.org");
+        return term.contains("sbplay.org") || term.contains("streamsss.net");
     }
 
-    @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-
-    }
 
     @Override
     public boolean containsAds(String urlString, boolean notFoundMP4, String currentWebViewURI) {
         if(urlString.contains(".mp4") && notFoundMP4) return false;
         if(urlString.contains(".m3u8") && notFoundMP4) return false;
         if(urlString.startsWith("https://streamani.net/")) return false;
+        if(urlString.startsWith("https://streamsss.net/")) return false;
         if(urlString.startsWith("https://dood.la/")) return false;
         if(urlString.startsWith("https://hydrax.net/")) return false;
         if(urlString.startsWith("https://goload.one/")) return false;
@@ -48,8 +36,9 @@ public class StreamSB extends AnimeSource {
 
     @Override
     public boolean shouldOverrideURL(String urlString) {
-        if(urlString.contains("https://sbplay.org/downloadembed/")) return false;
-        return true;
+        //if(urlString.contains("https://sbplay.org/downloadembed/")) return false;
+        //if(urlString.contains("https://streamsss.net/")) return true;
+        return false;
     }
 
     @Override

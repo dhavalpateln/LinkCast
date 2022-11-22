@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,8 +21,13 @@ import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
+import com.dhavalpateln.linkcast.animescrappers.CrunchyrollExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
+import com.dhavalpateln.linkcast.animesearch.CrunchyrollSearch;
+import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
+import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
@@ -32,6 +38,7 @@ import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
 import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
+import com.dhavalpateln.linkcast.mangascrappers.MangaReader;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
@@ -44,8 +51,9 @@ import java.util.concurrent.Executors;
 
 public class StatusFragment extends Fragment {
 
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor = Executors.newCachedThreadPool();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
+    private Context context;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -54,15 +62,75 @@ public class StatusFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         LinearLayout statusContainer = view.findViewById(R.id.status_container_linear_layout);
 
-        gogoanimeTest(statusContainer);
-        zoroTest(statusContainer);
-        nineanimeTest(statusContainer);
-        animepaheTest(statusContainer);
-        manga4lifeTest(statusContainer);
+        //gogoanimeTest(statusContainer);
+        //zoroTest(statusContainer);
+        //nineanimeTest(statusContainer);
+        //animepaheTest(statusContainer);
+        //manga4lifeTest(statusContainer);
+
+        genericTest(statusContainer, new GogoAnimeSearch(), new GogoAnimeExtractor());
+        genericTest(statusContainer, new ZoroSearch(), new ZoroExtractor());
+        genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
+        genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
+        genericTest(statusContainer, new AnimePaheSearch(), new AnimePaheExtractor());
+        genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
+
+        genericTest(statusContainer, new MangaReaderSearch(), new MangaReader());
+        genericTest(statusContainer, new MangaFourLifeSearch(), new MangaFourLife());
+    }
+
+    private void genericTest(LinearLayout container, AnimeSearch searcher, AnimeScrapper extractor) {
+        ConstraintLayout status = generateStatusView(extractor.getDisplayName());
+        container.addView(status);
+        executor.execute(() -> {
+            try {
+                boolean successTest = false;
+                if (searcher.requiresInit()) searcher.init();
+                List<AnimeLinkData> searchResult = searcher.search("hero academia");
+                if (!searchResult.isEmpty()) {
+                    List<EpisodeNode> episodes = extractor.extractData(searchResult.get(0));
+                    if (!episodes.isEmpty()) {
+                        List<VideoURLData> links = new ArrayList<>();
+                        extractor.extractEpisodeUrls(episodes.get(episodes.size() - 1).getUrl(), links);
+                        successTest = !links.isEmpty();
+                    }
+                }
+                boolean finalSuccessTest = successTest;
+                uiHandler.post(() -> markStatus(status, finalSuccessTest));
+            } catch (Exception e) {
+                e.printStackTrace();
+                uiHandler.post(() -> markStatus(status, false));
+            }
+        });
+    }
+
+    private void genericTest(LinearLayout container, AnimeSearch searcher, MangaScrapper extractor) {
+        ConstraintLayout status = generateStatusView(extractor.getDisplayName());
+        container.addView(status);
+        executor.execute(() -> {
+            boolean successTest = false;
+            if(searcher.requiresInit()) searcher.init();
+            List<AnimeLinkData> searchResult = searcher.search("hero academia");
+            if(!searchResult.isEmpty()) {
+                List<EpisodeNode> chapters = extractor.getChapters(searchResult.get(0).getUrl());
+                if(!chapters.isEmpty()) {
+                    List<String> pages = extractor.getPages(chapters.get(0).getUrl());
+                    successTest = !pages.isEmpty();
+                }
+            }
+            boolean finalSuccessTest = successTest;
+            uiHandler.post(() -> markStatus(status, finalSuccessTest));
+        });
     }
 
     private void gogoanimeTest(LinearLayout container) {

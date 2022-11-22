@@ -11,21 +11,31 @@ public class ProvidersData {
     }
     public static class GOGOANIME {
         public static final String NAME = "gogoanime";
-        public static final String URL = "https://gogoanime.sk";
+        public static final String URL = "https://gogoanime.lu";
     }
     public static class NINEANIME {
         public static final String NAME = "9anime";
-        public static final String URL = "https://9anime.to";
-        public static final String[] ALTERNATE_URLS = {"https://9anime.id", "https://9anime.to"};
+        public static final String URL = "https://9anime.pl";
+        public static final String[] ALTERNATE_URLS = {"https://9anime.id", "https://9anime.pl"};
     }
     public static class ANIMEPAHE {
         public static final String NAME = "animepahe";
         public static final String URL = "https://animepahe.com";
     }
 
+    public static class CRUNCHYROLL {
+        public static final String NAME = "Crunchyroll";
+        public static final String URL = "https://www.crunchyroll.com";
+    }
+
     public static class MANGAFOURLIFE {
         public static final String NAME = "manga4life";
         public static final String URL = "https://manga4life.com";
+    }
+
+    public static class MANGAREADER {
+        public static final String NAME = "MangaReader";
+        public static final String URL = "https://mangareader.to";
     }
 
     public static class MYANIMELIST {
@@ -60,5 +70,10 @@ public class ProvidersData {
 
     public static class RAPIDCLOUD {
         public static final String NAME = "RapidCloud";
+    }
+
+    public static class TENSHI {
+        public static final String NAME = "Tenshi";
+        public static final String URL = "https://tenshi.moe";
     }
 }

@@ -9,9 +9,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:padding="20dp"
         android:gravity="center"
         android:orientation="vertical">
         <ImageView
@@ -21,13 +21,45 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LinkCast"/>
+            android:layout_marginTop="8dp"
+            android:text="L i n k C a s t"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary" />
+
         <TextView
             android:id="@+id/versionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Obtaining latest version ..."/>
     </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="15dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:text="What's New?"/>
+            <TextView
+                android:id="@+id/updatesTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,16 +73,16 @@
             android:id="@+id/copyAPKLinkButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_red_light"
-            android:text="Copy APK Link"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:text="Copy Link"
             android:onClick="copyLink"
             />
         <Button
             android:id="@+id/downloadAPKButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/holo_red_light"
-            android:text="Download APK"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:text="Download"
             android:onClick="download"
             />
 

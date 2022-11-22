@@ -2,10 +2,16 @@ package com.dhavalpateln.linkcast.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -72,6 +78,30 @@ public class Utils {
         for ( int j = 0; j < hexString.length(); j+=2 ) {
             result[j / 2] = (byte) ((Character.digit(hexString.charAt(j), 16) << 4)
                     + Character.digit(hexString.charAt(j+1), 16));
+        }
+        return result;
+    }
+
+    public static byte[] stringToBytes(String data) {
+        return data.getBytes(Charset.forName("UTF-8"));
+    }
+    public static String bytesToString(byte[] data) {
+        return new String(data, StandardCharsets.UTF_8);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static byte[] b64decode(String data) {
+        return Base64.getDecoder().decode(data);
+    }
+
+    public static byte[] extractBytes(byte[] data, int start, int end) {
+        if(start < 0 || end > data.length)  {
+            throw new IndexOutOfBoundsException("Out of bound data");
+        }
+        int length = end - start;
+        byte[] result = new byte[length];
+        for(int i = 0; i < length; i++) {
+            result[i] = data[start + i];
         }
         return result;
     }

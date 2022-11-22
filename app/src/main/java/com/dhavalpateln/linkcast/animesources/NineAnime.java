@@ -5,28 +5,15 @@ import java.net.URLEncoder;
 public class NineAnime extends AnimeSource {
 
     public NineAnime() {
-        this.animeSource = "9anime.to";
+
     }
 
-    @Override
-    public String getAnimeTitle(String currentURL, String searchTerm, boolean includeEpisode) {
-        return null;
-    }
 
-    @Override
-    public String getSearchURL(String searchTerm) {
-        return "https://9anime.to/";// + URLEncoder.encode(searchTerm);
-    }
 
     @Override
     public boolean isCorrectSource(String term) {
         if(term.startsWith("http") && !term.startsWith("https://9anime.to/")) return false;
         return term.contains("9anime.to");
-    }
-
-    @Override
-    public void updateBookmarkPage(String url, String id, String title) {
-
     }
 
     @Override
