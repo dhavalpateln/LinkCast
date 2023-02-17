@@ -551,7 +551,6 @@ public class AdvancedView extends AppCompatActivity {
         }
     }
 
-
     private class ExtractAnimeData implements Runnable {
 
         @Override

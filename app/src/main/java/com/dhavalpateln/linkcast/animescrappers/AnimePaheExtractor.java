@@ -12,6 +12,10 @@ import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -57,18 +61,35 @@ public class AnimePaheExtractor extends AnimeScrapper{
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
-            String episodeInfoUrl = null;
+            //String episodeInfoUrl = null;
             String[] episdoeUrlSplit = episodeUrl.split(":::");
             String pageUrl = episdoeUrlSplit[0];
             int episodeNum = Integer.valueOf(episdoeUrlSplit[1]);
             JSONArray sessionData = new JSONObject(getHttpContent(pageUrl)).getJSONArray("data");
+            String pageContent = null;
             for(int dataNum = 0; dataNum < sessionData.length(); dataNum++) {
                 JSONObject episodeSession = sessionData.getJSONObject(dataNum);
                 if(episodeSession.getInt("episode") == episodeNum) {
-                    episodeInfoUrl = "https://animepahe.com/api?m=links&id=" + episodeSession.getInt("anime_id") + "&session=" + episodeSession.getString("session");
+                    //episodeInfoUrl = "https://animepahe.com/api?m=links&id=" + episodeSession.getInt("anime_id") + "&session=" + episodeSession.getString("session");
+                    pageContent = getHttpContent("https://animepahe.ru/play/" + pageUrl.split("&")[1].split("=")[1] + "/" + episodeSession.getString("session"));
                 }
             }
-            if(episodeInfoUrl != null) {
+
+            if(pageContent != null) {
+                Document doc = Jsoup.parse(pageContent);
+                Elements downloadLinks = doc.selectFirst("div#pickDownload").select("a");
+                for(Element downloadLink: downloadLinks) {
+                    VideoURLData videoURLData = new VideoURLData(
+                            downloadLink.text(),
+                            downloadLink.text(),
+                            downloadLink.attr("href"),
+                            "https://kwik.cx/"
+                    );
+                    result.add(videoURLData);
+                }
+            }
+
+            /*if(episodeInfoUrl != null) {
                 JSONArray episodeUrlList = new JSONObject(getHttpContent(episodeInfoUrl)).getJSONArray("data");
                 for(int i = 0; i < episodeUrlList.length(); i++) {
                     JSONObject episodeInfo = episodeUrlList.getJSONObject(i);
@@ -81,7 +102,7 @@ public class AnimePaheExtractor extends AnimeScrapper{
                         Log.d(TAG, fansub + " - " + res + " : " + kwikUrl);
                     }
                 }
-            }
+            }*/
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }

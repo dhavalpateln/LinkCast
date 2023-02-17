@@ -80,10 +80,10 @@ public class StatusFragment extends Fragment {
 
         genericTest(statusContainer, new GogoAnimeSearch(), new GogoAnimeExtractor());
         genericTest(statusContainer, new ZoroSearch(), new ZoroExtractor());
-        genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
-        genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
+        //genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
+        //genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
         genericTest(statusContainer, new AnimePaheSearch(), new AnimePaheExtractor());
-        genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
+        //genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
 
         genericTest(statusContainer, new MangaReaderSearch(), new MangaReader());
         genericTest(statusContainer, new MangaFourLifeSearch(), new MangaFourLife());

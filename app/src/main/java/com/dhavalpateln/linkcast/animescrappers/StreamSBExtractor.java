@@ -98,19 +98,23 @@ public class StreamSBExtractor extends AnimeScrapper {
                 }
                 HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
                 Document doc = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
-                Elements tableLinks = doc.selectFirst("table").select("a");
-                for (Element tableLink : tableLinks) {
-                    String quality = tableLink.text().split(" ")[0];
-                    String downloadMethod = tableLink.attr("onclick");
-                    Pattern paramPattern = Pattern.compile("'(.*?)','(.?)','(.*?)'");
-                    Matcher paramMatcher = paramPattern.matcher(downloadMethod);
-                    if (paramMatcher.find()) {
-                        String downloadURL = "https://streamsss.net/dl?op=download_orig" +
-                                "&id=" + paramMatcher.group(1) +
-                                "&mode=" + paramMatcher.group(2) +
-                                "&hash=" + paramMatcher.group(3);
-                        VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + quality, downloadURL, null);
-                        result.add(urlData);
+                Elements divLinks = doc.select("div[onclick]");
+                for (Element divLink : divLinks) {
+                    try {
+                        String quality = divLink.text().split(" ")[0];
+                        String downloadMethod = divLink.attr("onclick");
+                        Pattern paramPattern = Pattern.compile("'(.*?)','(.?)','(.*?)'");
+                        Matcher paramMatcher = paramPattern.matcher(downloadMethod);
+                        if (paramMatcher.find()) {
+                            String downloadURL = "https://streamsss.net/dl?op=download_orig" +
+                                    "&id=" + paramMatcher.group(1) +
+                                    "&mode=" + paramMatcher.group(2) +
+                                    "&hash=" + paramMatcher.group(3);
+                            VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + quality, downloadURL, null);
+                            result.add(urlData);
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "Error in fetching stream SB web view mode url");
                     }
                 }
             //}
