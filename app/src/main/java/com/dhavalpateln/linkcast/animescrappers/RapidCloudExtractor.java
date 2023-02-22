@@ -45,7 +45,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
 
     private String displayName;
     private final static String SID_ENDPOINT = "https://api.enime.moe/tool/rapid-cloud/server-id";
-    private final static String SALT_SECRET_ENDPOINT = "https://raw.githubusercontent.com/consumet/rapidclown/main/key.txt";
+    private final static String SALT_SECRET_ENDPOINT = "https://raw.githubusercontent.com/enimax-anime/key/e6/key.txt";
 
     private static String SID_KEY = null;
     private static String SALT_KEY = null;

@@ -36,7 +36,7 @@ public class CrunchyrollSearch extends AnimeSearch {
             List<JSONObject> searchResult = searcher.search(term);
             for(JSONObject anime: searchResult) {
                 AnimeLinkData animeLinkData = new AnimeLinkData();
-                animeLinkData.setUrl(anime.getString("link"));
+                animeLinkData.setUrl(anime.getString("link") + ":::" + anime.getString("etp_guid"));
                 animeLinkData.setTitle(anime.getString("name"));
                 animeLinkData.updateData(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.CRUNCHYROLL.NAME, true);
                 animeLinkData.updateData(AnimeLinkData.DataContract.DATA_IMAGE_URL, anime.getString("img").replace("small", "full"), true);

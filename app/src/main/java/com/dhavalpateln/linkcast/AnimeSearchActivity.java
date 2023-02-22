@@ -228,7 +228,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
         //searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
         //searchers.put("animixplay.to", new AnimixPlaySearch());
-        //searchers.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollSearch());
+        searchers.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollSearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
         searchers.put(ProvidersData.MANGAREADER.NAME, new MangaReaderSearch());
 
@@ -239,7 +239,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 //ProvidersData.NINEANIME.NAME,
                 ProvidersData.ANIMEPAHE.NAME,
                 //ProvidersData.TENSHI.NAME,
-                //ProvidersData.CRUNCHYROLL.NAME,
+                ProvidersData.CRUNCHYROLL.NAME,
                 ProvidersData.MANGAFOURLIFE.NAME,
                 ProvidersData.MANGAREADER.NAME
         };
@@ -250,8 +250,8 @@ public class AnimeSearchActivity extends AppCompatActivity {
                         ProvidersData.ZORO.NAME,
                         //ProvidersData.NINEANIME.NAME,
                         //ProvidersData.TENSHI.NAME,
-                        ProvidersData.ANIMEPAHE.NAME
-                        //ProvidersData.CRUNCHYROLL.NAME
+                        ProvidersData.ANIMEPAHE.NAME,
+                        ProvidersData.CRUNCHYROLL.NAME
                 };
             }
             else {
