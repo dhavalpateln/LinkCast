@@ -1,11 +1,9 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.utils;
 
 import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-
-import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

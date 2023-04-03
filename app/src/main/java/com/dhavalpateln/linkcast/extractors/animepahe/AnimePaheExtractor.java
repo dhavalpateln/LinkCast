@@ -1,7 +1,6 @@
 package com.dhavalpateln.linkcast.extractors.animepahe;
 
 import com.dhavalpateln.linkcast.ProvidersData;
-import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
