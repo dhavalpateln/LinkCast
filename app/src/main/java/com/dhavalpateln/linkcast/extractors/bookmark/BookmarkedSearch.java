@@ -1,12 +1,14 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.bookmark;
 
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class BookmarkedSearch extends AnimeSearch {
+public class BookmarkedSearch extends AnimeMangaSearch {
 
     private ArrayList<AnimeLinkData> data;
     private boolean mangaLoaded = false;
@@ -46,12 +48,12 @@ public class BookmarkedSearch extends AnimeSearch {
     }
 
     @Override
-    public String getName() {
-        return "Bookmarked";
+    public boolean hasQuickSearch() {
+        return true;
     }
 
     @Override
-    public boolean hasQuickSearch() {
-        return true;
+    public String getDisplayName() {
+        return "Bookmarked";
     }
 }

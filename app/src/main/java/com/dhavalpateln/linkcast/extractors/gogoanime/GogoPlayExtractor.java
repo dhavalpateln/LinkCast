@@ -1,12 +1,16 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.gogoanime;
 
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
@@ -37,9 +41,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import androidx.annotation.RequiresApi;
-
-public class GogoPlayExtractor extends AnimeScrapper {
+public class GogoPlayExtractor extends AnimeExtractor {
     private String TAG = "GogoPlay";
 
     private class GogoAnimeKeys {
@@ -82,7 +84,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
         byte[] encryptedData = cipher.doFinal(data);
         byte[] bencoded = new byte[0];
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             bencoded = Base64.getEncoder().encode(encryptedData);
         }
         return new String(bencoded, StandardCharsets.UTF_8);
@@ -100,7 +102,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
         cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
 
         byte[] bdecoded = new byte[0];
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             bdecoded = Base64.getDecoder().decode(data);
         }
         byte[] decryptedData = cipher.doFinal(bdecoded);
@@ -161,7 +163,7 @@ public class GogoPlayExtractor extends AnimeScrapper {
 
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 Uri uri = Uri.parse(episodeUrl);
                 String hostName = "https://" + uri.getHost();

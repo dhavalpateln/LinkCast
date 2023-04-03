@@ -1,12 +1,10 @@
-package com.dhavalpateln.linkcast.animesources;
+package com.dhavalpateln.linkcast.extractors.animixplay;
 
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.extractors.SourceNavigator;
 
-import java.net.URLEncoder;
+public class AnimixplayNavigator extends SourceNavigator {
 
-public class Animixplay extends AnimeSource {
-
-    public Animixplay() {
+    public AnimixplayNavigator() {
     }
 
     @Override

@@ -1,10 +1,10 @@
-package com.dhavalpateln.linkcast.animesources;
+package com.dhavalpateln.linkcast.extractors.streamsb;
 
-import android.net.Uri;
+import com.dhavalpateln.linkcast.extractors.SourceNavigator;
 
-public class StreamSB extends AnimeSource {
+public class StreamSBNavigator extends SourceNavigator {
 
-    public StreamSB() {
+    public StreamSBNavigator() {
 
     }
 

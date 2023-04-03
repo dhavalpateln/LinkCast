@@ -7,12 +7,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.dhavalpateln.linkcast.animesources.AnimePahe;
-import com.dhavalpateln.linkcast.animesources.AnimeSource;
-import com.dhavalpateln.linkcast.animesources.Animixplay;
-import com.dhavalpateln.linkcast.animesources.GenericSource;
-import com.dhavalpateln.linkcast.animesources.StreamSB;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.GenericSourceNavigator;
+import com.dhavalpateln.linkcast.extractors.Providers;
+import com.dhavalpateln.linkcast.extractors.SourceNavigator;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -47,7 +45,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
     String currentWebViewURI = null;
     boolean stateSaved = false;
     boolean castDialogOpen = false;
-    private AnimeSource animeSource;
+    private SourceNavigator animeSource;
 
     @Override
     protected void onPause() {
@@ -83,10 +81,7 @@ public class AnimeWebExplorer extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Map<String, AnimeSource> animeSources = new HashMap<>();
-        animeSources.put(ProvidersData.ANIMIXPLAY.NAME, new Animixplay());
-        animeSources.put(ProvidersData.ANIMEPAHE.NAME, new AnimePahe());
-        animeSources.put(ProvidersData.STREAMSB.NAME, new StreamSB());
+        Map<String, SourceNavigator> animeSources = Providers.getNavigators();
 
         String exploreUrl = getIntent().getStringExtra(EXPLORE_URL);
         String exploreSource = getIntent().hasExtra(EXPLORE_SOURCE) ? getIntent().getStringExtra(EXPLORE_SOURCE) : "";
@@ -94,15 +89,15 @@ public class AnimeWebExplorer extends AppCompatActivity {
             animeSource = animeSources.get(exploreSource);
         }
         else {
-            for (Map.Entry<String, AnimeSource> entry : animeSources.entrySet()) {
-                AnimeSource source = entry.getValue();
+            for (Map.Entry<String, SourceNavigator> entry : animeSources.entrySet()) {
+                SourceNavigator source = entry.getValue();
                 if (source.isCorrectSource(exploreUrl)) {
                     animeSource = source;
                 }
             }
         }
         if(animeSource == null) {
-            animeSource = new GenericSource(exploreUrl);
+            animeSource = new GenericSourceNavigator(exploreUrl);
         }
 
 

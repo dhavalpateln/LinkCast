@@ -1,9 +1,10 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.zoro;
 
 import android.net.Uri;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ZoroSearch extends AnimeSearch {
+public class ZoroSearch extends AnimeMangaSearch {
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
         ArrayList<AnimeLinkData> result = new ArrayList<>();
@@ -46,12 +47,17 @@ public class ZoroSearch extends AnimeSearch {
     }
 
     @Override
-    public String getName() {
+    public boolean hasQuickSearch() {
+        return true;
+    }
+
+    @Override
+    public String getDisplayName() {
         return ProvidersData.ZORO.NAME;
     }
 
     @Override
-    public boolean hasQuickSearch() {
+    public boolean isAdvanceModeSource() {
         return true;
     }
 }

@@ -1,15 +1,13 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.mangareader;
 
 import android.net.Uri;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
-import com.dhavalpateln.linkcast.utils.Utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,12 +16,12 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
-public class MangaReaderSearch extends AnimeSearch {
+public class MangaReaderSearch extends AnimeMangaSearch {
+
+    public MangaReaderSearch() {
+        setSourceType(SOURCE_TYPE.MANGA);
+    }
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
@@ -60,7 +58,7 @@ public class MangaReaderSearch extends AnimeSearch {
     }
 
     @Override
-    public String getName() {
+    public String getDisplayName() {
         return ProvidersData.MANGAREADER.NAME;
     }
 
@@ -69,8 +67,4 @@ public class MangaReaderSearch extends AnimeSearch {
         return true;
     }
 
-    @Override
-    public boolean isMangeSource() {
-        return true;
-    }
 }

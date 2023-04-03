@@ -1,10 +1,12 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.streamtape;
 
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import java.io.IOException;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StreamTapeExtractor extends AnimeScrapper {
+public class StreamTapeExtractor extends AnimeExtractor {
 
     private String TAG = "StreamTape";
     private String displayName;

@@ -1,10 +1,11 @@
-package com.dhavalpateln.linkcast.mangascrappers;
+package com.dhavalpateln.linkcast.extractors.mangareader;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.extractors.MangaExtractor;
+import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -17,10 +18,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class MangaReader extends MangaScrapper {
+public class MangaReaderExtractor extends MangaExtractor {
+
+    public MangaReaderExtractor() {
+        setSourceType(SOURCE_TYPE.MANGA);
+    }
 
     private boolean isImageURL(String url) {
         try {

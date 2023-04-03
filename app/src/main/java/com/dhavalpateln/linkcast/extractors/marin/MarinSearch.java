@@ -1,95 +1,67 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.marin;
 
 import static java.net.URLDecoder.decode;
 
-import android.net.Uri;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 
-public class MarinSearch extends AnimeSearch {
+public class MarinSearch extends AnimeMangaSearch {
 
     private final String TAG = "MarinSearch";
-    private boolean initComplete = false;
-    private String xsrf = null;
-    private String cookie = null;
-    private String ddosCookie = ";__ddg1_=;__ddg2_=;";
+
+    public MarinSearch() {
+        setRequiresInit(true);
+    }
 
     public void init() {
         try {
-            getCookies();
-            initComplete = true;
+            MarinUtils.getInstance().getCookies();
+            setRequiresInit(false);
             Log.d(TAG, "Got cookies");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.MARIN.URL);
-        //String content = SimpleHttpClient.getResponse(urlConnection);
-        //Pattern pattern = Pattern.compile("<meta name=\"csrf-token\" content=\"(.*?)\">");
-        //Matcher matcher = pattern.matcher(content);
-        //if(matcher.find()) {
-        //    csrfToken = matcher.group(1);
-        //}
-
-
     }
-
-    private Map<String, String> getCookies() throws IOException {
-        Map<String, String> result = new HashMap<>();
-        if(cookie == null) {
-            SimpleHttpClient.bypassDDOS(ProvidersData.MARIN.URL);
-            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.MARIN.URL);
-            SimpleHttpClient.getResponse(urlConnection);
-            List<String> cookieList = urlConnection.getHeaderFields().get("Set-Cookie");
-            cookie = String.join(";", cookieList);
-            cookie += ddosCookie;
-            for(String cookieValue: cookieList) {
-                if(cookieValue.startsWith("XSRF-TOKEN")) {
-                    xsrf = decode(cookieValue.substring(cookieValue.indexOf("=") + 1, cookieValue.indexOf(";")));
-                    cookie += "cutemarinmoe_session=" + xsrf;
-                }
-            }
-        }
-        result.put("cookie", cookie);
-        result.put("x-xsrf-token", xsrf);
-        return result;
-    }
-
-    public boolean requiresInit() {return !initComplete;}
 
     @Override
     public void configConnection(HttpURLConnection urlConnection) {
         try {
-            Map<String, String> headers = getCookies();
+            Map<String, String> headers = MarinUtils.getInstance().getCookies();
             for(Map.Entry<String, String> entry: headers.entrySet()) {
                 urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getDisplayName() {
+        return ProvidersData.MARIN.NAME;
+    }
+
+    @Override
+    public boolean isAdvanceModeSource() {
+        return true;
     }
 
     @Override
@@ -127,8 +99,13 @@ public class MarinSearch extends AnimeSearch {
     }
 
     @Override
-    public String getName() {
-        return ProvidersData.MARIN.NAME;
+    public boolean isAnimeSource() {
+        return super.isAnimeSource();
+    }
+
+    @Override
+    public boolean isMangaSource() {
+        return super.isMangaSource();
     }
 
     @Override

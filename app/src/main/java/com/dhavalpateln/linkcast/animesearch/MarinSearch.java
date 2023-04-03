@@ -1,5 +1,7 @@
 package com.dhavalpateln.linkcast.animesearch;
 
+import static java.net.URLDecoder.decode;
+
 import android.net.Uri;
 import android.util.Log;
 
@@ -13,60 +15,81 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class TenshiSearch extends AnimeSearch {
 
-    private final String TAG = "TenshiSearch";
-    private String csrfToken = "";
+public class MarinSearch extends AnimeSearch {
+
+    private final String TAG = "MarinSearch";
     private boolean initComplete = false;
+    private String xsrf = null;
+    private String cookie = null;
+    private String ddosCookie = ";__ddg1_=;__ddg2_=;";
 
     public void init() {
         try {
-            SimpleHttpClient.bypassDDOS(ProvidersData.TENSHI.URL);
-            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.TENSHI.URL);
-            String content = SimpleHttpClient.getResponse(urlConnection);
-            Pattern pattern = Pattern.compile("<meta name=\"csrf-token\" content=\"(.*?)\">");
-            Matcher matcher = pattern.matcher(content);
-            if(matcher.find()) {
-                csrfToken = matcher.group(1);
-            }
+            getCookies();
             initComplete = true;
+            Log.d(TAG, "Got cookies");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.MARIN.URL);
+        //String content = SimpleHttpClient.getResponse(urlConnection);
+        //Pattern pattern = Pattern.compile("<meta name=\"csrf-token\" content=\"(.*?)\">");
+        //Matcher matcher = pattern.matcher(content);
+        //if(matcher.find()) {
+        //    csrfToken = matcher.group(1);
+        //}
 
+
+    }
+
+    private Map<String, String> getCookies() throws IOException {
+        Map<String, String> result = new HashMap<>();
+        if(cookie == null) {
+            SimpleHttpClient.bypassDDOS(ProvidersData.MARIN.URL);
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.MARIN.URL);
+            SimpleHttpClient.getResponse(urlConnection);
+            List<String> cookieList = urlConnection.getHeaderFields().get("Set-Cookie");
+            cookie = String.join(";", cookieList);
+            cookie += ddosCookie;
+            for(String cookieValue: cookieList) {
+                if(cookieValue.startsWith("XSRF-TOKEN")) {
+                    xsrf = decode(cookieValue.substring(cookieValue.indexOf("=") + 1, cookieValue.indexOf(";")));
+                    cookie += "cutemarinmoe_session=" + xsrf;
+                }
+            }
+        }
+        result.put("cookie", cookie);
+        result.put("x-xsrf-token", xsrf);
+        return result;
     }
 
     public boolean requiresInit() {return !initComplete;}
 
-    private HttpURLConnection getSearchURLConnection(String term) throws IOException {
-        String searchUrl = ProvidersData.TENSHI.URL + "/anime/search";
-        HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(searchUrl);
-        urlConnection.setRequestMethod("POST");
-        SimpleHttpClient.setBrowserUserAgent(urlConnection);
-        urlConnection.setRequestProperty("x-csrf-token", csrfToken);
-        urlConnection.setRequestProperty("x-requested-with", "XMLHttpRequest");
-        urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        urlConnection.setRequestProperty("Accept", "application/json, text/javascript, */*");
-        byte[] input = ("q=" + Uri.encode(term)).getBytes("utf-8");
-        urlConnection.setRequestProperty("Content-Length", Integer.toString(input.length));
-        urlConnection.setDoOutput(true);
-        try(OutputStream os = urlConnection.getOutputStream()) {
-            os.write(input, 0, input.length);
+    @Override
+    public void configConnection(HttpURLConnection urlConnection) {
+        try {
+            Map<String, String> headers = getCookies();
+            for(Map.Entry<String, String> entry: headers.entrySet()) {
+                urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return urlConnection;
     }
 
     @Override
@@ -74,24 +97,26 @@ public class TenshiSearch extends AnimeSearch {
         ArrayList<AnimeLinkData> result = new ArrayList<>();
 
         try {
-            HttpURLConnection urlConnection = getSearchURLConnection(term);
-            int responseCode = SimpleHttpClient.getResponseCode(urlConnection);
-            Log.d(TAG, "Response Code " + responseCode);
-            if(responseCode > 400 && responseCode < 500) {
-                init();
-                urlConnection = getSearchURLConnection(term);
-                responseCode = SimpleHttpClient.getResponseCode(urlConnection);
-                Log.d(TAG, "Response Code " + responseCode);
-            }
-            String content = SimpleHttpClient.getResponse(urlConnection);
-            JSONArray resultArray = new JSONArray(content);
-            for(int i = 0; i < resultArray.length(); i++) {
-                JSONObject data = resultArray.getJSONObject(i);
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(ProvidersData.MARIN.URL + "/anime");
+            urlConnection.setRequestMethod("POST");
+            configConnection(urlConnection);
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
+
+            JSONObject payload = new JSONObject();
+            payload.put("search", term);
+            SimpleHttpClient.setPayload(urlConnection, payload);
+            String response = SimpleHttpClient.getResponse(urlConnection);
+            JSONObject appData = new JSONObject(Jsoup.parse(response).getElementById("app").attr("data-page"));
+            JSONArray animeList = appData.getJSONObject("props").getJSONObject("anime_list").getJSONArray("data");
+
+            for(int i = 0; i < animeList.length(); i++) {
+                JSONObject animeData = animeList.getJSONObject(i);
                 AnimeLinkData animeLinkData = new AnimeLinkData();
-                animeLinkData.setUrl(data.getString("url"));
-                animeLinkData.setTitle(data.getString("title"));
-                animeLinkData.updateData(AnimeLinkData.DataContract.DATA_IMAGE_URL, data.getString("cover"), true);
-                animeLinkData.updateData(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.TENSHI.NAME, true);
+                animeLinkData.setUrl(ProvidersData.MARIN.URL + "/anime/" + animeData.getString("slug"));
+                animeLinkData.setTitle(animeData.getString("title"));
+                animeLinkData.updateData(AnimeLinkData.DataContract.DATA_IMAGE_URL, animeData.getString("cover"), true);
+                animeLinkData.updateData(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.MARIN.NAME, true);
+                animeLinkData.updateData(AnimeLinkData.DataContract.DATA_MODE, "advanced", true);
                 result.add(animeLinkData);
             }
             Log.d(TAG, "Found " + result.size() + " results");
@@ -103,7 +128,7 @@ public class TenshiSearch extends AnimeSearch {
 
     @Override
     public String getName() {
-        return ProvidersData.TENSHI.NAME;
+        return ProvidersData.MARIN.NAME;
     }
 
     @Override

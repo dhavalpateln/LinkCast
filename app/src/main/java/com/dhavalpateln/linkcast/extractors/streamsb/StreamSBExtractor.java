@@ -1,18 +1,17 @@
-package com.dhavalpateln.linkcast.animescrappers;
-
-import static com.dhavalpateln.linkcast.utils.Utils.hexlify;
+package com.dhavalpateln.linkcast.extractors.streamsb;
 
 import android.net.Uri;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,12 +20,11 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StreamSBExtractor extends AnimeScrapper {
+public class StreamSBExtractor extends AnimeExtractor {
     private String TAG = "StreamSB";
     private String displayName;
 

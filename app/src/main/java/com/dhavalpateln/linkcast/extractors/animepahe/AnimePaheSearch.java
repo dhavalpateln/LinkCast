@@ -1,9 +1,11 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.animepahe;
 
 import android.net.Uri;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AnimePaheSearch extends AnimeSearch {
+public class AnimePaheSearch extends AnimeMangaSearch {
 
     public AnimePaheSearch(){
 
@@ -26,6 +28,11 @@ public class AnimePaheSearch extends AnimeSearch {
         super.configConnection(urlConnection);
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
         //urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+    }
+
+    @Override
+    public String getDisplayName() {
+        return ProvidersData.ANIMEPAHE.NAME;
     }
 
     @Override
@@ -59,11 +66,6 @@ public class AnimePaheSearch extends AnimeSearch {
             e.printStackTrace();
         }
         return result;
-    }
-
-    @Override
-    public String getName() {
-        return "AnimePahe.com";
     }
 
     @Override

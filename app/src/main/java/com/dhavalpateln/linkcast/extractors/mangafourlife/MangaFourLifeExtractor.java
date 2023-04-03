@@ -1,8 +1,8 @@
-package com.dhavalpateln.linkcast.mangascrappers;
-
-import android.util.Log;
+package com.dhavalpateln.linkcast.extractors.mangafourlife;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.extractors.MangaExtractor;
+import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MangaFourLife extends MangaScrapper {
+public class MangaFourLifeExtractor extends MangaExtractor {
 
     private boolean isImageURL(String url) {
         try {

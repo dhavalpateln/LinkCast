@@ -51,7 +51,7 @@ public class AnimeLinkData implements Serializable {
     public Map<String, String> getData() {
         if(this.data == null) {
             this.data = new HashMap<>();
-            this.data.put("status", "Planned");
+            //this.data.put("status", "Planned");
         }
         return data;
     }

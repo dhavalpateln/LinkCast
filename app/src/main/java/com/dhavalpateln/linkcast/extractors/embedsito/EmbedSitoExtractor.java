@@ -1,7 +1,9 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.embedsito;
 
+import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import org.json.JSONArray;
@@ -11,7 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
-public class EmbedSitoExtractor extends AnimeScrapper {
+public class EmbedSitoExtractor extends AnimeExtractor {
 
     public EmbedSitoExtractor(String baseUrl) {
         super();

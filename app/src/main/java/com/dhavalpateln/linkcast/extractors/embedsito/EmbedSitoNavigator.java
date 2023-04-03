@@ -1,6 +1,8 @@
-package com.dhavalpateln.linkcast.animesources;
+package com.dhavalpateln.linkcast.extractors.embedsito;
 
-public class EmbedSito extends AnimeSource {
+import com.dhavalpateln.linkcast.extractors.SourceNavigator;
+
+public class EmbedSitoNavigator extends SourceNavigator {
 
     @Override
     public boolean isCorrectSource(String term) {

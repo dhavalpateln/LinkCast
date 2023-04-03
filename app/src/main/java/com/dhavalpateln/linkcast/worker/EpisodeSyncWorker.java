@@ -1,2 +1,4 @@
-package com.dhavalpateln.linkcast.worker;public class EpisodeSyncWorker {
+package com.dhavalpateln.linkcast.worker;
+
+public class EpisodeSyncWorker {
 }

@@ -33,6 +33,7 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.CrunchyrollExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.MarinExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
 import com.dhavalpateln.linkcast.database.TvActionData;
@@ -50,6 +51,9 @@ import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
 import com.dhavalpateln.linkcast.dialogs.ViewNotesDialog;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
+import com.dhavalpateln.linkcast.extractors.MangaExtractor;
+import com.dhavalpateln.linkcast.extractors.Providers;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
 import com.dhavalpateln.linkcast.mangascrappers.MangaReader;
@@ -87,8 +91,8 @@ public class AdvancedView extends AppCompatActivity {
     public static final String INTENT_ANIME_LINK_DATA = "animedata";
     public static final String INTENT_MODE_ANIME = "isanime";
 
-    private Map<String, AnimeScrapper> animeExtractors;
-    private Map<String, MangaScrapper> mangaExtractors;
+    private Map<String, AnimeExtractor> animeExtractors;
+    private Map<String, MangaExtractor> mangaExtractors;
     private ProgressDialog progressDialog;
     private ImageView animeImageView;
     private RecyclerView episodeRecyclerView;
@@ -252,17 +256,18 @@ public class AdvancedView extends AppCompatActivity {
         episodeRecyclerView.setLayoutManager(layoutManager);
         episodeRecyclerView.setAdapter(adapter);
 
-        animeExtractors = new HashMap<>();
-        animeExtractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
+        animeExtractors = Providers.getAnimeExtractors(getApplicationContext());
+        /*animeExtractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
         animeExtractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
         animeExtractors.put(ProvidersData.NINEANIME.NAME, new NineAnimeExtractor(getApplicationContext()));
         animeExtractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
         animeExtractors.put(ProvidersData.TENSHI.NAME, new TenshiExtractor());
         animeExtractors.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollExtractor());
+        animeExtractors.put(ProvidersData.MARIN.NAME, new MarinExtractor());*/
 
-        mangaExtractors = new HashMap<>();
-        mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
-        mangaExtractors.put(ProvidersData.MANGAREADER.NAME, new MangaReader());
+        mangaExtractors = Providers.getMangaExtractors(getApplicationContext());
+        /*mangaExtractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLife());
+        mangaExtractors.put(ProvidersData.MANGAREADER.NAME, new MangaReader());*/
 
         Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
 
@@ -289,7 +294,7 @@ public class AdvancedView extends AppCompatActivity {
 
     }
 
-    private AnimeScrapper getAnimeExtractor() {
+    private AnimeExtractor getAnimeExtractor() {
         String animeDataSource = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
         if(animeExtractors.containsKey(animeDataSource)) {
             return animeExtractors.get(animeDataSource);
@@ -304,7 +309,7 @@ public class AdvancedView extends AppCompatActivity {
         return null;
     }
 
-    private MangaScrapper getMangaExtractor() {
+    private MangaExtractor getMangaExtractor() {
         String animeDataSource = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE);
         if(mangaExtractors.containsKey(animeDataSource)) {
             return mangaExtractors.get(animeDataSource);

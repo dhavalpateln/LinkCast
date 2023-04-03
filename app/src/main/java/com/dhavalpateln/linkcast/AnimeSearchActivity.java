@@ -31,24 +31,16 @@ import android.widget.Toast;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
-import com.dhavalpateln.linkcast.animesearch.AnimeKisaSearch;
-import com.dhavalpateln.linkcast.animesearch.AnimeKisaSiteSearch;
-import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
-import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.BookmarkedSearch;
-import com.dhavalpateln.linkcast.animesearch.CrunchyrollSearch;
-import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
-import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
-import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
-import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
+
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
+import com.dhavalpateln.linkcast.extractors.Providers;
+import com.dhavalpateln.linkcast.extractors.bookmark.BookmarkedSearch;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 import com.dhavalpateln.linkcast.ui.animes.SharedAnimeLinkDataViewModel;
@@ -76,7 +68,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private Spinner sourceSpinner;
     private ProgressDialog progressDialog;
 
-    private Map<String, AnimeSearch> searchers;
+    private Map<String, AnimeMangaSearch> searchers;
     private String TAG = "AnimeSearch";
     private BookmarkedSearch bookmarkedSearch;
     private ArrayList<AnimeLinkData> filteredData;
@@ -102,12 +94,13 @@ public class AnimeSearchActivity extends AppCompatActivity {
             super(recyclerDataArrayList, mcontext);
         }
 
-        private void open(AnimeLinkData recyclerData, AnimeSearch animeSearch, boolean isLongClick) {
+        private void open(AnimeLinkData recyclerData, AnimeMangaSearch animeSearch, boolean isLongClick) {
             AnimeLinkData correctData = recyclerData;
+
             if(animeSearch instanceof BookmarkedSearch) {
                 boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
                         !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                        animeSearch.isMangeSource();
+                        animeSearch.isMangaSource();
                 if(isMangaSource) correctData = StoredAnimeLinkData.getInstance().getMangaCache().get(recyclerData.getId());
                 else correctData = StoredAnimeLinkData.getInstance().getAnimeCache().get(recyclerData.getId());
             }
@@ -124,10 +117,10 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
                 boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
                         !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                        animeSearch.isMangeSource();
+                        animeSearch.isMangaSource();
                 intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !isMangaSource);
             }
-            else if(animeSearch.isMangeSource()){
+            else if(animeSearch.isMangaSource()){
                 intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
             }
             else {
@@ -140,7 +133,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
             super.onBindViewHolder(holder, position);
             AnimeLinkData recyclerData = this.dataArrayList.get(position);
-            AnimeSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
+            AnimeMangaSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
             holder.openButton.setOnClickListener(v -> {
                 open(recyclerData, animeSearch, false);
             });
@@ -155,7 +148,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
                     boolean isMangaSource = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
                             !recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                            animeSearch.isMangeSource();
+                            animeSearch.isMangaSource();
 
                     if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
                         ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
@@ -216,54 +209,32 @@ public class AnimeSearchActivity extends AppCompatActivity {
         filteredData = new ArrayList<>();
 
         ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item);
-        if(!getIntent().hasExtra(INTENT_CHANGE_SOURCE)) sourceSpinnerAdapter.add(bookmarkedSearch.getName());
+        if(!getIntent().hasExtra(INTENT_CHANGE_SOURCE)) sourceSpinnerAdapter.add(bookmarkedSearch.getDisplayName());
         sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        searchers = new HashMap<>();
-        //searchers.put("animekisa.tv", new AnimeKisaSearch());
-        //searchers.put(ProvidersData.ANIMEKISASITE.NAME, new AnimeKisaSiteSearch());
-        searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
-        //searchers.put(ProvidersData.NINEANIME.NAME, new NineAnimeSearch(getApplicationContext()));
+        searchers = Providers.getSearchers(getApplicationContext());
+        /*searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
         searchers.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheSearch());
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());
-        //searchers.put(ProvidersData.TENSHI.NAME, new TenshiSearch());
-        //searchers.put("animixplay.to", new AnimixPlaySearch());
+        searchers.put(ProvidersData.MARIN.NAME, new MarinSearch());
         searchers.put(ProvidersData.CRUNCHYROLL.NAME, new CrunchyrollSearch());
         searchers.put("manga4life", new MangaFourLifeSearch());
-        searchers.put(ProvidersData.MANGAREADER.NAME, new MangaReaderSearch());
+        searchers.put(ProvidersData.MANGAREADER.NAME, new MangaReaderSearch());*/
 
-        String[] order = new String[] {
-                //ProvidersData.ANIMEKISASITE.NAME,
-                ProvidersData.GOGOANIME.NAME,
-                ProvidersData.ZORO.NAME,
-                //ProvidersData.NINEANIME.NAME,
-                ProvidersData.ANIMEPAHE.NAME,
-                //ProvidersData.TENSHI.NAME,
-                ProvidersData.CRUNCHYROLL.NAME,
-                ProvidersData.MANGAFOURLIFE.NAME,
-                ProvidersData.MANGAREADER.NAME
-        };
-        if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
-            if(getIntent().getStringExtra(INTENT_CHANGE_SOURCE).equals("anime")) {
-                order = new String[] {
-                        ProvidersData.GOGOANIME.NAME,
-                        ProvidersData.ZORO.NAME,
-                        //ProvidersData.NINEANIME.NAME,
-                        //ProvidersData.TENSHI.NAME,
-                        ProvidersData.ANIMEPAHE.NAME,
-                        ProvidersData.CRUNCHYROLL.NAME
-                };
-            }
-            else {
-                order = new String[] {
-                        ProvidersData.MANGAFOURLIFE.NAME,
-                        ProvidersData.MANGAREADER.NAME
-                };
-            }
-        }
+        String[] order = Providers.getSearchOrder();
 
         for(String searchSourceName: order) {
-            sourceSpinnerAdapter.add(searchSourceName);
+            if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
+                if(getIntent().getStringExtra(INTENT_CHANGE_SOURCE).equals("anime") && searchers.get(searchSourceName).isAnimeSource()) {
+                    sourceSpinnerAdapter.add(searchSourceName);
+                }
+                else if(searchers.get(searchSourceName).isMangaSource()) {
+                    sourceSpinnerAdapter.add(searchSourceName);
+                }
+            }
+            else {
+                sourceSpinnerAdapter.add(searchSourceName);
+            }
         }
         sourceSpinner.setAdapter(sourceSpinnerAdapter);
         searchers.put("Bookmarked", bookmarkedSearch);
@@ -315,7 +286,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 if (selectedText != null) {
                     selectedText.setTextColor(Color.WHITE);
                 }
-                AnimeSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
+                AnimeMangaSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
                 if(searcher.requiresInit()) {
                     executor.execute(() -> {
                         uiHandler.post(() -> progressDialog.show());
@@ -365,7 +336,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
             String searchTerm = strings[0].trim();
             String source = strings[1];
             ArrayList<AnimeLinkData> result;
-            AnimeSearch animeSearcher = searchers.get(source);
+            AnimeMangaSearch animeSearcher = searchers.get(source);
             result = animeSearcher.search(searchTerm);
             return result;
         }
@@ -382,7 +353,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     }
 
     public void search(boolean skipIfNoQuickSearch) {
-        AnimeSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
+        AnimeMangaSearch searcher = searchers.get(sourceSpinner.getSelectedItem().toString());
         if(searcher.hasQuickSearch()) {
             if(extractSearchResult != null) {
                 extractSearchResult.cancel(true);
@@ -392,13 +363,13 @@ public class AnimeSearchActivity extends AppCompatActivity {
         }
         else if(!skipIfNoQuickSearch){
             Intent intent;
-            if(searcher.isMangeSource()) {
+            if(searcher.isMangaSource()) {
                 intent = new Intent(AnimeSearchActivity.this, MangaWebExplorer.class);
             }
             else {
                 intent = new Intent(AnimeSearchActivity.this, AnimeWebExplorer.class);
             }
-            intent.putExtra("source", searcher.getName());
+            intent.putExtra("source", searcher.getDisplayName());
             intent.putExtra("search", searchEditText.getText().toString());
             intent.putExtra("advancedMode", true);
             startActivity(intent);

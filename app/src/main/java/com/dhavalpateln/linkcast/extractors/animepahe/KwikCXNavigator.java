@@ -1,6 +1,8 @@
-package com.dhavalpateln.linkcast.animesources;
+package com.dhavalpateln.linkcast.extractors.animepahe;
 
-public class KwikCX extends AnimeSource {
+import com.dhavalpateln.linkcast.extractors.SourceNavigator;
+
+public class KwikCXNavigator extends SourceNavigator {
 
     @Override
     public boolean isCorrectSource(String term) {

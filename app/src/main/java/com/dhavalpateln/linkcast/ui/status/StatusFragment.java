@@ -23,10 +23,12 @@ import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
 import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.animescrappers.CrunchyrollExtractor;
 import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.animescrappers.MarinExtractor;
 import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
 import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
 import com.dhavalpateln.linkcast.animesearch.CrunchyrollSearch;
 import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
+import com.dhavalpateln.linkcast.animesearch.MarinSearch;
 import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
@@ -83,6 +85,7 @@ public class StatusFragment extends Fragment {
         //genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
         //genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
         genericTest(statusContainer, new AnimePaheSearch(), new AnimePaheExtractor());
+        genericTest(statusContainer, new MarinSearch(), new MarinExtractor());
         //genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
 
         genericTest(statusContainer, new MangaReaderSearch(), new MangaReader());

@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.rapid;
 
 import android.net.Uri;
 import android.os.Build;
@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
@@ -41,7 +42,7 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-public class RapidCloudExtractor extends AnimeScrapper {
+public class RapidCloudExtractor extends AnimeExtractor {
 
     private String displayName;
     private final static String SID_ENDPOINT = "https://api.enime.moe/tool/rapid-cloud/server-id";
@@ -136,7 +137,7 @@ public class RapidCloudExtractor extends AnimeScrapper {
     @Override
     public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
         try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
                 Uri uri = Uri.parse(episodeUrl);
 

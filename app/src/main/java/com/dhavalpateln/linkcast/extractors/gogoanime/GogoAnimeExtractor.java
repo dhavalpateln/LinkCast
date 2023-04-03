@@ -1,12 +1,14 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.gogoanime;
 
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
+import com.dhavalpateln.linkcast.extractors.streamsb.StreamSBExtractor;
+import com.dhavalpateln.linkcast.extractors.xstream.XStreamExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -22,9 +24,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GogoAnimeExtractor extends AnimeScrapper {
+public class GogoAnimeExtractor extends AnimeExtractor {
 
-    private String TAG = "Gogoanime - Extractor";
+    private String TAG = "Gogoanime";
 
     public GogoAnimeExtractor() { }
 
@@ -122,7 +124,7 @@ public class GogoAnimeExtractor extends AnimeScrapper {
                             .replace(sourceLink.getElementsByTag("span").get(0).text(), "")
                             .toLowerCase();
                     String link = sourceLink.attr("data-video");
-                    AnimeScrapper extractor = null;
+                    AnimeExtractor extractor = null;
                     switch (sourceName) {
                         case "vidstreaming":
                             link = "https:" + link;
@@ -156,8 +158,6 @@ public class GogoAnimeExtractor extends AnimeScrapper {
             data.setTitle(urlsplit[urlsplit.length - 1].replace("-", " "));
         }
         data.setTitle(data.getTitle().replace("(" + getDisplayName() + ")", ""));
-        setData("animeTitle", data.getTitle());
-        setData(AnimeLinkData.DataContract.DATA_IMAGE_URL, data.getData().get(AnimeLinkData.DataContract.DATA_IMAGE_URL));
         return getEpisodeList(data.getUrl());
     }
 

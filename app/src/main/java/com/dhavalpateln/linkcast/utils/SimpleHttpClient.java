@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,8 +32,7 @@ public class SimpleHttpClient {
 
     public static HttpURLConnection getURLConnection(String urlString) throws IOException {
         URL url = new URL(urlString);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        return urlConnection;
+        return (HttpURLConnection) url.openConnection();
     }
 
     public static void setBrowserUserAgent(HttpURLConnection urlConnection) {
@@ -84,6 +84,20 @@ public class SimpleHttpClient {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static void setPayload(HttpURLConnection urlConnection, JSONObject payload) throws IOException {
+        urlConnection.setRequestProperty("Content-Type", "application/json");
+        setPayload(urlConnection, payload.toString());
+    }
+
+    public static void setPayload(HttpURLConnection urlConnection, String payload) throws IOException {
+        urlConnection.setDoOutput(true);
+        urlConnection.setRequestProperty("Content-Length", String.valueOf(payload.length()));
+        urlConnection.setRequestProperty("x-requested-with", "XMLHttpRequest");
+        try( DataOutputStream wr = new DataOutputStream( urlConnection.getOutputStream())) {
+            wr.write(payload.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
 }

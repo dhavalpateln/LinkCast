@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.animescrappers;
+package com.dhavalpateln.linkcast.extractors.zoro;
 
 import android.net.Uri;
 import android.util.Log;
@@ -6,6 +6,10 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
+import com.dhavalpateln.linkcast.extractors.rapid.RapidCloudExtractor;
+import com.dhavalpateln.linkcast.extractors.streamsb.StreamSBExtractor;
+import com.dhavalpateln.linkcast.extractors.streamtape.StreamTapeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -20,7 +24,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZoroExtractor extends AnimeScrapper {
+public class ZoroExtractor extends AnimeExtractor {
     @Override
     public boolean isCorrectURL(String url) {
         return url.startsWith(ProvidersData.ZORO.URL);

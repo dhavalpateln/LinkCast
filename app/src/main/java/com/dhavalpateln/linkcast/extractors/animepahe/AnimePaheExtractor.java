@@ -1,11 +1,10 @@
-package com.dhavalpateln.linkcast.animescrappers;
-
-import android.util.Log;
+package com.dhavalpateln.linkcast.extractors.animepahe;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
@@ -20,12 +19,11 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class AnimePaheExtractor extends AnimeScrapper{
+public class AnimePaheExtractor extends AnimeExtractor {
 
-    private String TAG = "AnimePahe - Extractor";
+    private String TAG = "AnimePahe";
 
     public AnimePaheExtractor() {
         super();

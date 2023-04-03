@@ -1,7 +1,9 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.mangafourlife;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
 
@@ -17,10 +19,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MangaFourLifeSearch extends AnimeSearch {
+public class MangaFourLifeSearch extends AnimeMangaSearch {
 
     private Map<String, String> mangaMap;
-    private boolean initComplete = false;
+
+    public MangaFourLifeSearch() {
+        setRequiresInit(true);
+        setSourceType(SOURCE_TYPE.MANGA);
+    }
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
@@ -47,26 +53,16 @@ public class MangaFourLifeSearch extends AnimeSearch {
     @Override
     public void init() {
         getMangaList();
-        initComplete = true;
+        setRequiresInit(false);
     }
 
     @Override
-    public boolean requiresInit() {
-        return !initComplete;
-    }
-
-    @Override
-    public String getName() {
-        return "manga4life";
+    public String getDisplayName() {
+        return ProvidersData.MANGAFOURLIFE.NAME;
     }
 
     @Override
     public boolean hasQuickSearch() {
-        return true;
-    }
-
-    @Override
-    public boolean isMangeSource() {
         return true;
     }
 

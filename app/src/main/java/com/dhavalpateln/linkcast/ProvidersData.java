@@ -11,7 +11,7 @@ public class ProvidersData {
     }
     public static class GOGOANIME {
         public static final String NAME = "gogoanime";
-        public static final String URL = "https://gogoanime.lu";
+        public static final String URL = "https://gogoanime.gr";
     }
     public static class NINEANIME {
         public static final String NAME = "9anime";
@@ -66,6 +66,11 @@ public class ProvidersData {
     public static class ZORO {
         public static final String NAME = "zoro";
         public static final String URL = "https://zoro.to";
+    }
+
+    public static class MARIN {
+        public static final String NAME = "marin";
+        public static final String URL = "https://marin.moe";
     }
 
     public static class RAPIDCLOUD {

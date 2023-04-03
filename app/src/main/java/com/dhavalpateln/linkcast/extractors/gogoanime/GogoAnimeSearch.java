@@ -1,14 +1,13 @@
-package com.dhavalpateln.linkcast.animesearch;
+package com.dhavalpateln.linkcast.extractors.gogoanime;
 
 import android.net.Uri;
 import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,16 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-
-public class GogoAnimeSearch extends AnimeSearch {
+public class GogoAnimeSearch extends AnimeMangaSearch {
 
     private final String TAG = "GogoAnimeSearch";
 
-    /*@Override
-    public void configConnection(HttpURLConnection urlConnection) {
-        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
-    }*/
+    public GogoAnimeSearch() {
+    }
 
     @Override
     public ArrayList<AnimeLinkData> search(String term) {
@@ -69,12 +64,12 @@ public class GogoAnimeSearch extends AnimeSearch {
     }
 
     @Override
-    public String getName() {
-        return ProvidersData.GOGOANIME.NAME;
+    public boolean hasQuickSearch() {
+        return true;
     }
 
     @Override
-    public boolean hasQuickSearch() {
-        return true;
+    public String getDisplayName() {
+        return ProvidersData.GOGOANIME.NAME;
     }
 }

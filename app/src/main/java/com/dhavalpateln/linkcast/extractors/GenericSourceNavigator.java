@@ -1,13 +1,13 @@
-package com.dhavalpateln.linkcast.animesources;
+package com.dhavalpateln.linkcast.extractors;
 
 import android.net.Uri;
 
-public class GenericSource extends AnimeSource {
+public class GenericSourceNavigator extends SourceNavigator {
 
     private String baseUrl;
     private String hostname;
 
-    public GenericSource(String baseUrl) {
+    public GenericSourceNavigator(String baseUrl) {
         this.baseUrl = baseUrl;
         this.hostname = Uri.parse(baseUrl).getHost();
     }
