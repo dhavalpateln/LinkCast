@@ -61,7 +61,7 @@
             android:name=".exoplayer.ExoPlayerCastActivity"
             android:exported="false" />
         <activity
-            android:name=".AdvancedView"
+            android:name=".explorer.AdvancedView"
             android:configChanges="orientation"
             android:exported="false"
             android:screenOrientation="portrait"

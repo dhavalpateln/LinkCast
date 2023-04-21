@@ -11,6 +11,7 @@ import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.SeasonalViewModel;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
+import com.dhavalpateln.linkcast.utils.TimeUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,15 +19,20 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class JikanDatabase {
     private JikanCache cache;
     private static JikanDatabase jikanDatabase;
+    private String jikanAPI;
 
     private JikanDatabase() {
         cache = JikanCache.getInstance();
+        this.jikanAPI = "https://api.jikan.moe/v4";
     }
 
     public static JikanDatabase getInstance() {
@@ -231,5 +237,46 @@ public class JikanDatabase {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public AnimeMALMetaData getMalMetaData(String malId, boolean isAnime) {
+        AnimeMALMetaData animeMALMetaData = new AnimeMALMetaData();
+        String url;
+        if(isAnime) {
+            url = this.jikanAPI + "/anime/" + malId;
+        }
+        else {
+            url = this.jikanAPI + "/manga/" + malId;
+        }
+
+        JSONObject animeInfo = this.cache.getRawData(url);
+        if(animeInfo == null) {
+            animeInfo = getJikanResult(url);
+            if(animeInfo != null) this.cache.storeCache(url, animeInfo);
+        }
+        if(animeInfo != null) {
+            try {
+                JSONObject data = animeInfo.getJSONObject("data");
+                animeMALMetaData.setId(data.getString("mal_id"));
+                animeMALMetaData.setUrl(data.getString("url"));
+                animeMALMetaData.setName(data.getString("title"));
+                if(data.has("title_english"))
+                    animeMALMetaData.setEngName(data.getString("title_english"));
+                animeMALMetaData.setStatus(data.getString("status"));
+                if(data.has("episodes") && data.get("episodes") != null) {
+                    animeMALMetaData.setTotalEpisodes(data.getString("episodes"));
+                }
+                if(data.has("chapters") && data.get("chapters") != null) {
+                    animeMALMetaData.setTotalEpisodes(String.valueOf(data.getInt("chapters")));
+                }
+                if(isAnime && data.getJSONObject("aired").get("from") != null) {
+                    animeMALMetaData.setAirDate(data.getJSONObject("aired").getString("from").split("T")[0]);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return animeMALMetaData;
     }
 }

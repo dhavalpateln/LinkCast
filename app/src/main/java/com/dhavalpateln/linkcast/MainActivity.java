@@ -1,20 +1,31 @@
 package com.dhavalpateln.linkcast;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.ValueCallback;
+import com.dhavalpateln.linkcast.database.room.LinkCastRoomDatabase;
+import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
 import com.dhavalpateln.linkcast.utils.Utils;
+import com.dhavalpateln.linkcast.worker.LinkCastWorker;
+import com.dhavalpateln.linkcast.worker.LinkMonitorTask;
+import com.dhavalpateln.linkcast.worker.LinkUpdaterWorker;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -34,11 +45,25 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ListenableWorker;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView displayNameTextView;
     private TextView emailTextView;
     private ImageView profileImageView;
+    private String CHANNEL_ID = "LinkCastNotification";
+    private SharedPreferences prefs;
 
     private void checkAndRequestPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(
@@ -61,6 +88,54 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void initRoomDB() {
+        LinkCastRoomDatabase.getDatabase(getApplicationContext());
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void enqueuePeriodicWork(String name, PeriodicWorkRequest workRequest, int version) {
+        String prefKey = "worker" + name + "ver";
+        int queuedWorkerVer = prefs.getInt(prefKey, -1);
+        ExistingPeriodicWorkPolicy policy = ExistingPeriodicWorkPolicy.KEEP;
+        if(version != queuedWorkerVer) {
+            policy = ExistingPeriodicWorkPolicy.REPLACE;
+        }
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueueUniquePeriodicWork(name, policy, workRequest);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(prefKey, version);
+        editor.commit();
+    }
+
+    private void enqueueWorkers() {
+        Constraints linkMonitorConstraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest uploadWorkRequest =
+                new PeriodicWorkRequest.Builder(LinkMonitorTask.class, 1, TimeUnit.HOURS)
+                        .setConstraints(linkMonitorConstraints)
+                        .build();
+
+        enqueuePeriodicWork("LinkUpdater", uploadWorkRequest, 1);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        createNotificationChannel();
         checkAndRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, 100);
         checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, 101);
 
@@ -117,7 +195,10 @@ public class MainActivity extends AppCompatActivity {
                         .into(navbg);*/
 
             }
+            enqueueWorkers();
         }
+        //new LinkCastRoomRepository(getApplicationContext()).clearLinkData();
+        initRoomDB();
         //updateUserMetaData();
     }
 

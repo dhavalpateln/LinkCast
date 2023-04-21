@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +36,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     private static final String TAG = "CATALOG_FRAGMENT";
 
     protected String tabName;
-    protected List<AnimeLinkData> dataList;
+    protected List<LinkWithAllData> dataList;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private ImageView sortButton;
@@ -96,7 +97,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         sortButton.setOnClickListener(v -> showSortOptions(v));
     }
 
-    public abstract RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context);
 
     private void showSortOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
@@ -148,8 +149,8 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 break;
             case BY_SCORE:
                 Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> {
-                    int score1 = Integer.valueOf(animeLinkData1.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
-                    int score2 = Integer.valueOf(animeLinkData2.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                    int score1 = Integer.valueOf(animeLinkData1.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                    int score2 = Integer.valueOf(animeLinkData2.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
                     if(score1 > score2) return -1;
                     else if(score2 > score1)    return 1;
                     else {
@@ -158,10 +159,10 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 });
                 break;
             case BY_DATE_ADDED_ASC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.getId().compareToIgnoreCase(animeLinkData2.getId()));
+                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.linkData.getId().compareToIgnoreCase(animeLinkData2.linkData.getId()));
                 break;
             case BY_DATE_ADDED_DESC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData2.getId().compareToIgnoreCase(animeLinkData1.getId()));
+                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData2.linkData.getId().compareToIgnoreCase(animeLinkData1.linkData.getId()));
                 break;
         }
         adapter.notifyDataSetChanged();

@@ -8,8 +8,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
-import com.dhavalpateln.linkcast.AdvancedView;
-import com.dhavalpateln.linkcast.MainActivity;
+import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -41,7 +43,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         return fragment;
     }
 
-    private class AnimeCatalogListAdapter extends AnimeDataListRecyclerAdapter {
+    /*private class AnimeCatalogListAdapter extends AnimeDataListRecyclerAdapter {
 
         public AnimeCatalogListAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
@@ -74,6 +76,40 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
             holder.scoreTextView.setText("\u2605" + data.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
         }
     }
+*/
+    private class AnimeCatalogListAdapter extends LinkDataListRecyclerAdapter {
+
+        public AnimeCatalogListAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LinkDataViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            LinkWithAllData data = dataList.get(position);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
+                startActivity(intent);
+            });
+            /*holder.deleteButton.setOnClickListener(v -> {
+                if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
+                    ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
+                        FirebaseDBHelper.removeAnimeLink(data.getId());
+                    });
+                    confirmationDialog.show(getParentFragmentManager(), "Confirm");
+                }
+                else {
+                    FirebaseDBHelper.removeAnimeLink(data.getId());
+                }
+            });
+            holder.editButton.setOnClickListener(v -> {
+                // TODO: add more fields to edit
+                BookmarkLinkDialog dialog = new BookmarkLinkDialog(data);
+                dialog.show(getParentFragmentManager(), "bookmarkEdit");
+            });*/
+            holder.scoreTextView.setText("\u2605" + data.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+        }
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -84,12 +120,11 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         new ViewModelProvider(getActivity()).get(MangaDataViewModel.class).getData(); // load manga cache
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
+        viewModel.getLinkData().observe(getViewLifecycleOwner(), linkDataList -> {
             Log.d(TAG, "Data changed");
             dataList.clear();
-            for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                AnimeLinkData animeLinkData = entry.getValue();
-                animeLinkData.setId(entry.getKey());
+            for(LinkWithAllData linkWithAllData: linkDataList) {
+                AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);
                 if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_STATUS)) {
                     animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_STATUS, "Planned");
                 }
@@ -101,17 +136,15 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
                         tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
                         (tabName.equals(AnimeFragment.Catalogs.FAVORITE) &&
                                 animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                    dataList.add(entry.getValue());
+                    dataList.add(linkWithAllData);
                 }
-
-
             }
             refreshAdapter();
         });
     }
 
     @Override
-    public RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context) {
+    public RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context) {
         return new AnimeCatalogListAdapter(adapterDataList, context);
     }
 }

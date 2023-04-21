@@ -109,4 +109,21 @@ public class Utils {
     public static int getRandomInt(int low, int high) {
         return ThreadLocalRandom.current().nextInt(low, high);
     }
+
+    public static boolean compareNullableStrings(String a, String b) {
+        if(a == b) return true;
+        if(a == null || b == null) return false;
+        return a.equals(b);
+    }
+
+    public static boolean isNumeric(String num) {
+        if(num == null) return false;
+        try {
+            double n = Double.parseDouble(num);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
 }

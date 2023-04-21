@@ -2,7 +2,6 @@ package com.dhavalpateln.linkcast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,7 +18,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -36,17 +34,13 @@ import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
-import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
+import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.extractors.Providers;
 import com.dhavalpateln.linkcast.extractors.bookmark.BookmarkedSearch;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
-import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
-import com.dhavalpateln.linkcast.ui.animes.SharedAnimeLinkDataViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -212,7 +206,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         if(!getIntent().hasExtra(INTENT_CHANGE_SOURCE)) sourceSpinnerAdapter.add(bookmarkedSearch.getDisplayName());
         sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        searchers = Providers.getSearchers(getApplicationContext());
+        searchers = Providers.getSearchers();
         /*searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());
         searchers.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheSearch());
         searchers.put(ProvidersData.ZORO.NAME, new ZoroSearch());

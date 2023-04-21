@@ -1,7 +1,10 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
+import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -9,18 +12,34 @@ import androidx.lifecycle.ViewModel;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.room.LinkCastRoomDatabase;
+import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataDao;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class SharedAnimeLinkDataViewModel extends ViewModel {
+public class SharedAnimeLinkDataViewModel extends AndroidViewModel {
+
+
 
     private Map<String, MutableLiveData<Map<String, AnimeLinkData>>> livaDataMap;
+    private LinkCastRoomRepository roomRepo;
 
     private MutableLiveData<Map<String, AnimeLinkData>> data;
+
+    public SharedAnimeLinkDataViewModel(@NonNull Application application) {
+        super(application);
+        //data = new MutableLiveData<>();
+        roomRepo = new LinkCastRoomRepository(application);
+        //loadData(application);
+    }
 
     public LiveData<Map<String, AnimeLinkData>> getData() {
         if(data == null) {
@@ -28,6 +47,14 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
             loadData();
         }
         return data;
+    }
+
+    public LiveData<List<LinkWithAllData>> getLinkData() {
+        if(data == null) {
+            data = new MutableLiveData<>();
+            loadData();
+        }
+        return this.roomRepo.getAnimeLinks();
     }
 
     public LiveData<Map<String, AnimeLinkData>> getData(String catalogType) {
@@ -44,6 +71,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
             livaDataMap.put(catalogType, liveData);
         }*/
         data.setValue(new HashMap<>());
+
         FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -53,6 +81,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
                 StoredAnimeLinkData.getInstance().updateAnimeCache(map);
+                roomRepo.insert(LinkData.from(animeLinkData));
             }
 
             @Override
@@ -63,6 +92,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 map.put(snapshot.getKey(), animeLinkData);
                 data.setValue(map);
                 StoredAnimeLinkData.getInstance().updateAnimeCache(map);
+                roomRepo.insert(LinkData.from(animeLinkData));
             }
 
             @Override
@@ -71,6 +101,7 @@ public class SharedAnimeLinkDataViewModel extends ViewModel {
                 map.remove(snapshot.getKey());
                 data.setValue(map);
                 StoredAnimeLinkData.getInstance().updateAnimeCache(map);
+                roomRepo.deleteLinkData(snapshot.getKey());
             }
 
             @Override

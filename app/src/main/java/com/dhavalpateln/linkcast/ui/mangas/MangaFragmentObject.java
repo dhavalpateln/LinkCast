@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 
-import com.dhavalpateln.linkcast.AdvancedView;
+import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -37,7 +40,7 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
         return fragment;
     }
 
-    private class MangaCatalogListAdapter extends AnimeDataListRecyclerAdapter {
+    /*private class MangaCatalogListAdapter extends AnimeDataListRecyclerAdapter {
 
         public MangaCatalogListAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
@@ -67,21 +70,41 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
             holder.editButton.setVisibility(View.GONE);
         }
     }
+*/
+    private class MangaCatalogListAdapter extends LinkDataListRecyclerAdapter {
+
+        public MangaCatalogListAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LinkDataViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            LinkWithAllData linkWithAllData = dataList.get(position);
+            AnimeLinkData data = AnimeLinkData.from(linkWithAllData.linkData);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = AdvancedView.prepareIntent(getContext(), data);
+                intent.putExtra(AdvancedView.INTENT_MODE_ANIME, false);
+                startActivity(intent);
+            });
+
+        }
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MangaDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MangaDataViewModel.class);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        viewModel.getData().observe(getViewLifecycleOwner(), stringAnimeLinkDataMap -> {
+        viewModel.getLinkData().observe(getViewLifecycleOwner(), linkDataList -> {
             dataList.clear();
-            for(Map.Entry<String, AnimeLinkData> entry: stringAnimeLinkDataMap.entrySet()) {
-                AnimeLinkData animeLinkData = entry.getValue();
+            for(LinkWithAllData linkWithAllData: linkDataList) {
+                AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);
                 if(tabName.equals(AnimeFragment.Catalogs.ALL) ||
                         tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
                         (tabName.equals(AnimeFragment.Catalogs.FAVORITE) &&
                                 animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                    dataList.add(entry.getValue());
+                    dataList.add(linkWithAllData);
                 }
             }
             refreshAdapter();
@@ -89,7 +112,7 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
     }
 
     @Override
-    public RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context) {
+    public RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context) {
         return new MangaCatalogListAdapter(adapterDataList, context);
     }
 }

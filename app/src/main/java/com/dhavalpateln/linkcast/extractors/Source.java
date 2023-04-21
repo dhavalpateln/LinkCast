@@ -24,8 +24,10 @@ public abstract class Source {
     private SOURCE_TYPE sourceType = SOURCE_TYPE.ANIME;
 
     public void init() {}
-    public boolean requiresInit() {return !initialized;}
-    public void setRequiresInit(boolean value) {this.initialized = value;}
+    public boolean requiresInit() {
+        return !initialized;
+    }
+    public void setRequiresInit(boolean value) {this.initialized = !value;}
     public void configConnection(HttpURLConnection urlConnection) {
         return;
     }

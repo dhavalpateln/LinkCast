@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class Providers {
 
-    public static Map<String, AnimeExtractor> getAnimeExtractors(Context context) {
+    public static Map<String, AnimeExtractor> getAnimeExtractors() {
         Map<String, AnimeExtractor> extractors = new HashMap<>();
         extractors.put(ProvidersData.MARIN.NAME, new MarinExtractor());
         extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
@@ -32,14 +32,14 @@ public class Providers {
         return extractors;
     }
 
-    public static Map<String, MangaExtractor> getMangaExtractors(Context context) {
+    public static Map<String, MangaExtractor> getMangaExtractors() {
         Map<String, MangaExtractor> extractors = new HashMap<>();
         extractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLifeExtractor());
         extractors.put(ProvidersData.MANGAREADER.NAME, new MangaReaderExtractor());
         return extractors;
     }
 
-    public static Map<String, AnimeMangaSearch> getSearchers(Context context) {
+    public static Map<String, AnimeMangaSearch> getSearchers() {
         Map<String, AnimeMangaSearch> searchers = new HashMap<>();
         searchers.put(ProvidersData.MARIN.NAME, new MarinSearch());
         searchers.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeSearch());

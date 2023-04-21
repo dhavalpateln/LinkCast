@@ -1,6 +1,10 @@
 package com.dhavalpateln.linkcast.database;
 
+import android.util.Log;
+
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.utils.Utils;
+import com.google.firebase.database.DatabaseReference;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,6 +15,7 @@ public class AnimeLinkData implements Serializable {
     private String id;
     private String title;
     private String url;
+    private AnimeMALMetaData malMetaData;
     private Map<String, String> data;
 
     public static class DataContract {
@@ -29,6 +34,8 @@ public class AnimeLinkData implements Serializable {
         public static final String DATA_MYANIMELIST_URL = "malurl";
         public static final String DATA_USER_SCORE = "userscore";
         public static final String DATA_LINK_TYPE = "linktype";
+        public static final String DATA_LAST_FETCHED_EPISODES = "fepi";
+        public static final String DATA_VERSION = "ver";
     }
 
     public String getTitle() {
@@ -66,6 +73,14 @@ public class AnimeLinkData implements Serializable {
         }
     }
 
+    public AnimeMALMetaData getMalMetaData() {
+        return malMetaData;
+    }
+
+    public void setMalMetaData(AnimeMALMetaData malMetaData) {
+        this.malMetaData = malMetaData;
+    }
+
     public String getAnimeMetaData(String key) {
         if(getData().containsKey(key))  return getData().get(key);
         switch (key) {
@@ -78,9 +93,12 @@ public class AnimeLinkData implements Serializable {
             case DataContract.DATA_EPISODE_NUM:
                 return "Episode - 0";
             case DataContract.DATA_USER_SCORE:
+            case DataContract.DATA_VERSION:
                 return "0";
             case DataContract.DATA_LINK_TYPE:
                 return "Anime";
+            case DataContract.DATA_LAST_FETCHED_EPISODES:
+                return "-2";
             default:
                 if(isNumeric(key)) {
                     return "0";
@@ -105,13 +123,29 @@ public class AnimeLinkData implements Serializable {
         }
     }
 
+    public void updateMalMetaData(AnimeMALMetaData metaData) {
+        if(!metaData.equals(getMalMetaData())) {
+            setMalMetaData(metaData);
+            if (getId() != null) {
+                getDBRef().child(getId()).child("malMetaData").setValue(getMalMetaData());
+            }
+        }
+    }
+
     public void updateAll(boolean isAnime) {
 
         if(id == null)  id = Utils.getCurrentTime();
 
+        if(getTitle() == null || getUrl() == null) {
+            Log.d("AnimeLinkData", "Something bad happened. Bad copy");
+            FirebaseDBHelper.getUserDataRef().child("badcopy").child(Utils.getCurrentTime()).setValue(id);
+            return;
+        }
+
         Map<String, Object> update = new HashMap<>();
         update.put(id + "/title", getTitle());
         update.put(id + "/url", getUrl());
+        update.put(id + "/malMetaData", getMalMetaData());
 
         for(String key: getData().keySet()) {
             update.put(id + "/data/" + key, getData().get(key));
@@ -124,6 +158,8 @@ public class AnimeLinkData implements Serializable {
 
         this.data = data;
     }
+
+
 
     public String getId() {
         return id;
@@ -140,5 +176,26 @@ public class AnimeLinkData implements Serializable {
         for(Map.Entry<String, String> dataEntry: animeLinkData.getData().entrySet()) {
             dataMap.put(dataEntry.getKey(), dataEntry.getValue());
         }
+    }
+
+    public DatabaseReference getDBRef() {
+        if(isAnime())   return FirebaseDBHelper.getUserAnimeWebExplorerLinkRef();
+        else return FirebaseDBHelper.getUserMangaWebExplorerLinkRef();
+    }
+
+    public boolean isAnime() {
+        if(this.getAnimeMetaData(DataContract.DATA_SOURCE).contains("manga")) {
+            return false;
+        }
+        return this.getAnimeMetaData(DataContract.DATA_LINK_TYPE).equalsIgnoreCase("anime");
+    }
+
+    public static AnimeLinkData from(LinkData linkData) {
+        AnimeLinkData animeLinkData = new AnimeLinkData();
+        animeLinkData.setId(linkData.getId());
+        animeLinkData.setData(linkData.getData());
+        animeLinkData.setTitle(linkData.getTitle());
+        animeLinkData.setUrl(linkData.getUrl());
+        return animeLinkData;
     }
 }
