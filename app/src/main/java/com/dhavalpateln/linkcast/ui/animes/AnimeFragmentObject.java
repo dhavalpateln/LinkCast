@@ -1,6 +1,5 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,18 +16,10 @@ import com.dhavalpateln.linkcast.database.LinkDataViewModel;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
-import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
-import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
-import com.dhavalpateln.linkcast.database.SharedPrefContract;
-import com.dhavalpateln.linkcast.dialogs.BookmarkLinkDialog;
-import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
-import com.dhavalpateln.linkcast.ui.mangas.MangaDataViewModel;
 
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
