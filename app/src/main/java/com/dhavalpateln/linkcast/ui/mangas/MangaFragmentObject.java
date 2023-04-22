@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 
+import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
@@ -91,6 +93,26 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
         }
     }
 
+    private class MangaCatalogGridAdapter extends LinkDataGridRecyclerAdapter {
+
+        public MangaCatalogGridAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            LinkWithAllData linkWithAllData = dataList.get(position);
+            AnimeLinkData data = AnimeLinkData.from(linkWithAllData.linkData);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = AdvancedView.prepareIntent(getContext(), data);
+                intent.putExtra(AdvancedView.INTENT_MODE_ANIME, false);
+                startActivity(intent);
+            });
+
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -114,5 +136,13 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
     @Override
     public RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context) {
         return new MangaCatalogListAdapter(adapterDataList, context);
+    }
+    @Override
+    public RecyclerView.Adapter getListAdapter(List<LinkWithAllData> adapterDataList, Context context) {
+        return new MangaCatalogListAdapter(adapterDataList, context);
+    }
+    @Override
+    public RecyclerView.Adapter getGridAdapter(List<LinkWithAllData> adapterDataList, Context context) {
+        return new MangaCatalogGridAdapter(adapterDataList, context);
     }
 }

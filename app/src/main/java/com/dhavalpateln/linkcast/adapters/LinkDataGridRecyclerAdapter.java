@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
@@ -19,25 +19,25 @@ import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.util.List;
 
-public class LinkDataListRecyclerAdapter extends RecyclerView.Adapter<LinkDataViewHolder> {
+public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGridViewHolder> {
 
     private Context mcontext;
     private List<LinkWithAllData> dataArrayList;
 
-    public LinkDataListRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+    public LinkDataGridRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
         this.mcontext = mcontext;
         this.dataArrayList = recyclerDataArrayList;
     }
 
     @NonNull
     @Override
-    public LinkDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_linkdata_recycler_object, parent, false);
-        return new LinkDataViewHolder(view);
+    public LinkDataGridViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_linkdata_recycler_object, parent, false);
+        return new LinkDataGridViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LinkDataViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
         LinkWithAllData linkWithAllData = dataArrayList.get(position);
         AnimeLinkData recyclerData = AnimeLinkData.from(linkWithAllData.linkData);
         //AnimeLinkData recyclerData = dataArrayList.get(position);
@@ -70,8 +70,8 @@ public class LinkDataListRecyclerAdapter extends RecyclerView.Adapter<LinkDataVi
             totalEpisode = Math.max(Integer.parseInt(linkWithAllData.malMetaData.getTotalEpisodes()), totalEpisode);
         }
 
-        holder.progressBar.setProgress((int) ((watchedEpisodes*100.0) / totalEpisode));
-        holder.progressBar.setSecondaryProgress((int) ((fetchedEpisodes*100.0) / totalEpisode));
+        //holder.progressBar.setProgress((int) ((watchedEpisodes*100.0) / totalEpisode));
+        //holder.progressBar.setSecondaryProgress((int) ((fetchedEpisodes*100.0) / totalEpisode));
 
         if(totalEpisode == fetchedEpisodes) {
             holder.episodeProgressTextView.setText(watchedEpisodes + " | " + totalEpisode);
@@ -94,6 +94,8 @@ public class LinkDataListRecyclerAdapter extends RecyclerView.Adapter<LinkDataVi
         else {
             holder.animeImageView.setImageDrawable(mcontext.getResources().getDrawable(R.drawable.ic_stat_name));
         }
+
+
     }
 
     @Override

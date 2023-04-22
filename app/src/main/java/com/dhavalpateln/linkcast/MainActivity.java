@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import android.preference.PreferenceManager;
+import android.transition.Explode;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,7 @@ import androidx.work.WorkRequest;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 import android.view.Menu;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -199,6 +201,11 @@ public class MainActivity extends AppCompatActivity {
         }
         //new LinkCastRoomRepository(getApplicationContext()).clearLinkData();
         initRoomDB();
+        // Inside your activity (if you did not enable transitions in your theme)
+        //getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
+        // Set an exit transition
+        //getWindow().setExitTransition(new Explode());
         //updateUserMetaData();
     }
 

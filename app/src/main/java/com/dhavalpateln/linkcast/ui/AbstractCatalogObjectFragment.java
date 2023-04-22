@@ -7,8 +7,6 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -24,8 +22,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,6 +32,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     protected static final String CATALOG_TYPE_ARG = "type";
     private static final String SORT_ARG = "sort";
     private static final String TAG = "CATALOG_FRAGMENT";
+    private View root;
 
     protected String tabName;
     protected List<LinkWithAllData> dataList;
@@ -78,7 +77,9 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_catalog_object, container, false);
+        if(root == null) {
+            root = inflater.inflate(R.layout.fragment_catalog_object, container, false);
+        }
         return root;
     }
 
@@ -91,13 +92,23 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
         sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
-        adapter = getAdapter(dataList, getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        boolean useListAdapter = false;
+        if(useListAdapter) {
+            adapter = getListAdapter(dataList, getContext());
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        }
+        else {
+            adapter = getGridAdapter(dataList, getContext());
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
         recyclerView.setAdapter(adapter);
         sortButton.setOnClickListener(v -> showSortOptions(v));
     }
 
     public abstract RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getListAdapter(List<LinkWithAllData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getGridAdapter(List<LinkWithAllData> adapterDataList, Context context);
 
     private void showSortOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);

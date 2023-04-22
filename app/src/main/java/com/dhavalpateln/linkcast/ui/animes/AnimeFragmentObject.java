@@ -1,5 +1,6 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,9 +9,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
+import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
@@ -89,7 +93,56 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
             LinkWithAllData data = dataList.get(position);
             holder.mainLayout.setOnClickListener(v -> {
                 Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
+                //ActivityOptions options = ActivityOptions
+                //        .makeSceneTransitionAnimation(getActivity(), holder.animeImageView, "animeImage");
                 startActivity(intent);
+            });
+
+            holder.mainLayout.setOnLongClickListener(view -> {
+                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet();
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "LDBottomSheet");
+                return true;
+            });
+            /*holder.deleteButton.setOnClickListener(v -> {
+                if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
+                    ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
+                        FirebaseDBHelper.removeAnimeLink(data.getId());
+                    });
+                    confirmationDialog.show(getParentFragmentManager(), "Confirm");
+                }
+                else {
+                    FirebaseDBHelper.removeAnimeLink(data.getId());
+                }
+            });
+            holder.editButton.setOnClickListener(v -> {
+                // TODO: add more fields to edit
+                BookmarkLinkDialog dialog = new BookmarkLinkDialog(data);
+                dialog.show(getParentFragmentManager(), "bookmarkEdit");
+            });*/
+            holder.scoreTextView.setText("\u2605" + data.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+        }
+    }
+
+    private class AnimeCatalogGridAdapter extends LinkDataGridRecyclerAdapter {
+
+        public AnimeCatalogGridAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            LinkWithAllData data = dataList.get(position);
+            holder.mainLayout.setOnClickListener(v -> {
+                Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
+                //ActivityOptions options = ActivityOptions
+                //        .makeSceneTransitionAnimation(getActivity(), holder.animeImageView, "animeImage");
+                startActivity(intent);
+            });
+            holder.mainLayout.setOnLongClickListener(view -> {
+                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet();
+                bottomSheet.show(getActivity().getSupportFragmentManager(), "LDBottomSheet");
+                return true;
             });
             /*holder.deleteButton.setOnClickListener(v -> {
                 if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
@@ -146,5 +199,15 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
     @Override
     public RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context) {
         return new AnimeCatalogListAdapter(adapterDataList, context);
+    }
+
+    @Override
+    public RecyclerView.Adapter getListAdapter(List<LinkWithAllData> adapterDataList, Context context) {
+        return new AnimeCatalogListAdapter(adapterDataList, context);
+    }
+
+    @Override
+    public RecyclerView.Adapter getGridAdapter(List<LinkWithAllData> adapterDataList, Context context) {
+        return new AnimeCatalogGridAdapter(adapterDataList, context);
     }
 }

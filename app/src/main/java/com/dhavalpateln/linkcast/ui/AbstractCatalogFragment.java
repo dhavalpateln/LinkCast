@@ -45,6 +45,7 @@ public abstract class AbstractCatalogFragment extends Fragment {
 
         catalogCollectionAdapter = new CatalogCollectionAdapter(this);
         viewPager = view.findViewById(R.id.pager);
+        //viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(catalogCollectionAdapter);
 
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
