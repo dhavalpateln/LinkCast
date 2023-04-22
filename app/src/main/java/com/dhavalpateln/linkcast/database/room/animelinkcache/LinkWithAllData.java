@@ -8,7 +8,9 @@ import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
 import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
 import com.dhavalpateln.linkcast.utils.Utils;
 
-public class LinkWithAllData {
+import java.io.Serializable;
+
+public class LinkWithAllData implements Serializable {
     @Embedded
     public LinkData linkData;
 
@@ -23,6 +25,10 @@ public class LinkWithAllData {
             return this.malMetaData.getName();
         }
         return this.linkData.getTitle();
+    }
+
+    public String getId() {
+        return this.linkData.getId();
     }
 
     public String getMetaData(String key) {
@@ -47,6 +53,13 @@ public class LinkWithAllData {
                     return "0";
                 }
                 return null;
+        }
+    }
+
+    public void updateData(String key, String value, boolean syncFirebase) {
+        this.linkData.getData().put(key, value);
+        if(syncFirebase) {
+
         }
     }
 }

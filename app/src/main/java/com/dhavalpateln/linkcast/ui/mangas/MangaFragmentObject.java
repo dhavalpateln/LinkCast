@@ -11,6 +11,7 @@ import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
+import com.dhavalpateln.linkcast.database.LinkDataViewModel;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
@@ -116,9 +117,9 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MangaDataViewModel viewModel = new ViewModelProvider(getActivity()).get(MangaDataViewModel.class);
+        LinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(LinkDataViewModel.class);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        viewModel.getLinkData().observe(getViewLifecycleOwner(), linkDataList -> {
+        viewModel.getMangaLinks().observe(getViewLifecycleOwner(), linkDataList -> {
             dataList.clear();
             for(LinkWithAllData linkWithAllData: linkDataList) {
                 AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);

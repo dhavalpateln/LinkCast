@@ -13,6 +13,7 @@ import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
+import com.dhavalpateln.linkcast.database.LinkDataViewModel;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
@@ -132,6 +133,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         @Override
         public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
             super.onBindViewHolder(holder, position);
+            //Log.d("List", "Binding listener");
             LinkWithAllData data = dataList.get(position);
             holder.mainLayout.setOnClickListener(v -> {
                 Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
@@ -168,12 +170,14 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
+        //SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(SharedAnimeLinkDataViewModel.class);
 
-        new ViewModelProvider(getActivity()).get(MangaDataViewModel.class).getData(); // load manga cache
+        //new ViewModelProvider(getActivity()).get(MangaDataViewModel.class).getData(); // load manga cache
+
+        LinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(LinkDataViewModel.class);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        viewModel.getLinkData().observe(getViewLifecycleOwner(), linkDataList -> {
+        viewModel.getAnimeLinks().observe(getViewLifecycleOwner(), linkDataList -> {
             Log.d(TAG, "Data changed");
             dataList.clear();
             for(LinkWithAllData linkWithAllData: linkDataList) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,6 +93,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
         sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
+        recyclerView.setHasFixedSize(true);
         boolean useListAdapter = false;
         if(useListAdapter) {
             adapter = getListAdapter(dataList, getContext());
@@ -146,7 +148,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 default:
                     break;
             }
-            sortData();
+            refreshAdapter();
             return false;
         });
 
@@ -176,10 +178,10 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData2.linkData.getId().compareToIgnoreCase(animeLinkData1.linkData.getId()));
                 break;
         }
-        adapter.notifyDataSetChanged();
     }
 
     protected void refreshAdapter() {
+        Log.d("Catalog", "refresh called");
         animeEntriesCountTextView.setText(dataList.size() + " Entries");
         sortData();
         adapter.notifyDataSetChanged();

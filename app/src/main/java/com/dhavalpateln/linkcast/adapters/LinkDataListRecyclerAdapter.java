@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class LinkDataListRecyclerAdapter extends RecyclerView.Adapter<LinkDataVi
 
     @Override
     public void onBindViewHolder(@NonNull LinkDataViewHolder holder, int position) {
+        Log.d("List", "binding data");
         LinkWithAllData linkWithAllData = dataArrayList.get(position);
         AnimeLinkData recyclerData = AnimeLinkData.from(linkWithAllData.linkData);
         //AnimeLinkData recyclerData = dataArrayList.get(position);

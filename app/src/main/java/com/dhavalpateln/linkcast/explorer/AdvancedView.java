@@ -40,6 +40,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.AdvancedSourceSelector;
 import com.dhavalpateln.linkcast.dialogs.CastDialog;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
@@ -94,6 +95,7 @@ public class AdvancedView extends AppCompatActivity implements TaskCompleteListe
 
     public static final String INTENT_ANIME_LINK_DATA = "animedata";
     public static final String INTENT_MODE_ANIME = "isanime";
+    private static final String INTENT_LINK_WITH_DATA = "linkwithalldata";
 
     private Map<String, AnimeExtractor> animeExtractors;
     private Map<String, MangaExtractor> mangaExtractors;
@@ -858,6 +860,12 @@ public class AdvancedView extends AppCompatActivity implements TaskCompleteListe
     public static Intent prepareIntent(Context context, AnimeLinkData animeLinkData) {
         Intent intent = new Intent(context, AdvancedView.class);
         intent.putExtra(INTENT_ANIME_LINK_DATA, animeLinkData);
+        return intent;
+    }
+
+    public static Intent prepareIntent(Context context, LinkWithAllData linkWithAllData) {
+        Intent intent = new Intent(context, AdvancedView.class);
+        intent.putExtra(INTENT_LINK_WITH_DATA, linkWithAllData);
         return intent;
     }
 }

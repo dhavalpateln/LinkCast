@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGr
 
     private Context mcontext;
     private List<LinkWithAllData> dataArrayList;
+    private View createdRoot;
 
     public LinkDataGridRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
         this.mcontext = mcontext;
@@ -82,20 +84,18 @@ public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGr
 
 
         String imageUrl = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
+        holder.animeImageView.setImageDrawable(mcontext.getResources().getDrawable(R.drawable.ic_stat_name));
         if(imageUrl != null) {
             Glide.with(mcontext)
                     .load(imageUrl)
                     .centerCrop()
                     .crossFade()
+                    .placeholder(R.drawable.ic_stat_name)
+                    .error(R.drawable.ic_stat_name)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.animeImageView);
             holder.animeImageView.setClipToOutline(true);
         }
-        else {
-            holder.animeImageView.setImageDrawable(mcontext.getResources().getDrawable(R.drawable.ic_stat_name));
-        }
-
-
     }
 
     @Override
