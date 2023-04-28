@@ -28,13 +28,13 @@ public class ExtractMangaEpisodes extends RunnableTask {
             if(this.extractor.requiresInit()) {
                 this.extractor.init();
             }
-            List<EpisodeNode> episodes = this.extractor.getChapters(this.animeData.getUrl());
-            this.animeData.updateData(
+            List<EpisodeNode> episodes = this.extractor.extractData(this.animeData);
+            /*this.animeData.updateData(
                     AnimeLinkData.DataContract.DATA_LAST_FETCHED_EPISODES,
                     String.valueOf(episodes.size()),
                     true,
                     true
-            );
+            );*/
             this.getUIHandler().post(() -> this.listener.onEpisodeNodesFetched(episodes));
         } catch (Exception e) {
             Log.d(getTaskName(), "Exception while running extractor: " + this.extractor.getDisplayName());

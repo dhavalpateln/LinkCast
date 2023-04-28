@@ -40,7 +40,7 @@ public class MangaFourLifeSearch extends AnimeMangaSearch {
                 data.setTitle(Utils.capFirstLetters(key).trim());
                 data.setUrl(ProvidersData.MANGAFOURLIFE.URL + "/manga/" + mangas.get(key));
                 Map<String, String> dataMap = new HashMap<>();
-                dataMap.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, "https://cover.nep.li/cover/" + mangas.get(key) + ".jpg");
+                dataMap.put(AnimeLinkData.DataContract.DATA_IMAGE_URL, "https://temp.compsci88.com/cover/" + mangas.get(key) + ".jpg");
                 dataMap.put(AnimeLinkData.DataContract.DATA_SOURCE, ProvidersData.MANGAFOURLIFE.NAME);
                 data.setData(dataMap);
                 result.add(data);

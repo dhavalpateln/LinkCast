@@ -26,6 +26,7 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.ui.settings.SettingsFragment;
@@ -501,6 +502,24 @@ public class ExoPlayerActivity extends AppCompatActivity implements Player.Liste
         intent.putExtra(SHOULD_RESUME, resume);
         intent.putExtra("saveProgress", true);
         if(animeData.getId() != null)  intent.putExtra("id", animeData.getId());
+        return intent;
+    }
+
+    public static Intent prepareIntent(Context context, LinkWithAllData linkWithAllData, VideoURLData videoURLData, String episodeNum, boolean resume) {
+
+        //videoURLData = new VideoURLData("animepahe", "title", "https://v.vrv.co/evs3/d6eaa21935ca301f291cddc347bf287b/assets/2fitb7a8qgywrac_,1890521.mp4,1890515.mp4,1890509.mp4,.urlset/master.m3u8?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly92LnZydi5jby9ldnMzL2Q2ZWFhMjE5MzVjYTMwMWYyOTFjZGRjMzQ3YmYyODdiL2Fzc2V0cy8yZml0YjdhOHFneXdyYWNfLDE4OTA1MjEubXA0LDE4OTA1MTUubXA0LDE4OTA1MDkubXA0LC51cmxzZXQvbWFzdGVyLm0zdTgiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTQ5MjkwODF9fX1dfQ__&Signature=At5k4Q8j6ULTzlJ8MKzLtSpewh~tr5FOv~mXuf7fLkmuAMv~iYX6HwYqImq3khEjGrYjCcdqqESBb8NxchXn1P7ePQORMk2sKHGowbh0UQHzS9RvwcSLL91lF3kmX98MgufRbV6glz1GbKD-yHPayzGtkdqk9bKfb~wN2hBivrmOg6ovpgfPQA1LrelvPYODnv0qBrX-RycnEwt2-iBNqBJVs9ykW-C3GEaHJlS93QvJdbph0ZVD8mw5jR0N4XMe0NEmWsCcgzYixxSIxWNzqxWAXeK2mJnjB~KG9PqJMzE0w7AFrNbmG4dwamMe9h2g~~o6xgvd6uhMMSpPao0NLw__&Key-Pair-Id=APKAJMWSQ5S7ZB3MF5VA", null);
+
+        Intent intent = new Intent(context, ExoPlayerActivity.class);
+        if(episodeNum != null) {
+            episodeNum = episodeNum.replace(".", "dot");
+            intent.putExtra(EPISODE_NUM, episodeNum);
+        }
+        intent.putExtra(VIDEO_DATA, videoURLData);
+        intent.putExtra(ANIME_DATA, AnimeLinkData.from(linkWithAllData.linkData));
+        intent.putExtra(MEDIA_URL, videoURLData.getUrl());
+        intent.putExtra(SHOULD_RESUME, resume);
+        intent.putExtra("saveProgress", true);
+        if(linkWithAllData.getId() != null)  intent.putExtra("id", linkWithAllData.getId());
         return intent;
     }
 

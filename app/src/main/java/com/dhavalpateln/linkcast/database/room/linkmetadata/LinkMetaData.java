@@ -7,10 +7,11 @@ import androidx.room.PrimaryKey;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 
+import java.io.Serializable;
 import java.util.Map;
 
 @Entity
-public class LinkMetaData {
+public class LinkMetaData implements Serializable {
 
     @PrimaryKey
     @NonNull

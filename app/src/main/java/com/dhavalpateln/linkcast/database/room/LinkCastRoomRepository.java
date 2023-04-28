@@ -1,6 +1,5 @@
 package com.dhavalpateln.linkcast.database.room;
 
-import android.app.Application;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
@@ -13,6 +12,7 @@ import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaDataDao;
 import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
 import com.dhavalpateln.linkcast.database.room.maldata.MALMetaDataDao;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class LinkCastRoomRepository {
@@ -42,6 +42,10 @@ public class LinkCastRoomRepository {
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> linkDataDao.delete(id));
     }
 
+    public void deleteAnimeLinkData() {
+        linkDataDao.deleteAnimeLinks();
+    }
+
     public LiveData<List<LinkWithAllData>> getAnimeLinks() { return linkDataDao.getAnimeLinks(); }
     public LiveData<List<LinkWithAllData>> getMangaLinks() { return linkDataDao.getMangaLinks(); }
     public List<LinkData> getAllAnimeLinks() { return linkDataDao.getAll(); }
@@ -56,5 +60,31 @@ public class LinkCastRoomRepository {
 
     public List<LinkWithAllData> getLinkWithData() {
         return linkDataDao.getAllData();
+    }
+
+    public LinkMetaData createDefaultLinkMetaData(String id) {
+        LinkMetaData linkMetaData = new LinkMetaData();
+        linkMetaData.setId(id);
+        linkMetaData.setLastEpisodeNodesFetchCount(-2);
+        linkMetaData.setMiscData(new HashMap<>());
+        return linkMetaData;
+    }
+
+    public void updateLastFetchedEpisode(LinkWithAllData linkWithAllData, int episodes) {
+        if(linkWithAllData.getId() != null) {
+            if(linkWithAllData.linkMetaData == null) {
+                linkWithAllData.linkMetaData = createDefaultLinkMetaData(linkWithAllData.getId());
+            }
+            linkWithAllData.linkMetaData.setLastEpisodeNodesFetchCount(episodes);
+            insert(linkWithAllData.linkMetaData);
+        }
+    }
+
+    public List<String> getAllAnimeIDs() {
+        return this.linkDataDao.getAllAnimeIDs();
+    }
+
+    public List<String> getAllMangaIDs() {
+        return this.linkDataDao.getAllMangaIDs();
     }
 }

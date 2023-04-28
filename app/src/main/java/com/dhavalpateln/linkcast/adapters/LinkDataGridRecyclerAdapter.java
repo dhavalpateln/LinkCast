@@ -23,7 +23,7 @@ import java.util.List;
 public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGridViewHolder> {
 
     private Context mcontext;
-    private List<LinkWithAllData> dataArrayList;
+    protected List<LinkWithAllData> dataArrayList;
     private View createdRoot;
 
     public LinkDataGridRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
@@ -74,12 +74,15 @@ public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGr
 
         //holder.progressBar.setProgress((int) ((watchedEpisodes*100.0) / totalEpisode));
         //holder.progressBar.setSecondaryProgress((int) ((fetchedEpisodes*100.0) / totalEpisode));
-
-        if(totalEpisode == fetchedEpisodes) {
-            holder.episodeProgressTextView.setText(watchedEpisodes + " | " + totalEpisode);
+        if(linkWithAllData.linkData.getId() != null) {
+            if (totalEpisode == fetchedEpisodes || (linkWithAllData.linkMetaData != null && linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount() == -2)) {
+                holder.episodeProgressTextView.setText(watchedEpisodes + " | " + totalEpisode);
+            } else {
+                holder.episodeProgressTextView.setText(watchedEpisodes + " | " + fetchedEpisodes + " | " + totalEpisode);
+            }
         }
         else {
-            holder.episodeProgressTextView.setText(watchedEpisodes + " | " + fetchedEpisodes + " | " + totalEpisode);
+            holder.episodeProgressTextView.setVisibility(View.GONE);
         }
 
 

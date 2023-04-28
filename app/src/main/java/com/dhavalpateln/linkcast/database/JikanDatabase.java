@@ -267,7 +267,7 @@ public class JikanDatabase {
                     animeMALMetaData.setTotalEpisodes(data.getString("episodes"));
                 }
                 if(data.has("chapters") && data.get("chapters") != null) {
-                    animeMALMetaData.setTotalEpisodes(String.valueOf(data.getInt("chapters")));
+                    animeMALMetaData.setTotalEpisodes(data.getString("chapters"));
                 }
                 if(isAnime && data.getJSONObject("aired").get("from") != null) {
                     animeMALMetaData.setAirDate(data.getJSONObject("aired").getString("from").split("T")[0]);

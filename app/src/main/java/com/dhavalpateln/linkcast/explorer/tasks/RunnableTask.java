@@ -21,6 +21,11 @@ public abstract class RunnableTask implements Runnable {
         }
     }
 
+    public RunnableTask(String name) {
+        this.taskName = name;
+        uiHandler = new Handler(Looper.getMainLooper());
+    }
+
     public String getTaskName() {
         return this.taskName;
     }
@@ -38,6 +43,11 @@ public abstract class RunnableTask implements Runnable {
     }
 
     protected void notifyComplete() {
-        listener.onTaskCompleted(getTaskName());
+        if(getUIHandler() != null) {
+            getUIHandler().post(() -> listener.onTaskCompleted(getTaskName()));
+        }
+        else {
+            listener.onTaskCompleted(getTaskName());
+        }
     }
 }

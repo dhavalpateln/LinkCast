@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,14 +28,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 
+import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
+import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.extractors.Providers;
@@ -65,7 +70,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private Map<String, AnimeMangaSearch> searchers;
     private String TAG = "AnimeSearch";
     private BookmarkedSearch bookmarkedSearch;
-    private ArrayList<AnimeLinkData> filteredData;
+    private List<LinkWithAllData> filteredData;
     private ExtractSearchResult extractSearchResult;
     private SharedPreferences prefs;
 
@@ -82,10 +87,60 @@ public class AnimeSearchActivity extends AppCompatActivity {
         }
     };
 
-    private class SearchListRecyclerAdapter extends AnimeDataListRecyclerAdapter {
+    private class SearchListRecyclerAdapter extends LinkDataGridRecyclerAdapter {
+
+        public SearchListRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
+            super(recyclerDataArrayList, mcontext);
+        }
+
+        private void open(LinkWithAllData recyclerData) {
+            LinkWithAllData correctData = recyclerData;
+
+
+            if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(RESULT_ANIMELINKDATA, correctData);
+                resultIntent.putExtra(RESULT_FORCE, false);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+                return;
+            }
+            Intent intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
+            intent.putExtra(AdvancedView.INTENT_MODE_ANIME, recyclerData.linkData.getType().equalsIgnoreCase("anime"));
+            startActivity(intent);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+            LinkWithAllData link = this.dataArrayList.get(position);
+
+            holder.mainLayout.setOnClickListener(v -> {
+                open(link);
+            });
+
+            if(link.getId() != null) {
+
+                holder.mainLayout.setOnLongClickListener(v -> {
+                    LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(link, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
+                    bottomSheet.show(getSupportFragmentManager(), "LDBottomSheet");
+                    return true;
+                });
+
+                /*holder.editButton.setOnClickListener(v -> {
+                    // TODO: add more fields to edit
+                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
+                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
+                });*/
+            }
+        }
+    }
+
+    /*private class SearchListRecyclerAdapter extends AnimeDataListRecyclerAdapter {
 
         public SearchListRecyclerAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
+
         }
 
         private void open(AnimeLinkData recyclerData, AnimeMangaSearch animeSearch, boolean isLongClick) {
@@ -172,14 +227,9 @@ public class AnimeSearchActivity extends AppCompatActivity {
                     this.dataArrayList.remove(position);
                     adapter.notifyDataSetChanged();
                 });
-                /*holder.editButton.setOnClickListener(v -> {
-                    // TODO: add more fields to edit
-                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
-                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
-                });*/
             }
         }
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +249,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
             searchEditText.setText(getIntent().getStringExtra(INTENT_SEARCH_TERM));
         }
 
-        bookmarkedSearch = new BookmarkedSearch();
+        bookmarkedSearch = new BookmarkedSearch(getApplicationContext());
         filteredData = new ArrayList<>();
 
         ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item);
@@ -235,7 +285,8 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.search_recycler_view);
         adapter = new SearchListRecyclerAdapter(filteredData, getApplicationContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
+        //recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
 
         /*SharedAnimeLinkDataViewModel viewModel = new ViewModelProvider(this).get(SharedAnimeLinkDataViewModel.class);
@@ -309,29 +360,29 @@ public class AnimeSearchActivity extends AppCompatActivity {
 
     }
 
-    private void updateRecyclerData(ArrayList<AnimeLinkData> animeLinkDataList) {
+    private void updateRecyclerData(List<LinkWithAllData> animeLinkDataList) {
         filteredData.clear();
-        for(AnimeLinkData animeLinkData: animeLinkDataList) {
+        for(LinkWithAllData animeLinkData: animeLinkDataList) {
             filteredData.add(animeLinkData);
         }
         adapter.notifyDataSetChanged();
     }
 
-    private class ExtractSearchResult extends AsyncTask<String, Integer, ArrayList<AnimeLinkData>> {
+    private class ExtractSearchResult extends AsyncTask<String, Integer, List<LinkWithAllData>> {
 
         @Override
-        protected void onPostExecute(ArrayList<AnimeLinkData> animeLinkDataList) {
+        protected void onPostExecute(List<LinkWithAllData> animeLinkDataList) {
             super.onPostExecute(animeLinkDataList);
             updateRecyclerData(animeLinkDataList);
         }
 
         @Override
-        protected ArrayList<AnimeLinkData> doInBackground(String... strings) {
+        protected List<LinkWithAllData> doInBackground(String... strings) {
             String searchTerm = strings[0].trim();
             String source = strings[1];
-            ArrayList<AnimeLinkData> result;
+            List<LinkWithAllData> result;
             AnimeMangaSearch animeSearcher = searchers.get(source);
-            result = animeSearcher.search(searchTerm);
+            result = animeSearcher.searchLink(searchTerm);
             return result;
         }
 

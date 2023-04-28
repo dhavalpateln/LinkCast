@@ -1,14 +1,19 @@
 package com.dhavalpateln.linkcast.database.room.animelinkcache;
 
+import android.util.Log;
+
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
 import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
 import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LinkWithAllData implements Serializable {
     @Embedded
@@ -61,5 +66,41 @@ public class LinkWithAllData implements Serializable {
         if(syncFirebase) {
 
         }
+    }
+
+    public void updateFirebase() {
+        if(getId() == null)  this.linkData.setId(Utils.getCurrentTime());
+
+        if(this.linkData.getTitle() == null || this.linkData.getUrl() == null) {
+            Log.d("LinkWithAllData", "Something bad happened. Bad copy");
+            FirebaseDBHelper.getUserDataRef().child("badcopy").child(Utils.getCurrentTime()).setValue(getId());
+            return;
+        }
+
+        Map<String, Object> update = new HashMap<>();
+        update.put(getId() + "/title", this.linkData.getTitle());
+        update.put(getId() + "/url", this.linkData.getUrl());
+
+        for(String key: this.linkData.getData().keySet()) {
+            update.put(getId() + "/data/" + key, this.linkData.getData().get(key));
+        }
+        if(this.linkData.getType().equalsIgnoreCase("anime"))   FirebaseDBHelper.getUserAnimeWebExplorerLinkRef().updateChildren(update);
+        else FirebaseDBHelper.getUserMangaWebExplorerLinkRef().updateChildren(update);
+    }
+
+    public boolean isAnime() {
+        return this.linkData.getType().equalsIgnoreCase("anime");
+    }
+
+    public LinkWithAllData from(AnimeLinkData animeLinkData) {
+        LinkWithAllData linkWithAllData = new LinkWithAllData();
+        linkWithAllData.linkData = LinkData.from(animeLinkData);
+        linkWithAllData.linkMetaData = new LinkMetaData();
+        linkWithAllData.malMetaData = null;
+
+        linkWithAllData.linkMetaData.setId(linkWithAllData.linkData.getId());
+        linkWithAllData.linkMetaData.setLastEpisodeNodesFetchCount(-2);
+        linkWithAllData.linkMetaData.setMiscData(new HashMap<>());
+        return linkWithAllData;
     }
 }

@@ -1,6 +1,10 @@
 package com.dhavalpateln.linkcast.extractors.mangafourlife;
 
+import android.util.Log;
+
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.MangaExtractor;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
@@ -23,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MangaFourLifeExtractor extends MangaExtractor {
+
+    private String TAG = "Manga4Life";
 
     private boolean isImageURL(String url) {
         try {
@@ -160,6 +166,24 @@ public class MangaFourLifeExtractor extends MangaExtractor {
     @Override
     public boolean isCorrectURL(String url) {
         return url.startsWith(ProvidersData.MANGAFOURLIFE.URL);
+    }
+
+    @Override
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
+        try {
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(data.getUrl());
+            Document doc = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
+
+            Element imageContainer = doc.selectFirst("div.BoxBody").select("div.row").get(2).selectFirst("img");
+            data.updateData(
+                    AnimeLinkData.DataContract.DATA_IMAGE_URL,
+                    imageContainer.attr("src"),
+                    true, false
+            );
+        } catch (Exception e) {
+            Log.d(TAG, "error extracting data");
+        }
+        return getChapters(data.getUrl());
     }
 
     @Override

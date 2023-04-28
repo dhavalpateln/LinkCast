@@ -29,6 +29,9 @@ public interface LinkDataDao {
     @Query("DELETE FROM LinkData WHERE id=:id")
     void delete(String id);
 
+    @Query("DELETE FROM LinkData WHERE type='anime'")
+    void deleteAnimeLinks();
+
     @Query("DELETE FROM LinkData")
     void deleteAll();
 
@@ -42,5 +45,11 @@ public interface LinkDataDao {
 
     @Query("SELECT * FROM LinkData WHERE type='anime'")
     List<LinkData> getAllAnimeLinks();
+
+    @Query("SELECT id FROM LinkData WHERE type='anime'")
+    List<String> getAllAnimeIDs();
+
+    @Query("SELECT id FROM LinkData WHERE type='manga'")
+    List<String> getAllMangaIDs();
 
 }

@@ -11,7 +11,7 @@ import com.dhavalpateln.linkcast.utils.Utils;
 import java.io.Serializable;
 
 @Entity
-public class MALMetaData {
+public class MALMetaData implements Serializable {
 
     @PrimaryKey
     @NonNull

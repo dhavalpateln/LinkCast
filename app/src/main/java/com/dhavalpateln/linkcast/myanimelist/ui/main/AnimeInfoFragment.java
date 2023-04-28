@@ -141,6 +141,8 @@ public class AnimeInfoFragment extends Fragment {
             startActivity(searchIntent);
         });
 
+
+
         rankTextView.setText(myAnimelistAnimeData.getInfo("Ranked"));
         scoreTextView.setText(myAnimelistAnimeData.getInfo("Score"));
         popularityTextView.setText(myAnimelistAnimeData.getInfo("Popularity"));

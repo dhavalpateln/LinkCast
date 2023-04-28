@@ -9,8 +9,10 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import android.app.UiModeManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,6 +21,7 @@ import com.dhavalpateln.linkcast.database.FirebaseDB;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
+import com.dhavalpateln.linkcast.migration.MigrationActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -148,7 +151,13 @@ public class LauncherActivity extends AppCompatActivity {
         if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
             start = new Intent(LauncherActivity.this, TVActivity.class);
         } else {
-            start = new Intent(LauncherActivity.this, MainActivity.class);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if(prefs.getInt(MigrationActivity.PREF_MIGRATION_VERSION_KEY, 0) < MigrationActivity.VERSION) {
+                start = new Intent(LauncherActivity.this, MigrationActivity.class);
+            }
+            else {
+                start = new Intent(LauncherActivity.this, MainActivity.class);
+            }
         }
         startActivity(start);
     }

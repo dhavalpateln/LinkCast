@@ -17,6 +17,7 @@ import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.ValueCallback;
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomDatabase;
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
+import com.dhavalpateln.linkcast.migration.MigrationActivity;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.dhavalpateln.linkcast.worker.LinkCastWorker;
 import com.dhavalpateln.linkcast.worker.LinkMonitorTask;
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private void enqueuePeriodicWork(String name, PeriodicWorkRequest workRequest, int version) {
         String prefKey = "worker" + name + "ver";
         int queuedWorkerVer = prefs.getInt(prefKey, -1);
-        ExistingPeriodicWorkPolicy policy = ExistingPeriodicWorkPolicy.KEEP;
+        ExistingPeriodicWorkPolicy policy = ExistingPeriodicWorkPolicy.REPLACE;
         if(version != queuedWorkerVer) {
             policy = ExistingPeriodicWorkPolicy.REPLACE;
         }
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                         .setConstraints(linkMonitorConstraints)
                         .build();
 
-        enqueuePeriodicWork("LinkUpdater", uploadWorkRequest, 1);
+        enqueuePeriodicWork("LinkUpdater", uploadWorkRequest, 2);
     }
 
     @Override
@@ -200,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             enqueueWorkers();
         }
         //new LinkCastRoomRepository(getApplicationContext()).clearLinkData();
-        initRoomDB();
+        //initRoomDB();
         // Inside your activity (if you did not enable transitions in your theme)
         //getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 
@@ -250,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                cleanupOnSignOut();
                                 Intent intent = new Intent(MainActivity.this, LauncherActivity.class);
                                 startActivity(intent);
                                 MainActivity.this.finish();
@@ -259,5 +261,13 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void cleanupOnSignOut() {
+        LinkCastRoomRepository roomRepo = new LinkCastRoomRepository(getApplicationContext());
+        roomRepo.clearLinkData();
+        SharedPreferences.Editor editor = this.prefs.edit();
+        editor.putInt(MigrationActivity.PREF_MIGRATION_VERSION_KEY, 0);
+        editor.commit();
     }
 }

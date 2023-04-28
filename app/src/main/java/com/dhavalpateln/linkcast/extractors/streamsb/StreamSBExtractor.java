@@ -63,7 +63,7 @@ public class StreamSBExtractor extends AnimeExtractor {
                 /*String sourceInfoURL = contentURL + "/sources41/616e696d646c616e696d646c7c7c"
                         + new String(hexlify(contentID.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
                         + "7c7c616e696d646c616e696d646c7c7c73747265616d7362/616e696d646c616e696d646c7c7c363136653639366436343663363136653639366436343663376337633631366536393664363436633631366536393664363436633763376336313665363936643634366336313665363936643634366337633763373337343732363536313664373336327c7c616e696d646c616e696d646c7c7c73747265616d7362";*/
-                String sourceInfoURL = "https://streamsss.net/sources48/"
+                String sourceInfoURL = "https://streamsss.net/sources16/"
                         + Utils.bytesToString(Utils.hexlify(Utils.stringToBytes("||" + contentID + "||||streamsb")))+ "/";
 
                 HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(sourceInfoURL);

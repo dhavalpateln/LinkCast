@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.extractors.mangareader;
 
 import com.dhavalpateln.linkcast.ProvidersData;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.extractors.MangaExtractor;
 import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
 import com.dhavalpateln.linkcast.utils.EpisodeNode;
@@ -94,6 +95,11 @@ public class MangaReaderExtractor extends MangaExtractor {
     @Override
     public boolean isCorrectURL(String url) {
         return url.startsWith(ProvidersData.MANGAREADER.URL);
+    }
+
+    @Override
+    public List<EpisodeNode> extractData(AnimeLinkData data) {
+        return getChapters(data.getUrl());
     }
 
     @Override

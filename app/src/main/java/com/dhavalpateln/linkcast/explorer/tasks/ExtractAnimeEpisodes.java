@@ -28,12 +28,12 @@ public class ExtractAnimeEpisodes extends RunnableTask {
                 this.extractor.init();
             }
             List<EpisodeNode> episodes = this.extractor.extractData(this.animeData);
-            this.animeData.updateData(
+            /*this.animeData.updateData(
                     AnimeLinkData.DataContract.DATA_LAST_FETCHED_EPISODES,
                     String.valueOf(episodes.size()),
                     true,
                     true
-            );
+            );*/
             this.getUIHandler().post(() -> this.listener.onEpisodeNodesFetched(episodes));
         } catch (Exception e) {
             Log.d(getTaskName(), "Exception while running extractor: " + this.extractor.getDisplayName());

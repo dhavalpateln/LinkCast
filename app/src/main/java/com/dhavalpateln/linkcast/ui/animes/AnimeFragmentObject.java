@@ -1,28 +1,47 @@
 package com.dhavalpateln.linkcast.ui.animes;
 
+import android.Manifest;
+import android.app.ActivityOptions;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
+import com.bumptech.glide.Glide;
+import com.dhavalpateln.linkcast.LauncherActivity;
+import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.LinkDataListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.LinkDataViewModel;
+import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
 import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
+import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -91,7 +110,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
             });
 
             holder.mainLayout.setOnLongClickListener(view -> {
-                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet();
+                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(data, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
                 bottomSheet.show(getActivity().getSupportFragmentManager(), "LDBottomSheet");
                 return true;
             });
@@ -121,19 +140,28 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
             super(recyclerDataArrayList, mcontext);
         }
 
+        private void setAnimation(View viewToAnimate, int position)
+        {
+            Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.fall_down);
+            viewToAnimate.startAnimation(animation);
+        }
+
         @Override
         public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
             super.onBindViewHolder(holder, position);
             //Log.d("List", "Binding listener");
             LinkWithAllData data = dataList.get(position);
             holder.mainLayout.setOnClickListener(v -> {
-                Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
-                //ActivityOptions options = ActivityOptions
-                //        .makeSceneTransitionAnimation(getActivity(), holder.animeImageView, "animeImage");
-                startActivity(intent);
+                Intent intent = AdvancedView.prepareIntent(getContext(), data);
+
+                ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation(getActivity(), holder.animeImageView, "animeImage");
+                /*ActivityOptions options = ActivityOptions
+                        .makeSceneTransitionAnimation(getActivity());*/
+                startActivity(intent, options.toBundle());
             });
             holder.mainLayout.setOnLongClickListener(view -> {
-                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet();
+                LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(data, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
                 bottomSheet.show(getActivity().getSupportFragmentManager(), "LDBottomSheet");
                 return true;
             });
@@ -154,7 +182,57 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
                 dialog.show(getParentFragmentManager(), "bookmarkEdit");
             });*/
             holder.scoreTextView.setText("\u2605" + data.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+
+            //setAnimation(holder.mainLayout, position);
         }
+    }
+
+    private void sendNewEpisodeNotification(LinkWithAllData linkWithAllData, int episodeNum) {
+
+        Intent intent = new Intent(getContext(), LauncherActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        String animeImageUrl = linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
+        Bitmap bitmap;
+        try {
+            bitmap = Glide.with(getContext()).load(animeImageUrl).asBitmap().skipMemoryCache(true).into(150, 150).get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), "LinkCastNotification")
+                .setSmallIcon(R.drawable.ic_stat_lc_notification_small)
+                .setColor(ContextCompat.getColor(getContext(), R.color.colorPrimary))
+                .setContentTitle("New episode")
+                .setContentText(linkWithAllData.getTitle() + "Episode - " + episodeNum + " is out")
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        if(bitmap != null) {
+            builder.setLargeIcon(bitmap);
+        }
+        else {
+            builder.setLargeIcon(BitmapFactory.decodeResource(getContext().getResources(),
+                    R.mipmap.ic_launcher_notification));
+        }
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+        int notificationID = linkWithAllData.malMetaData != null ? Integer.parseInt(linkWithAllData.malMetaData.getId()) : Utils.getRandomInt(1, 65535);
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        notificationManager.notify(notificationID, builder.build());
     }
 
     @Override
@@ -167,12 +245,14 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
 
         LinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(LinkDataViewModel.class);
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
         viewModel.getAnimeLinks().observe(getViewLifecycleOwner(), linkDataList -> {
             Log.d(TAG, "Data changed");
             dataList.clear();
             for(LinkWithAllData linkWithAllData: linkDataList) {
                 AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);
+                if(animeLinkData.getTitle() == null) {
+                    Log.d(TAG, "why");
+                }
                 if (!animeLinkData.getData().containsKey(AnimeLinkData.DataContract.DATA_STATUS)) {
                     animeLinkData.getData().put(AnimeLinkData.DataContract.DATA_STATUS, "Planned");
                 }
