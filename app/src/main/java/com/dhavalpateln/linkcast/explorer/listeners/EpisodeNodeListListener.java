@@ -1,6 +1,6 @@
 package com.dhavalpateln.linkcast.explorer.tasks;
 
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.List;
 
