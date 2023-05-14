@@ -50,12 +50,12 @@ public class EpisodeNodeRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
         switch (viewType) {
             case LIST:
                 return new EpisodeNodeListViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_episode_node_object, parent, false)
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode_node_list_object, parent, false)
                 );
             case GRID:
             default:
                 return new EpisodeRecyclerViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.anime_advanced_view_episode, parent, false)
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode_node_grid_object, parent, false)
                 );
         }
     }
@@ -97,6 +97,9 @@ public class EpisodeNodeRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
             if(node.getThumbnail() != null) {
                 loadImage(viewHolder.episodeNodeImage, node.getThumbnail());
             }
+
+            if(node.isFiller()) viewHolder.fillerTag.setVisibility(View.VISIBLE);
+            else viewHolder.fillerTag.setVisibility(View.GONE);
 
         }
 
@@ -177,6 +180,7 @@ public class EpisodeNodeRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
         public TextView episodeNumTextView;
         public ConstraintLayout mainLayout;
         public ImageView episodeNodeImage;
+        public TextView fillerTag;
 
         public EpisodeNodeListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -185,6 +189,7 @@ public class EpisodeNodeRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
             this.episodeNodeDescription = itemView.findViewById(R.id.episode_node_description_text_view);
             this.episodeNodeImage = itemView.findViewById(R.id.episode_node_image_view);
             this.episodeNumTextView = itemView.findViewById(R.id.episode_node_episode_num);
+            this.fillerTag = itemView.findViewById(R.id.episode_node_filler_tag);
         }
     }
 
