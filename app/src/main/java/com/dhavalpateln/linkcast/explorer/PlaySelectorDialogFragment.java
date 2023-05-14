@@ -1,29 +1,49 @@
 package com.dhavalpateln.linkcast.explorer;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
+import androidx.mediarouter.app.MediaRouteButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
+import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
+import com.dhavalpateln.linkcast.database.TvActionData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.dialogs.LinkCastDialog;
+import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
+import com.dhavalpateln.linkcast.explorer.listeners.TaskCompleteListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoSelectedListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractVideoServers;
-import com.dhavalpateln.linkcast.explorer.listeners.TaskCompleteListener;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
-import com.dhavalpateln.linkcast.database.EpisodeNode;
+import com.dhavalpateln.linkcast.utils.Utils;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ext.cast.CastPlayer;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastState;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 
@@ -31,103 +51,86 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class VideoSelectorDialogFragment extends BottomSheetDialogFragment implements VideoServerListener, TaskCompleteListener {
+public class PlaySelectorDialogFragment extends DialogFragment {
 
-    private AnimeExtractor extractor;
-    private EpisodeNode node;
-    private LinkWithAllData linkWithAllData;
-    private String episodeNum;
-    boolean askResume;
-    private List<VideoURLData> videoList;
+    private VideoURLData videoURLData;
+    private boolean shouldAskResume;
+    private AnimeLinkData animeData;
+    private MediaRouteButton mediaRouteButton;
 
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private RecyclerView.Adapter adapter;
-    private VideoSelectedListener listener;
-
-    public VideoSelectorDialogFragment(AnimeExtractor extractor, LinkWithAllData linkWithAllData, EpisodeNode node, VideoSelectedListener videoSelectedListener) {
-        this.extractor = extractor;
-        this.node = node;
-        this.linkWithAllData = linkWithAllData;
-        this.listener = videoSelectedListener;
+    public PlaySelectorDialogFragment(VideoURLData videoURLData, AnimeLinkData animeData, boolean shouldAskResume) {
+        this.videoURLData = videoURLData;
+        this.animeData = animeData;
+        this.shouldAskResume = shouldAskResume;
     }
 
-    @Nullable
+    @NonNull
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_video_selector, container, false);
-        return view;
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.small_dialog_70);
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        ConstraintLayout dialogView = (ConstraintLayout) inflater.inflate(R.layout.dialog_play_selector, null);
+
+        mediaRouteButton = dialogView.findViewById(R.id.mediaRouteButton);
+        dialogView.findViewById(R.id.video_play_button).setOnClickListener(v -> play());
+        dialogView.findViewById(R.id.video_cast_button).setOnClickListener(v -> chromeCast());
+        dialogView.findViewById(R.id.video_app_cast_button).setOnClickListener(v -> appCast());
+
+        CastButtonFactory.setUpMediaRouteButton(getContext(), dialogView.findViewById(R.id.mediaRouteButton));
+
+        builder.setView(dialogView);
+        Dialog dialog = builder.create();
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        return dialog;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        this.recyclerView = view.findViewById(R.id.video_list_recycler_view);
-        this.progressBar = view.findViewById(R.id.video_progress_bar);
-        CastButtonFactory.setUpMediaRouteButton(getContext().getApplicationContext(), view.findViewById(R.id.mediaRouteButton));
-        this.videoList = new ArrayList<>();
-        adapter = new VideoListAdapter(this.videoList);
-        this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        this.recyclerView.setHasFixedSize(true);
-        this.recyclerView.setAdapter(adapter);
-        Executors.newCachedThreadPool().execute(new ExtractVideoServers(this.extractor, this.node.getUrl(), this, this));
-    }
-
-    private void play(VideoURLData videoURLData) {
-        videoURLData.setEpisodeNum(node.getEpisodeNumString());
-        this.listener.onVideoSelected(videoURLData);
+    private void play() {
+        Intent intent = ExoPlayerActivity.prepareIntent(
+                getActivity().getApplicationContext(),
+                animeData,
+                videoURLData,
+                this.videoURLData.getEpisodeNum(),
+                this.shouldAskResume
+        );
+        startActivity(intent);
         dismiss();
     }
 
-    @Override
-    public void onVideoExtracted(VideoURLData videoURLData) {
-        videoList.add(videoURLData);
-        adapter.notifyDataSetChanged();
+    private void chromeCast() {
+        CastContext castContext = CastContext.getSharedInstance();
+        if(castContext.getCastState() == CastState.CONNECTED) {
+            CastPlayer castPlayer = new CastPlayer(castContext);
+
+            String mimeType = MimeTypes.VIDEO_MP4;
+
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(this.videoURLData.getUrl())
+                    .setMimeType(mimeType)
+                    .build();
+            castPlayer.setMediaItem(mediaItem);
+
+            castPlayer.setPlayWhenReady(true);
+            castPlayer.prepare();
+            dismiss();
+        }
+        else {
+            mediaRouteButton.performClick();
+            Toast.makeText(getContext(), "Connect to chromecast first", Toast.LENGTH_LONG).show();
+        }
+        //Log.d("CHROMECASTTTTTTTTTTT", "button click event");
     }
 
-    @Override
-    public void onTaskCompleted() {
-        progressBar.setVisibility(View.GONE);
-    }
-
-    private class VideoListAdapter extends RecyclerView.Adapter<VideoListViewHolder> {
-
-        private List<VideoURLData> videoList;
-
-        public VideoListAdapter(List<VideoURLData> videoList) {
-            this.videoList = videoList;
-        }
-
-        @NonNull
-        @Override
-        public VideoListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_video_server, parent, false);
-            return new VideoListViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull VideoListViewHolder holder, int position) {
-            holder.mainLayout.setOnClickListener(v -> play(videoList.get(position)));
-            holder.videoServerTitleTextView.setText(this.videoList.get(position).getTitle());
-        }
-
-        @Override
-        public int getItemCount() {
-            return this.videoList.size();
-        }
-    }
-
-    private class VideoListViewHolder extends RecyclerView.ViewHolder {
-
-        TextView videoServerTitleTextView;
-        MaterialButton videoPlayButton;
-        ConstraintLayout mainLayout;
-
-        public VideoListViewHolder(@NonNull View itemView) {
-            super(itemView);
-            this.mainLayout = (ConstraintLayout) itemView;
-            this.videoServerTitleTextView = itemView.findViewById(R.id.video_server_title);
-            this.videoPlayButton = itemView.findViewById(R.id.video_play_button);
-        }
+    private void appCast() {
+        TvActionData tvActionData = new TvActionData();
+        tvActionData.setTimestamp(Utils.getCurrentTime());
+        tvActionData.setAction("Play");
+        tvActionData.setVideoData(videoURLData);
+        tvActionData.setEpisodeNum(videoURLData.getEpisodeNum());
+        tvActionData.setId(animeData.getId());
+        tvActionData.setResumeOption(this.shouldAskResume);
+        FirebaseDBHelper.getUserTvPlay().setValue(tvActionData);
+        dismiss();
     }
 }

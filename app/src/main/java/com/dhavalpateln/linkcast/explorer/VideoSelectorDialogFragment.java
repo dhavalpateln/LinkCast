@@ -1,12 +1,13 @@
 package com.dhavalpateln.linkcast.explorer;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,22 +16,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
+import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
-import com.dhavalpateln.linkcast.exoplayer.ExoPlayerActivity;
+import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoSelectedListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractVideoServers;
-import com.dhavalpateln.linkcast.explorer.tasks.TaskCompleteListener;
+import com.dhavalpateln.linkcast.explorer.listeners.TaskCompleteListener;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class VideoSelectorDialogFragment extends BottomSheetDialogFragment implements VideoServerListener, TaskCompleteListener {
@@ -66,18 +68,13 @@ public class VideoSelectorDialogFragment extends BottomSheetDialogFragment imple
         super.onViewCreated(view, savedInstanceState);
         this.recyclerView = view.findViewById(R.id.video_list_recycler_view);
         this.progressBar = view.findViewById(R.id.video_progress_bar);
-        Executors.newCachedThreadPool().execute(new ExtractVideoServers(this.extractor, this.node.getUrl(), this, this));
-    }
-
-    @Override
-    public void onVideoServerExtracted(List<VideoURLData> videoServerList) {
+        CastButtonFactory.setUpMediaRouteButton(getContext().getApplicationContext(), view.findViewById(R.id.mediaRouteButton));
         this.videoList = new ArrayList<>();
-        videoList.addAll(videoServerList);
-        adapter = new VideoListAdapter(videoServerList);
+        adapter = new VideoListAdapter(this.videoList);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         this.recyclerView.setHasFixedSize(true);
         this.recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        Executors.newCachedThreadPool().execute(new ExtractVideoServers(this.extractor, this.node.getUrl(), this, this));
     }
 
     private void play(VideoURLData videoURLData) {
@@ -86,9 +83,26 @@ public class VideoSelectorDialogFragment extends BottomSheetDialogFragment imple
         dismiss();
     }
 
+    private void download(VideoURLData videoURLData) {
+        Map<String, String> data = videoURLData.getHeaders();
+        String referer = data.containsKey("Referer") ? data.get("Referer") : null;
+        LinkDownloadManagerDialog linkDownloadManagerDialog = new LinkDownloadManagerDialog(
+                videoURLData.getUrl(),
+                linkWithAllData.getTitle() + " - " + videoURLData.getEpisodeNum() + ".mp4",
+                referer,
+                () -> Toast.makeText(getContext(), "Download Completed", Toast.LENGTH_SHORT).show());
+        linkDownloadManagerDialog.show(getParentFragmentManager(), "Download");
+    }
+
     @Override
-    public void onTaskCompleted(String taskName) {
-        this.progressBar.setVisibility(View.GONE);
+    public void onVideoExtracted(VideoURLData videoURLData) {
+        videoList.add(videoURLData);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onTaskCompleted() {
+        progressBar.setVisibility(View.GONE);
     }
 
     private class VideoListAdapter extends RecyclerView.Adapter<VideoListViewHolder> {

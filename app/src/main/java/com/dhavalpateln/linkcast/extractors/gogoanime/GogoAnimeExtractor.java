@@ -6,10 +6,11 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.streamsb.StreamSBExtractor;
 import com.dhavalpateln.linkcast.extractors.xstream.XStreamExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.jsoup.Jsoup;
@@ -146,6 +147,60 @@ public class GogoAnimeExtractor extends AnimeExtractor {
             }
 
             Log.d(TAG, "Episode extraction complete. Found " + result.size() + " urls");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void extractEpisodeUrls(String episodeUrl, VideoServerListener listener) {
+        extractEpisodeUrls(episodeUrl, null, listener);
+    }
+
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result, VideoServerListener listener) {
+        try {
+            Document html = Jsoup.parse(getHttpContent(episodeUrl));
+            try {
+                //Element iframeElement = html.getElementsByTag("iframe").get(0);
+                //String videStreamUrl = "https:" + iframeElement.attr("src");
+                //GogoPlayExtractor extractor = new GogoPlayExtractor(videStreamUrl);
+                //extractor.extractEpisodeUrls(videStreamUrl, result);
+
+                Elements sources = html.select("a[data-video]");
+                for(Element sourceLink: sources) {
+                    String sourceName = sourceLink.text()
+                            .replace(sourceLink.getElementsByTag("span").get(0).text(), "")
+                            .toLowerCase();
+                    String link = sourceLink.attr("data-video");
+                    AnimeExtractor extractor = null;
+                    switch (sourceName) {
+                        case "vidstreaming":
+                            link = "https:" + link;
+                            extractor = new GogoPlayExtractor();
+                            break;
+                        case "streamsb":
+                            extractor = new StreamSBExtractor();
+                            break;
+                        case "xstreamcdn":
+                            extractor = new XStreamExtractor();
+                            break;
+                    }
+                    if(extractor != null) {
+                        List<VideoURLData> tempVideoList = new ArrayList<>();
+                        extractor.extractEpisodeUrls(link, tempVideoList);
+                        if(result != null) result.addAll(tempVideoList);
+                        if(listener != null) {
+                            for (VideoURLData videoURLData : tempVideoList) {
+                                listener.onVideoExtracted(videoURLData);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "error fetching vidstream urls");
+            }
+
+            Log.d(TAG, "Episode extraction complete");
         } catch (IOException e) {
             e.printStackTrace();
         }

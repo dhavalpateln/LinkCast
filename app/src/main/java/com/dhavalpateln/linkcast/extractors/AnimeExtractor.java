@@ -2,28 +2,23 @@ package com.dhavalpateln.linkcast.extractors;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
-import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
+import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public abstract class AnimeExtractor extends Source {
+public abstract class AnimeExtractor extends Extractor {
     public AnimeExtractor() {
         this.setSourceType(SOURCE_TYPE.ANIME);
     }
-    public abstract boolean isCorrectURL(String url);
-    public abstract List<EpisodeNode> getEpisodeList(String episodeListUrl);
     public abstract void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result);
-    public abstract List<EpisodeNode> extractData(AnimeLinkData data);
+
+    public void extractEpisodeUrls(String episodeUrl, VideoServerListener listener) {
+        List<VideoURLData> result = new ArrayList<>();
+        extractEpisodeUrls(episodeUrl, result);
+        for(VideoURLData videURL: result) {
+            listener.onVideoExtracted(videURL);
+        }
+    }
 }

@@ -36,6 +36,10 @@ public class SettingsFragment extends Fragment {
     private TextView resumeOptionValue;
     private String[] resumeOptions;
 
+    private LinearLayout mainViewOptionView;
+    private TextView mainViewOptionValue;
+    private String[] mainViewOptions;
+
 
     private SharedPreferences prefs;
 
@@ -66,6 +70,9 @@ public class SettingsFragment extends Fragment {
         resumeOptionView = root.findViewById(R.id.settings_resume_options);
         resumeOptionValue = root.findViewById(R.id.settings_resume_value);
 
+        mainViewOptionView = root.findViewById(R.id.settings_link_data_view);
+        mainViewOptionValue = root.findViewById(R.id.settings_link_data_view_value);
+
         episodeTrackingOptions = new String[] {"Last episode watched", "Max episode watched"};
         sortOrderOptions = new String[] {
                 AbstractCatalogObjectFragment.Sort.BY_NAME.name(),
@@ -82,6 +89,10 @@ public class SettingsFragment extends Fragment {
                 "Ask",
                 "Ask for completed"
         };
+        mainViewOptions = new String[] {
+                "Grid",
+                "List"
+        };
 
         return root;
     }
@@ -96,6 +107,7 @@ public class SettingsFragment extends Fragment {
         listSortOrderValue.setText(prefs.getString(SharedPrefContract.ANIME_LIST_SORT_ORDER, SharedPrefContract.ANIME_LIST_SORT_DEFAULT));
         bookmarkDeleteValue.setText(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "Ask"));
         resumeOptionValue.setText(resumeOptions[prefs.getInt(SharedPrefContract.RESUME_BEHAVIOUR, SharedPrefContract.RESUME_BEHAVIOUR_DEFAULT)]);
+        mainViewOptionValue.setText(mainViewOptions[prefs.getInt("link_data_view", 0)]);
 
         episodeTrackerView.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -142,6 +154,19 @@ public class SettingsFragment extends Fragment {
                 editor.putInt(SharedPrefContract.RESUME_BEHAVIOUR, which);
                 editor.commit();
                 resumeOptionValue.setText(resumeOptions[which]);
+                //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
+            });
+            builder.show();
+        });
+
+        mainViewOptionView.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Choose option");
+            builder.setItems(mainViewOptions, (dialog, which) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt("link_data_view", which);
+                editor.commit();
+                mainViewOptionValue.setText(mainViewOptions[which]);
                 //Toast.makeText(getContext(), "Change reflected on app restart", Toast.LENGTH_LONG).show();
             });
             builder.show();

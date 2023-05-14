@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.dhavalpateln.linkcast.LauncherActivity;
@@ -32,7 +33,11 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 import com.dhavalpateln.linkcast.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
@@ -56,6 +61,20 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         args.putString(CATALOG_TYPE_ARG, catalogType);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onLinkDataClicked(LinkWithAllData linkData, ImageView animeImage) {
+        Intent intent = AdvancedView.prepareIntent(getContext(), linkData);
+        ActivityOptions options = ActivityOptions
+                .makeSceneTransitionAnimation(getActivity(), animeImage, "animeImage");
+        startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public void onLinkDataLongClick(LinkWithAllData linkData) {
+        LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(linkData, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
+        bottomSheet.show(getActivity().getSupportFragmentManager(), "LDBottomSheet");
     }
 
     /*private class AnimeCatalogListAdapter extends AnimeDataListRecyclerAdapter {
@@ -103,7 +122,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
             super.onBindViewHolder(holder, position);
             LinkWithAllData data = dataList.get(position);
             holder.mainLayout.setOnClickListener(v -> {
-                Intent intent = AdvancedView.prepareIntent(getContext(), AnimeLinkData.from(data.linkData));
+                Intent intent = AdvancedView.prepareIntent(getContext(), data);
                 //ActivityOptions options = ActivityOptions
                 //        .makeSceneTransitionAnimation(getActivity(), holder.animeImageView, "animeImage");
                 startActivity(intent);
@@ -196,7 +215,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         String animeImageUrl = linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
         Bitmap bitmap;
         try {
-            bitmap = Glide.with(getContext()).load(animeImageUrl).asBitmap().skipMemoryCache(true).into(150, 150).get();
+            bitmap = Glide.with(getContext()).asBitmap().load(animeImageUrl).skipMemoryCache(true).into(150, 150).get();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -235,6 +254,19 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         notificationManager.notify(notificationID, builder.build());
     }
 
+    private boolean hasListChanged(List<LinkWithAllData> oldList, List<LinkWithAllData> newList) {
+        if(oldList.size() != newList.size())    return true;
+        Map<String, LinkWithAllData> linkMap = new HashMap<>();
+        for(LinkWithAllData linkData: newList)  linkMap.put(linkData.getId(), linkData);
+        for(LinkWithAllData oldLinkData: oldList) {
+            LinkWithAllData newLinkData = linkMap.get(oldLinkData.getId());
+            if(!oldLinkData.equals(newLinkData)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -247,7 +279,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         viewModel.getAnimeLinks().observe(getViewLifecycleOwner(), linkDataList -> {
             Log.d(TAG, "Data changed");
-            dataList.clear();
+            List<LinkWithAllData> tempDataList = new ArrayList<>();
             for(LinkWithAllData linkWithAllData: linkDataList) {
                 AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);
                 if(animeLinkData.getTitle() == null) {
@@ -264,10 +296,14 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
                         tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
                         (tabName.equals(AnimeFragment.Catalogs.FAVORITE) &&
                                 animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                    dataList.add(linkWithAllData);
+                    tempDataList.add(linkWithAllData);
                 }
             }
-            refreshAdapter();
+            if(hasListChanged(dataList, tempDataList)) {
+                dataList.clear();
+                dataList.addAll(tempDataList);
+                refreshAdapter();
+            }
         });
     }
 

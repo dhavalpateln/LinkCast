@@ -2,11 +2,10 @@ package com.dhavalpateln.linkcast.extractors.xstream;
 
 import android.util.Log;
 
-import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import org.json.JSONArray;
 import org.json.JSONException;

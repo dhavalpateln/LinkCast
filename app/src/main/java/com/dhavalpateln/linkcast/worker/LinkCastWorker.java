@@ -8,7 +8,6 @@ import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
-import com.dhavalpateln.linkcast.worker.tasks.LinkUpdaterRoomTask;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executors;

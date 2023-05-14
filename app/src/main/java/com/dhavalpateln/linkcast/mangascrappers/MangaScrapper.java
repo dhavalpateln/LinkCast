@@ -1,6 +1,6 @@
 package com.dhavalpateln.linkcast.mangascrappers;
 
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.List;
 

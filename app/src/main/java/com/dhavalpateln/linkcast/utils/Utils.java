@@ -1,10 +1,24 @@
 package com.dhavalpateln.linkcast.utils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Build;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -125,5 +139,30 @@ public class Utils {
         catch (Exception e) {
             return false;
         }
+    }
+
+    public static void startScaleAnimation(View view) {
+        startScaleAnimation(view, 150);
+    }
+    public static void startScaleAnimation(View view, long durationMillis) {
+        ScaleAnimation anim = new ScaleAnimation(
+                0.0f,
+                1.0f,
+                0.0f,
+                1.0f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f
+        );
+        anim.setDuration(durationMillis);
+        view.startAnimation(anim);
+    }
+
+    public static void loadImage(Context context, ImageView view, String url) {
+        Glide.with(context)
+                .load(url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(view);
     }
 }

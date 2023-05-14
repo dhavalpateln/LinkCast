@@ -14,6 +14,7 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class MangaReaderActivity extends AppCompatActivity {
         public void onBindViewHolder(RecyclerViewHolder holder, int position, String imageUrl) {
             Glide.with(getApplicationContext())
                     .load(imageUrl)
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);

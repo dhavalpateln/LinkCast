@@ -3,15 +3,12 @@ package com.dhavalpateln.linkcast.database;
 import android.net.Uri;
 
 import com.dhavalpateln.linkcast.data.JikanCache;
-import com.dhavalpateln.linkcast.dialogs.EpisodeInfoDialog;
 import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
 import com.dhavalpateln.linkcast.ui.discover.ui.popular.PopularViewModel;
 import com.dhavalpateln.linkcast.ui.discover.ui.seasonal.SeasonalViewModel;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
-import com.dhavalpateln.linkcast.utils.TimeUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,11 +16,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JikanDatabase {
     private JikanCache cache;
@@ -216,7 +212,7 @@ public class JikanDatabase {
         return result;
     }
 
-    public int getEpisodeInfo(List<EpisodeNode> episodeNodes, int page, String id) {
+    public boolean getEpisodeInfo(Map<String, EpisodeNode> episodeNodesMap, int page, String id) {
         try {
             String url = "https://api.jikan.moe/v4/anime/" + id + "/episodes" + "?page=" + page;
             JSONObject jikanResult = cache.getRawData(url);
@@ -230,13 +226,24 @@ public class JikanDatabase {
                 EpisodeNode node = new EpisodeNode(episodeInfo.getString("mal_id"), null);
                 node.setTitle(episodeInfo.getString("title"));
                 node.setFiller(episodeInfo.getBoolean("filler"));
-                episodeNodes.add(node);
+                episodeNodesMap.put(node.getEpisodeNumString(), node);
             }
-            return jikanResult.getJSONObject("pagination").getInt("last_visible_page");
+            return jikanResult.getJSONObject("pagination").getBoolean("has_next_page");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return 0;
+        return false;
+    }
+
+    public Map<String, EpisodeNode> getAllEpisodeData(String malId) {
+        Map<String, EpisodeNode> result = new HashMap<>();
+        boolean hasNextPage = true;
+        int page = 1;
+        while (hasNextPage && page < 100) {
+            hasNextPage = getEpisodeInfo(result, page, malId);
+            page++;
+        }
+        return result;
     }
 
     public AnimeMALMetaData getMalMetaData(String malId, boolean isAnime) {

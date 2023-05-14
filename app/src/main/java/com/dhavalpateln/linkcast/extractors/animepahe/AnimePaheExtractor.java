@@ -4,7 +4,7 @@ import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;

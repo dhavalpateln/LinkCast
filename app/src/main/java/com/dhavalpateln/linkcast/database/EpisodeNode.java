@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.utils;
+package com.dhavalpateln.linkcast.database;
 
 public class EpisodeNode {
     private double episodeNum;
@@ -9,6 +9,8 @@ public class EpisodeNode {
     private EpisodeType type;
     private int season;
     private String note;
+    private String description;
+    private String thumbnail;
     private boolean isFiller;
 
     public enum EpisodeType {
@@ -85,5 +87,21 @@ public class EpisodeNode {
 
     public void setFiller(boolean filler) {
         isFiller = filler;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

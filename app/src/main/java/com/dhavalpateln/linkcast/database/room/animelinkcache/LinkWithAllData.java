@@ -2,6 +2,7 @@ package com.dhavalpateln.linkcast.database.room.animelinkcache;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
@@ -102,5 +103,35 @@ public class LinkWithAllData implements Serializable {
         linkWithAllData.linkMetaData.setLastEpisodeNodesFetchCount(-2);
         linkWithAllData.linkMetaData.setMiscData(new HashMap<>());
         return linkWithAllData;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(obj == null) return false;
+        if(!(obj instanceof LinkWithAllData)) return false;
+
+        LinkWithAllData linkWithAllData = (LinkWithAllData) obj;
+
+        if(!getId().equals(linkWithAllData.getId()) ||
+                !this.linkData.getTitle().equals(linkWithAllData.linkData.getTitle()))  return false;
+
+        for(Map.Entry<String, String> entry: this.linkData.getData().entrySet()) {
+            if(!entry.getValue().equals(linkWithAllData.linkData.getData().get(entry.getKey())))    return false;
+        }
+
+        if(linkMetaData != null) {
+            if(linkWithAllData.linkMetaData == null)    return false;
+            if(linkMetaData.getLastEpisodeNodesFetchCount() != linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount())    return false;
+            for(Map.Entry<String, String> entry: this.linkMetaData.getMiscData().entrySet()) {
+                if(!entry.getValue().equals(linkWithAllData.linkMetaData.getMiscData().get(entry.getKey())))    return false;
+            }
+        }
+        else if(linkWithAllData.linkMetaData != null)   return false;
+
+        if(this.malMetaData != null) {
+            if(!this.malMetaData.equals(linkWithAllData.malMetaData))   return false;
+        }
+
+        return true;
     }
 }

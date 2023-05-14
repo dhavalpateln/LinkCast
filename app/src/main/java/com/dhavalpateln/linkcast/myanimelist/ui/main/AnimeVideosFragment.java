@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.VideoRecyclerAdapter;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
@@ -76,7 +77,7 @@ public class AnimeVideosFragment extends Fragment {
                 Glide.with(getContext())
                         .load(data.getImageURL())
                         .centerCrop()
-                        .crossFade()
+                        .transition(new DrawableTransitionOptions().crossFade())
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(holder.imageView);
                 holder.mainLayout.setOnClickListener(v -> {

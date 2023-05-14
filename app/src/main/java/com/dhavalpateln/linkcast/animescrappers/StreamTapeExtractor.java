@@ -5,7 +5,7 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.io.IOException;
 import java.util.List;

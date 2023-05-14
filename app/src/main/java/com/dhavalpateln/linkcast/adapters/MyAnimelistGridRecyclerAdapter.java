@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeGridViewHolder;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistInfoActivity;
@@ -33,7 +34,7 @@ public class MyAnimelistGridRecyclerAdapter extends GridRecyclerAdapter<MyAnimel
             Glide.with(mcontext)
                     .load(data.getImages().get(0))
                     .centerCrop()
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
         } catch (Exception e) {e.printStackTrace();}

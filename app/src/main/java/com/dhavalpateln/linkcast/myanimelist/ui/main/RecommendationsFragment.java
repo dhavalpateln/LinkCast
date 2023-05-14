@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeGridViewHolder;
@@ -114,7 +115,7 @@ public class RecommendationsFragment extends Fragment {
             Glide.with(getContext())
                     .load(data.getImages().get(0))
                     .centerCrop()
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
             holder.mainLayout.setOnClickListener(v -> {

@@ -10,7 +10,7 @@ import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.rapid.RapidCloudExtractor;
 import com.dhavalpateln.linkcast.extractors.streamsb.StreamSBExtractor;
 import com.dhavalpateln.linkcast.extractors.streamtape.StreamTapeExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONException;

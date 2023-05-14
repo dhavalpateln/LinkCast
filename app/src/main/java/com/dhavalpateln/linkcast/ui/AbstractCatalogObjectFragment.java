@@ -1,6 +1,7 @@
 package com.dhavalpateln.linkcast.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,9 +14,12 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapter;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapterInterface;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.explorer.AdvancedView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +32,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public abstract class AbstractCatalogObjectFragment extends Fragment {
+public abstract class AbstractCatalogObjectFragment extends Fragment implements LinkDataAdapterInterface {
 
     protected static final String CATALOG_TYPE_ARG = "type";
     private static final String SORT_ARG = "sort";
@@ -42,6 +46,8 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     private ImageView sortButton;
     private TextView animeEntriesCountTextView;
     private Sort currentSortOrder = Sort.BY_SCORE;
+
+
 
     public enum Sort {
         BY_NAME,
@@ -95,15 +101,28 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
         recyclerView.setHasFixedSize(true);
         boolean useListAdapter = false;
-        if(useListAdapter) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int viewType = prefs.getInt("link_data_view", LinkDataAdapter.GRID_VIEW);
+        switch (viewType) {
+            case LinkDataAdapter.LIST_VIEW:
+                adapter = getListAdapter(dataList, getContext());
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                break;
+            case LinkDataAdapter.GRID_VIEW:
+            default:
+                adapter = new LinkDataAdapter(getContext(), dataList, this, LinkDataAdapter.GRID_VIEW);
+                recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
+        /*if(useListAdapter) {
             adapter = getListAdapter(dataList, getContext());
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         }
         else {
-            adapter = getGridAdapter(dataList, getContext());
+            adapter = new LinkDataAdapter(getContext(), dataList, this, LinkDataAdapter.GRID_VIEW);
+            //adapter = getGridAdapter(dataList, getContext());
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        }
+        }*/
         recyclerView.setAdapter(adapter);
         sortButton.setOnClickListener(v -> showSortOptions(v));
     }

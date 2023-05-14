@@ -1,2 +1,4 @@
-package com.dhavalpateln.linkcast.explorer.adapters;public class EpisodeSelectionListener {
+package com.dhavalpateln.linkcast.explorer.adapters;
+
+public class EpisodeSelectionListener {
 }

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
@@ -92,7 +93,7 @@ public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGr
             Glide.with(mcontext)
                     .load(imageUrl)
                     .centerCrop()
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
                     .placeholder(R.drawable.ic_stat_name)
                     .error(R.drawable.ic_stat_name)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -1,10 +1,9 @@
 package com.dhavalpateln.linkcast.mangascrappers;
 
 import com.dhavalpateln.linkcast.ProvidersData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -17,8 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MangaReader extends MangaScrapper {
 

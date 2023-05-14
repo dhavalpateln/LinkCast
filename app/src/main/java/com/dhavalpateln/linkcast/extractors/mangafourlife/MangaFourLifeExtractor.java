@@ -4,10 +4,8 @@ import android.util.Log;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.MangaExtractor;
-import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;

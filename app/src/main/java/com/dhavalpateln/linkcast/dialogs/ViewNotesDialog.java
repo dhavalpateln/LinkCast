@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.NotesViewHolder;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.ArrayList;
 import java.util.List;

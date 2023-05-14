@@ -1,16 +1,10 @@
 package com.dhavalpateln.linkcast.database;
 
-import android.provider.MediaStore;
-
 import com.dhavalpateln.linkcast.data.MyAnimeListCache;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistCharacterData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

@@ -41,7 +41,6 @@ public class AnimeDataListRecyclerAdapter extends ListRecyclerAdapter<AnimeLinkD
             Glide.with(mcontext)
                     .load(imageUrl)
                     .centerCrop()
-                    .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.animeImageView);
             holder.animeImageView.setClipToOutline(true);

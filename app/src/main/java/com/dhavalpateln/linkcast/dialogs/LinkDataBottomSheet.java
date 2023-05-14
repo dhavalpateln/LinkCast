@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
@@ -65,7 +66,7 @@ public class LinkDataBottomSheet extends BottomSheetDialogFragment {
         Glide.with(getContext())
                 .load(this.link.getMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL))
                 .centerCrop()
-                .crossFade()
+                .transition(new DrawableTransitionOptions().crossFade())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(animeImageView);
         animeImageView.setClipToOutline(true);

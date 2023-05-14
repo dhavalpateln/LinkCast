@@ -3,6 +3,8 @@ package com.dhavalpateln.linkcast.database.room;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataDao;
@@ -14,6 +16,7 @@ import com.dhavalpateln.linkcast.database.room.maldata.MALMetaDataDao;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LinkCastRoomRepository {
 

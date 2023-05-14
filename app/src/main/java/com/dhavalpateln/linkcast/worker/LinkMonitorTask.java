@@ -73,7 +73,7 @@ public class LinkMonitorTask extends LinkCastWorker {
         String animeImageUrl = linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
         Bitmap bitmap;
         try {
-            bitmap = Glide.with(getApplicationContext()).load(animeImageUrl).asBitmap().skipMemoryCache(true).into(150, 150).get();
+            bitmap = Glide.with(getApplicationContext()).asBitmap().load(animeImageUrl).skipMemoryCache(true).into(150, 150).get();
         } catch (ExecutionException e) {
             bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                     R.mipmap.ic_launcher_notification);
@@ -133,8 +133,7 @@ public class LinkMonitorTask extends LinkCastWorker {
             if(episodes < lastFetchedCount) {
                 return false;
             }
-            linkWithAllData.linkMetaData.setLastEpisodeNodesFetchCount(episodes);
-            getRoomRepo().insert(linkWithAllData.linkMetaData);
+            getRoomRepo().updateLastFetchedEpisode(linkWithAllData, episodes);
             if(episodes - lastFetchedCount == 1) {
                 sendNewEpisodeNotification(linkWithAllData, episodes);
                 return true;

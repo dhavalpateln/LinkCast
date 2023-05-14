@@ -7,11 +7,10 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.dhavalpateln.linkcast.ProvidersData;
-import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.google.android.gms.common.util.ArrayUtils;

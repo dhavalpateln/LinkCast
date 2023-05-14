@@ -23,6 +23,22 @@ import java.util.Map;
 
 public class Providers {
 
+    private static Providers instance;
+    private Map<String, AnimeExtractor> cachedAnimeExtractor;
+    private Map<String, MangaExtractor> cachedMangaExtractor;
+
+    private Providers() {
+        cachedAnimeExtractor = new HashMap<>();
+        cachedMangaExtractor = new HashMap<>();
+    }
+
+    public static Providers getInstance() {
+        if(instance == null) {
+            instance = new Providers();
+        }
+        return instance;
+    }
+
     public static Map<String, AnimeExtractor> getAnimeExtractors() {
         Map<String, AnimeExtractor> extractors = new HashMap<>();
         extractors.put(ProvidersData.MARIN.NAME, new MarinExtractor());
@@ -34,6 +50,17 @@ public class Providers {
 
     public static Map<String, MangaExtractor> getMangaExtractors() {
         Map<String, MangaExtractor> extractors = new HashMap<>();
+        extractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLifeExtractor());
+        extractors.put(ProvidersData.MANGAREADER.NAME, new MangaReaderExtractor());
+        return extractors;
+    }
+
+    public static Map<String, Extractor> getExtractors() {
+        Map<String, Extractor> extractors = new HashMap<>();
+        extractors.put(ProvidersData.MARIN.NAME, new MarinExtractor());
+        extractors.put(ProvidersData.GOGOANIME.NAME, new GogoAnimeExtractor());
+        extractors.put(ProvidersData.ANIMEPAHE.NAME, new AnimePaheExtractor());
+        extractors.put(ProvidersData.ZORO.NAME, new ZoroExtractor());
         extractors.put(ProvidersData.MANGAFOURLIFE.NAME, new MangaFourLifeExtractor());
         extractors.put(ProvidersData.MANGAREADER.NAME, new MangaReaderExtractor());
         return extractors;

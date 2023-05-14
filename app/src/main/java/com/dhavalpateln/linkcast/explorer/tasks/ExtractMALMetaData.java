@@ -3,11 +3,10 @@ package com.dhavalpateln.linkcast.explorer.tasks;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeMALMetaData;
 import com.dhavalpateln.linkcast.database.JikanDatabase;
-import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
+import com.dhavalpateln.linkcast.database.anilist.AnilistDB;
+import com.dhavalpateln.linkcast.explorer.listeners.MALMetaDataListener;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
 import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
-import com.dhavalpateln.linkcast.myanimelist.extractors.MyAnimeListDataListener;
-import com.dhavalpateln.linkcast.myanimelist.extractors.MyAnimeListExtractor;
 
 import java.util.List;
 
@@ -15,15 +14,17 @@ public class ExtractMALMetaData extends RunnableTask {
 
     private AnimeLinkData animeData;
     private MALMetaDataListener listener;
+    private boolean uiCallback;
 
-    public ExtractMALMetaData(AnimeLinkData animeData, MALMetaDataListener listener, TaskCompleteListener taskListener) {
-        this(animeData, listener, taskListener, true);
+    public ExtractMALMetaData(AnimeLinkData animeData, MALMetaDataListener listener) {
+        this(animeData, listener, true);
     }
 
-    public ExtractMALMetaData(AnimeLinkData animeData, MALMetaDataListener listener, TaskCompleteListener taskListener, boolean uiCallback) {
-        super("ExtractMALMetaData", taskListener, uiCallback);
+    public ExtractMALMetaData(AnimeLinkData animeData, MALMetaDataListener listener, boolean uiCallback) {
+        super();
         this.animeData = animeData;
         this.listener = listener;
+        this.uiCallback = uiCallback;
     }
 
     private String getMalID() {
@@ -51,15 +52,19 @@ public class ExtractMALMetaData extends RunnableTask {
     }
 
     @Override
-    public void runTask() {
+    public void run() {
         String malId = getMalID();
         if(malId != null) {
             if(!malId.equals(this.animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID))) {
                 this.animeData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, malId, true, this.animeData.isAnime());
             }
             AnimeMALMetaData metaData = JikanDatabase.getInstance().getMalMetaData(malId, this.animeData.isAnime());
+            String bannerImage = AnilistDB.getInstance().getBannerImage(malId, this.animeData.isAnime());
             if(this.getUIHandler() != null) {
-                this.getUIHandler().post(() -> this.listener.onMALMetaData(metaData));
+                this.getUIHandler().post(() -> {
+                    this.listener.onMALMetaData(metaData);
+                    if(bannerImage != null) this.listener.onBannerImageFetched(bannerImage);
+                });
             }
             else {
                 this.listener.onMALMetaData(metaData);

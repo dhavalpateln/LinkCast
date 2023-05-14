@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.VideoURLData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
@@ -36,12 +35,10 @@ import com.dhavalpateln.linkcast.extractors.marin.MarinExtractor;
 import com.dhavalpateln.linkcast.extractors.marin.MarinSearch;
 import com.dhavalpateln.linkcast.extractors.zoro.ZoroExtractor;
 import com.dhavalpateln.linkcast.extractors.zoro.ZoroSearch;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 

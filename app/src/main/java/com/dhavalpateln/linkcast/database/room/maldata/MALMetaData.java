@@ -102,4 +102,21 @@ public class MALMetaData implements Serializable {
         return malMetaData;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        MALMetaData metaDataObj = (MALMetaData) obj;
+        return getId().equals(metaDataObj.getId()) &&
+                Utils.compareNullableStrings(getStatus(), metaDataObj.getStatus()) &&
+                Utils.compareNullableStrings(getAirDate(), metaDataObj.getAirDate()) &&
+                Utils.compareNullableStrings(getTotalEpisodes(), metaDataObj.getTotalEpisodes()) &&
+                Utils.compareNullableStrings(getName(), metaDataObj.getName()) &&
+                Utils.compareNullableStrings(getImageURL(), metaDataObj.getImageURL()) &&
+                Utils.compareNullableStrings(getEngName(), metaDataObj.getEngName());
+    }
 }

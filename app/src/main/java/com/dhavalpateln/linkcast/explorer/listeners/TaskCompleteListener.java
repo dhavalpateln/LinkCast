@@ -1,2 +1,5 @@
-package com.dhavalpateln.linkcast.explorer.tasks;public interface TaskCompleteListener {
+package com.dhavalpateln.linkcast.explorer.listeners;
+
+public interface TaskCompleteListener {
+    void onTaskCompleted();
 }

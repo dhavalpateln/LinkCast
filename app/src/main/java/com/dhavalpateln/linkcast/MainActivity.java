@@ -12,6 +12,8 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.ValueCallback;
@@ -21,7 +23,6 @@ import com.dhavalpateln.linkcast.migration.MigrationActivity;
 import com.dhavalpateln.linkcast.utils.Utils;
 import com.dhavalpateln.linkcast.worker.LinkCastWorker;
 import com.dhavalpateln.linkcast.worker.LinkMonitorTask;
-import com.dhavalpateln.linkcast.worker.LinkUpdaterWorker;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private void enqueuePeriodicWork(String name, PeriodicWorkRequest workRequest, int version) {
         String prefKey = "worker" + name + "ver";
         int queuedWorkerVer = prefs.getInt(prefKey, -1);
-        ExistingPeriodicWorkPolicy policy = ExistingPeriodicWorkPolicy.REPLACE;
+        ExistingPeriodicWorkPolicy policy = ExistingPeriodicWorkPolicy.KEEP;
         if(version != queuedWorkerVer) {
             policy = ExistingPeriodicWorkPolicy.REPLACE;
         }
@@ -185,9 +186,9 @@ public class MainActivity extends AppCompatActivity {
                 emailTextView.setText(user.getEmail());
                 Glide.with(getApplicationContext())
                         .load(path)
-                        .centerCrop()
-                        .crossFade()
-                        .bitmapTransform(new CropCircleTransformation(getApplicationContext()))
+                        //.centerCrop()
+                        .circleCrop()
+                        .transition(new DrawableTransitionOptions().crossFade())
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(profileImageView);
                 /*Glide.with(getApplicationContext())

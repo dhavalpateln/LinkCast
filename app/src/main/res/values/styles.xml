@@ -36,6 +36,11 @@
         <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
         <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
+
+        <!-- Chip -->
+        <item name="colorOnSurface">@color/colorPrimary</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="chipStyle">@style/Widget.App.LinkCastChip</item>
     </style>
 
 
@@ -81,11 +86,16 @@
         <item name="textAppearanceCaption">@style/TextAppearance.MaterialComponents.Caption</item>
         <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
         <item name="textAppearanceOverline">@style/TextAppearance.MaterialComponents.Overline</item>
+
+        <!-- Chip -->
+        <item name="colorOnSurface">@color/colorPrimary</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="chipStyle">@style/Widget.App.LinkCastChip</item>
     </style>
 
     <style name="ModalBottomSheet" parent="Widget.Material3.BottomSheet.Modal">
         <!-- Apply attributes here -->
-        <item name="backgroundTint">#1C1C1C</item>
+        <item name="backgroundTint">#121212</item>
         <item name="shapeAppearance">@style/ShapeAppearanceOverlay.Demo</item>
     </style>
 
@@ -110,6 +120,38 @@
 
     <style name="LinkCastDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:background">@drawable/dialog_border_square_thin</item>
+    </style>
+
+    <style name="Widget.App.LinkCastChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipIconTint">@color/colorPrimaryDark</item>
+        <item name="chipBackgroundColor">#000</item>
+        <item name="chipStrokeWidth">2dp</item>
+        <item name="chipStrokeColor">@color/stroke_tink</item>
+        <item name="checkedIconVisible">true</item>
+        <item name="checkedIconTint">@color/colorPrimary</item>
+        <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <style name="small_dialog_70" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="windowMinWidthMajor">70%</item>
+        <item name="windowMinWidthMinor">70%</item>
+        <item name="android:windowMinWidthMajor">70%</item>
+        <item name="android:windowMinWidthMinor">70%</item>
+    </style>
+
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:minWidth">32dp</item>
+        <item name="android:minHeight">32dp</item>
     </style>
 
 </resources>

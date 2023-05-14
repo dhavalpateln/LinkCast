@@ -1,17 +1,20 @@
 package com.dhavalpateln.linkcast.extractors;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.List;
 
-public abstract class MangaExtractor extends Source {
+public abstract class MangaExtractor extends Extractor {
     public MangaExtractor() {
         this.setSourceType(Source.SOURCE_TYPE.MANGA);
     }
     public abstract List<EpisodeNode> getChapters(String url);
-    public abstract List<String> getPages(String url);
-    public abstract boolean isCorrectURL(String url);
 
-    public abstract List<EpisodeNode> extractData(AnimeLinkData data);
+    @Override
+    public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
+        return getChapters(episodeListUrl);
+    }
+
+    public abstract List<String> getPages(String url);
 }
