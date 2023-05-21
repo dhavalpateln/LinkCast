@@ -48,7 +48,7 @@
             android:label="@string/title_activity_my_animelist_info"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AnimeSearchActivity"
+            android:name=".explorer.AnimeSearchActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
 

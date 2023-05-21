@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -35,7 +36,6 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.dhavalpateln.linkcast.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeMALMetaData;
@@ -44,6 +44,7 @@ import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
@@ -56,12 +57,13 @@ import com.dhavalpateln.linkcast.explorer.adapters.EpisodeNodeRecyclerAdapter;
 import com.dhavalpateln.linkcast.explorer.adapters.EpisodeNodeSelectionListener;
 import com.dhavalpateln.linkcast.explorer.listeners.AppBarStateChangeListener;
 import com.dhavalpateln.linkcast.explorer.listeners.MangaPageListener;
+import com.dhavalpateln.linkcast.explorer.listeners.SourceChangeListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoSelectedListener;
 import com.dhavalpateln.linkcast.explorer.listeners.EpisodeNodeListListener;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractEpisodeNodes;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractMALMetaData;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractMangaPages;
-import com.dhavalpateln.linkcast.explorer.listeners.MALMetaDataListener;
+import com.dhavalpateln.linkcast.explorer.listeners.AlMalMetaDataListener;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.Extractor;
 import com.dhavalpateln.linkcast.extractors.MangaExtractor;
@@ -86,15 +88,13 @@ import com.google.firebase.database.DataSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class AdvancedView extends AppCompatActivity implements EpisodeNodeListListener, MALMetaDataListener, VideoSelectedListener, MangaPageListener, EpisodeNodeSelectionListener {
+public class AdvancedView extends AppCompatActivity implements EpisodeNodeListListener, AlMalMetaDataListener, VideoSelectedListener, MangaPageListener, EpisodeNodeSelectionListener {
 
     private static final int WEB_VIEW_REQUEST_CODE = 1;
     private static final int CHANGE_SOURCE_REQUEST_CODE = 2;
@@ -114,6 +114,8 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     private Button statusButton;
     private TextView episodeProgressTextView;
     private Button scoreButton;
+    private CheckBox favoriteButton;
+    private Button bookmarkButton;
     private int currentEpisode = 0;
     private int totalFetchedEpisodes = 0;
     private boolean saveProgress = true;
@@ -124,10 +126,9 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     private SharedPreferences prefs;
     private boolean isAnimeMode;
     private int currentIndex = -1;
-    private Set<String> uiBlockedTasks;
     private Executor mExecutor = Executors.newCachedThreadPool();
     private Handler uiHandler = new Handler(Looper.getMainLooper());
-    private AnimeMALMetaData malMetaData;
+    private AlMalMetaData malMetaData;
     private LinkCastRoomRepository roomRepo;
     private boolean dismissProgressOnResume = false;
     private ChipGroup episodeChipGroup;
@@ -135,6 +136,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     private AppBarLayout appBarLayout;
     private ImageView expandMoreAppBarButton;
     private ImageView expandLessAppBarButton;
+    private Button advViewSettingButton;
     private MaterialButtonToggleGroup episodeViewToggleGroup;
 
     @Override
@@ -154,7 +156,8 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         else {
             currentEpisode = (int) node.getEpisodeNum(); //Integer.valueOf(episodeNode.getEpisodeNumString());
         }
-        animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, String.valueOf(currentEpisode), true, isAnimeMode);
+        this.linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, String.valueOf(currentEpisode));
+        //animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, String.valueOf(currentEpisode), true, isAnimeMode);
         updateEpisodeProgress();
 
         adapter.setSkipSingleAnimate(true);
@@ -163,17 +166,17 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
 
     @Override
     public void onEpisodeLongPressed(EpisodeNode node, int position) {
-        if(animeData.getId() != null) {
+        if(this.linkWithAllData.getId() != null) {
             EpisodeNoteDialog episodeNoteDialog = new EpisodeNoteDialog(node.getNote(), new EpisodeNoteDialog.NoteChangeListener() {
                 @Override
                 public void onNoteUpdated(String note) {
-                    FirebaseDBHelper.getNotesRef(animeData.getId()).child(node.getEpisodeNumString()).setValue(note);
+                    FirebaseDBHelper.getNotesRef(linkWithAllData.getId()).child(node.getEpisodeNumString()).setValue(note);
                     node.setNote(note);
                 }
 
                 @Override
                 public void onNoteRemoved() {
-                    FirebaseDBHelper.getNotesRef(animeData.getId()).child(node.getEpisodeNumString()).setValue(null);
+                    FirebaseDBHelper.getNotesRef(linkWithAllData.getId()).child(node.getEpisodeNumString()).setValue(null);
                     node.setNote(null);
                     //holder.noteIndicator.setVisibility(View.GONE);
                 }
@@ -182,82 +185,6 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
 
         }
     }
-
-
-    /*public class RecyclerViewAdapter extends EpisodeGridRecyclerAdapter {
-
-        public RecyclerViewAdapter(List recyclerDataArrayList, Context mcontext) {
-            super(recyclerDataArrayList, mcontext);
-        }
-
-        @Override
-        public void onBindViewHolder(EpisodeRecyclerViewHolder holder, int position, Object data) {
-            EpisodeNode episodeNode = (EpisodeNode) data;
-            holder.episodeNumTextView.setText(episodeNode.getEpisodeNumString());
-            if(episodeNode.getNote() != null) {
-                holder.noteIndicator.setVisibility(View.VISIBLE);
-            }
-            else {
-                holder.noteIndicator.setVisibility(View.GONE);
-            }
-            if(currentIndex == holder.getBindingAdapterPosition()) {
-                holder.selectedIndicator.setVisibility(View.VISIBLE);
-            }
-            else {
-                holder.selectedIndicator.setVisibility(View.GONE);
-            }
-            holder.mainLayout.setOnClickListener(v -> {
-                if(!episodeUpdateMode) {
-                    //mExecutor.execute(new OpenEpisodeNodeTask(episodeNode));
-                    if(isAnimeMode) {
-                        VideoSelectorDialogFragment dialog = new VideoSelectorDialogFragment(getAnimeExtractor(), linkWithAllData, episodeNode, AdvancedView.this);
-                        dialog.show(getSupportFragmentManager(), "VideoSelector");
-                    }
-                    else {
-                        showProgressDialog();
-                        mExecutor.execute(new ExtractMangaPages(getExtractor(), linkWithAllData, episodeNode, AdvancedView.this));
-                    }
-                }
-                int episodeUpdatePref = prefs.getInt(SharedPrefContract.EPISODE_TRACKING, SharedPrefContract.EPISODE_TRACKING_DEFAULT);
-                if(episodeUpdatePref == SettingsFragment.EpisodeTracking.MAX_EPISODE && !episodeUpdateMode) {
-                    currentEpisode = Math.max(currentEpisode, Integer.valueOf(episodeNode.getEpisodeNumString()));
-                }
-                else {
-                    currentEpisode = (int) episodeNode.getEpisodeNum(); //Integer.valueOf(episodeNode.getEpisodeNumString());
-                }
-                animeData.updateData(AnimeLinkData.DataContract.DATA_EPISODE_NUM, "Episode - " + currentEpisode, true, isAnimeMode);
-                updateEpisodeProgress();
-                episodeUpdateMode = false;
-                currentIndex = holder.getBindingAdapterPosition();
-                adapter.notifyDataSetChanged();
-            });
-            holder.mainLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if(animeData.getId() != null) {
-                        EpisodeNoteDialog episodeNoteDialog = new EpisodeNoteDialog(episodeNode.getNote(), new EpisodeNoteDialog.NoteChangeListener() {
-                            @Override
-                            public void onNoteUpdated(String note) {
-                                FirebaseDBHelper.getNotesRef(animeData.getId()).child(episodeNode.getEpisodeNumString()).setValue(note);
-                                episodeNode.setNote(note);
-                                holder.noteIndicator.setVisibility(View.VISIBLE);
-                            }
-
-                            @Override
-                            public void onNoteRemoved() {
-                                FirebaseDBHelper.getNotesRef(animeData.getId()).child(episodeNode.getEpisodeNumString()).setValue(null);
-                                episodeNode.setNote(null);
-                                holder.noteIndicator.setVisibility(View.GONE);
-                            }
-                        });
-                        episodeNoteDialog.show(getSupportFragmentManager(), "NoteDialog");
-
-                    }
-                    return true;
-                }
-            });
-        }
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,6 +208,9 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         expandMoreAppBarButton = findViewById(R.id.app_bar_expand_more_button);
         expandLessAppBarButton = findViewById(R.id.app_bar_expand_less_button);
         episodeViewToggleGroup = findViewById(R.id.episode_view_toggle_group);
+        bookmarkButton = findViewById(R.id.bookmark_button);
+        favoriteButton = findViewById(R.id.linkdata_fav_button);
+        advViewSettingButton = findViewById(R.id.anime_info_button2);
 
 
         appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
@@ -313,7 +243,6 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
             }
         });
 
-        uiBlockedTasks = new HashSet<>();
         roomRepo = new LinkCastRoomRepository(getApplication());
 
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), findViewById(R.id.mediaRouteButton));
@@ -335,22 +264,38 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
             finish();
         }
 
-        updateAnimeBannerImage();
-
-        String animeDataEpisodeNum = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM);
-        if(animeDataEpisodeNum.contains("-")) {
-            currentEpisode = Integer.valueOf(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM).split("-")[1].trim());
+        if(this.linkWithAllData.getId() == null) {
+            bookmarkButton.setOnClickListener(v -> {
+                saveProgress();
+                bookmarkButton.setVisibility(View.GONE);
+            });
         }
         else {
-            currentEpisode = Integer.valueOf(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM));
+            bookmarkButton.setVisibility(View.GONE);
+        }
+
+        favoriteButton.setChecked(Boolean.parseBoolean(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_FAVORITE)));
+
+        favoriteButton.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            this.linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_FAVORITE, String.valueOf(isChecked));
+        });
+
+        updateAnimeBannerImage();
+
+        String animeDataEpisodeNum = this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM);
+        if(animeDataEpisodeNum.contains("-")) {
+            currentEpisode = Integer.valueOf(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM).split("-")[1].trim());
+        }
+        else {
+            currentEpisode = Integer.valueOf(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_EPISODE_NUM));
         }
 
         updateEpisodeProgress();
 
-        statusButton.setText(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS));
-        scoreButton.setText(animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+        statusButton.setText(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_STATUS));
+        scoreButton.setText(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
 
-        animeTitleTextView.setText(animeData.getTitle().replaceAll("\\(.*\\)", ""));
+        animeTitleTextView.setText(this.linkWithAllData.getTitle());
 
         episodeListData = new ArrayList<>();
 
@@ -359,7 +304,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         updateLayout(EpisodeNodeRecyclerAdapter.LIST);
 
 
-        Log.d("ADV_VIEW", "URL=" + animeData.getUrl());
+        Log.d("ADV_VIEW", "URL=" + this.linkWithAllData.getUrl());
         extractors = Providers.getExtractors();
 
         //mExecutor.execute(new ExtractAnimeData());
@@ -378,13 +323,22 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
             else statusItems = MangaFragment.Catalog.BASIC_TYPES;
             builder.setItems(statusItems, (dialog, which) -> {
                 String status = statusItems[which];
-                animeData.updateData(AnimeLinkData.DataContract.DATA_STATUS, status, true, isAnimeMode);
+                this.linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_STATUS, status);
                 statusButton.setText(status);
             });
             builder.show();
         });
 
+        advViewSettingButton.setOnClickListener(v -> openSettingsBottomSheet());
+
         loadData();
+    }
+
+    private void openSettingsBottomSheet() {
+        AdvViewSettingsDialogFragment sheet = new AdvViewSettingsDialogFragment(this.linkWithAllData, () -> {
+            loadData();
+        });
+        sheet.show(getSupportFragmentManager(), "AdvViewSettingsSheet");
     }
 
     private void updateLayout(int viewType) {
@@ -412,10 +366,10 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
             if(this.linkWithAllData.linkData.getUrl() == null) {
                 // No source selected
             }
-
-            if(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID) != null) {
-                mExecutor.execute(new ExtractMALMetaData(this.animeData, this));
-            }
+            mExecutor.execute(new ExtractMALMetaData(this.linkWithAllData, this));
+            /*if(this.linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID) != null) {
+                mExecutor.execute(new ExtractMALMetaData(this.linkWithAllData, this));
+            }*/
 
             Extractor extractor = getExtractor();
             if(extractor == null) {
@@ -521,7 +475,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         int resumeOption = prefs.getInt(SharedPrefContract.RESUME_BEHAVIOUR, SharedPrefContract.RESUME_BEHAVIOUR_DEFAULT);
         boolean askResumeConfirmation = (resumeOption == SettingsFragment.RESUME.ASK) ||
                 (resumeOption == SettingsFragment.RESUME.ASK_FOR_COMPLETED
-                        && animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS).equalsIgnoreCase(AnimeFragment.Catalogs.COMPLETED));
+                        && linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_STATUS).equalsIgnoreCase(AnimeFragment.Catalogs.COMPLETED));
         return  askResumeConfirmation;
     }
 
@@ -537,8 +491,9 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     @Override
-    public void onMALMetaData(AnimeMALMetaData metaData) {
+    public void onMALMetaData(AlMalMetaData metaData) {
         this.malMetaData = metaData;
+        roomRepo.insert(metaData);
         updateEpisodeProgress();
         updateAnimeTitle();
     }
@@ -587,7 +542,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     public void openPlaySelectorDialog(VideoURLData videoURLData) {
-        PlaySelectorDialogFragment playSelectorDialogFragment = new PlaySelectorDialogFragment(videoURLData, this.animeData, askResume());
+        PlaySelectorDialogFragment playSelectorDialogFragment = new PlaySelectorDialogFragment(videoURLData, this.linkWithAllData, askResume());
         playSelectorDialogFragment.show(getSupportFragmentManager(), "PlayDialog");
     }
 
@@ -599,7 +554,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         else {
             Intent intent = new Intent(getApplicationContext(), AnimeWebExplorer.class);
             intent.putExtra(AnimeWebExplorer.EXPLORE_URL, videoURLData.getUrl());
-            intent.putExtra(AnimeWebExplorer.EXPLORE_SOURCE, animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
+            intent.putExtra(AnimeWebExplorer.EXPLORE_SOURCE, linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_SOURCE));
             intent.putExtra(AnimeWebExplorer.RESULT_EPISODE_NUM, videoURLData.getEpisodeNum());
             intent.putExtra(AnimeWebExplorer.RETURN_RESULT, true);
             intent.putExtra("scrapper", getAnimeExtractor().getDisplayName());
@@ -619,7 +574,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     private void updateAnimeBannerImage() {
-        String imageUrl = animeData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
+        String imageUrl = linkWithAllData.getMetaData(AnimeLinkData.DataContract.DATA_IMAGE_URL);
         if(imageUrl != null) {
 
             Glide.with(getApplicationContext())
@@ -646,17 +601,12 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     private void updateAnimeTitle() {
-        if(this.malMetaData != null) {
-            animeTitleTextView.setText(this.malMetaData.getName());
-        }
-        else {
-            animeTitleTextView.setText(this.animeData.getTitle());
-        }
+        animeTitleTextView.setText(this.linkWithAllData.getTitle());
     }
 
     private void fetchNotes() {
-        if(animeData.getId() != null) {
-            FirebaseDBHelper.getValue(FirebaseDBHelper.getNotesRef(animeData.getId()), dataSnapshot -> {
+        if(linkWithAllData.getId() != null) {
+            FirebaseDBHelper.getValue(FirebaseDBHelper.getNotesRef(linkWithAllData.getId()), dataSnapshot -> {
                 if(dataSnapshot.exists()) {
                     Map<String, String> notesMap = new HashMap<>();
                     Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
@@ -678,12 +628,9 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     private void saveProgress() {
-        if(animeData.getId() == null) {
-            animeData.setId(Utils.getCurrentTime());
-        }
-        animeData.updateAll(isAnimeMode);
+        linkWithAllData.updateFirebase();
         Toast.makeText(getApplicationContext(), "Bookmarked", Toast.LENGTH_LONG).show();
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
     }
 
     public void save(View view) {
@@ -768,11 +715,11 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
     }
 
     private void selectFromSearchDialog() {
-        MyAnimeListSearchDialog myAnimeListSearchDialog = new MyAnimeListSearchDialog(animeData.getTitle(), isAnimeMode, myAnimelistAnimeData -> {
+        MyAnimeListSearchDialog myAnimeListSearchDialog = new MyAnimeListSearchDialog(this.linkWithAllData.getTitle(), isAnimeMode, myAnimelistAnimeData -> {
             //this.animeData.getMalMetaData().setUrl(myAnimelistAnimeData.getUrl());
             //this.animeData.getMalMetaData().setId(String.valueOf(myAnimelistAnimeData.getId()));
-            this.animeData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, String.valueOf(myAnimelistAnimeData.getId()), true, isAnimeMode);
-            mExecutor.execute(new ExtractMALMetaData(this.animeData, this));
+            this.linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, String.valueOf(myAnimelistAnimeData.getId()));
+            mExecutor.execute(new ExtractMALMetaData(this.linkWithAllData, this));
             Toast.makeText(getApplicationContext(), "MAL selected", Toast.LENGTH_LONG).show();
 
         });
@@ -795,7 +742,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                animeData.updateData(AnimeLinkData.DataContract.DATA_USER_SCORE, menuItem.getTitle().toString(), true, isAnimeMode);
+                linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_USER_SCORE, menuItem.getTitle().toString());
                 ((Button) view).setText(menuItem.getTitle().toString());
                 return false;
             }

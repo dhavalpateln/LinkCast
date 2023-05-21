@@ -83,6 +83,18 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
 
+                    <Button
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:id="@+id/bookmark_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bookmark"
+                        android:layout_margin="4dp"
+                        app:strokeColor="@color/colorPrimary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
                     <!--<com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/advanced_view_source_selector"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -137,6 +149,14 @@
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <CheckBox
+                android:id="@+id/linkdata_fav_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/sl_fav_32"
+                app:buttonTint="#FF4E4E"
+                />
 
             <ImageView
                 android:id="@+id/app_bar_expand_less_button"

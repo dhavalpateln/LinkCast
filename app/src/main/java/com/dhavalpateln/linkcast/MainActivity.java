@@ -92,9 +92,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initRoomDB() {
-        LinkCastRoomDatabase.getDatabase(getApplicationContext());
-    }
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because

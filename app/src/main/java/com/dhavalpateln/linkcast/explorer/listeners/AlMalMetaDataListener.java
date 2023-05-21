@@ -1,8 +1,9 @@
 package com.dhavalpateln.linkcast.explorer.listeners;
 
 import com.dhavalpateln.linkcast.database.AnimeMALMetaData;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
 
-public interface MALMetaDataListener {
-    void onMALMetaData(AnimeMALMetaData metaData);
+public interface AlMalMetaDataListener {
+    void onMALMetaData(AlMalMetaData metaData);
     void onBannerImageFetched(String url);
 }

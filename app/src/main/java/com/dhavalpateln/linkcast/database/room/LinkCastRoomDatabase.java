@@ -11,27 +11,28 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.room.migration.AutoMigrationSpec;
 
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataDao;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaDataDao;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaDataDao;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaDataDao;
 import com.dhavalpateln.linkcast.database.room.migrations.MIGRATION_1_2;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(
-        entities = {LinkData.class, MALMetaData.class, LinkMetaData.class},
-        version = 8,
+        entities = {LinkData.class, AlMalMetaData.class, LinkMetaData.class},
+        version = 9,
         autoMigrations = {
                 @AutoMigration(from = 2, to = 3, spec = LinkCastRoomDatabase.MALMetaDataRenameMigration_2_3.class),
                 @AutoMigration(from = 3, to = 4),
                 @AutoMigration(from = 4, to = 5),
                 @AutoMigration(from = 5, to = 6),
                 @AutoMigration(from = 6, to = 7, spec = LinkCastRoomDatabase.LinkDataDeleteEpiMigration_7_8.class),
-                @AutoMigration(from = 7, to = 8, spec = LinkCastRoomDatabase.LinkDataDeleteEpiMigration_7_8.class)
+                @AutoMigration(from = 7, to = 8, spec = LinkCastRoomDatabase.LinkDataDeleteEpiMigration_7_8.class),
+                @AutoMigration(from = 8, to = 9, spec = LinkCastRoomDatabase.MALMetaDataRenameMigration_8_9.class),
         }
 )
 @TypeConverters({Converters.class})
@@ -43,9 +44,12 @@ public abstract class LinkCastRoomDatabase extends RoomDatabase {
     @DeleteColumn(tableName = "LinkData", columnName = "lastEpisodeNodesFetchCount")
     static class LinkDataDeleteEpiMigration_7_8 implements AutoMigrationSpec { }
 
+    @RenameTable(fromTableName = "MALMetaData", toTableName = "AlMalMetaData")
+    static class MALMetaDataRenameMigration_8_9 implements AutoMigrationSpec { }
+
 
     public abstract LinkDataDao linkDataDao();
-    public abstract MALMetaDataDao malMetaDataDao();
+    public abstract AlMalMetaDataDao malMetaDataDao();
     public abstract LinkMetaDataDao linkMetaDataDao();
 
     private static volatile LinkCastRoomDatabase INSTANCE;

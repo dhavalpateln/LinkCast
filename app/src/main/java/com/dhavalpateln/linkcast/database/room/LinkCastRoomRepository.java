@@ -3,39 +3,36 @@ package com.dhavalpateln.linkcast.database.room;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
 
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaDataDao;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataDao;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaDataDao;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaDataDao;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class LinkCastRoomRepository {
 
     private LinkDataDao linkDataDao;
-    private MALMetaDataDao malMetaDataDao;
+    private AlMalMetaDataDao alMalMetaDataDao;
     private LinkMetaDataDao linkMetaDataDao;
 
     public LinkCastRoomRepository(Context application) {
         LinkCastRoomDatabase db = LinkCastRoomDatabase.getDatabase(application);
         linkDataDao = db.linkDataDao();
-        malMetaDataDao = db.malMetaDataDao();
+        alMalMetaDataDao = db.malMetaDataDao();
         linkMetaDataDao = db.linkMetaDataDao();
     }
 
     public void insert(LinkData linkData) {
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> linkDataDao.insertAll(linkData));
     }
-    public void insert(MALMetaData malMetaData) {
-        LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> malMetaDataDao.insertAll(malMetaData));
+    public void insert(AlMalMetaData alMalMetaData) {
+        LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> alMalMetaDataDao.insertAll(alMalMetaData));
     }
     public void insert(LinkMetaData linkMetaData) {
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> linkMetaDataDao.insertAll(linkMetaData));
@@ -53,8 +50,8 @@ public class LinkCastRoomRepository {
     public LiveData<List<LinkWithAllData>> getMangaLinks() { return linkDataDao.getMangaLinks(); }
     public List<LinkData> getAllAnimeLinks() { return linkDataDao.getAll(); }
 
-    public MALMetaData getMalMetaData(String id) {
-        return this.malMetaDataDao.findByID(id);
+    public AlMalMetaData getMalMetaData(String id) {
+        return this.alMalMetaDataDao.findByID(id);
     }
 
     public void clearLinkData() {

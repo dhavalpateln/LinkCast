@@ -175,7 +175,9 @@ public class GogoAnimeExtractor extends AnimeExtractor {
                     AnimeExtractor extractor = null;
                     switch (sourceName) {
                         case "vidstreaming":
-                            link = "https:" + link;
+                            if(!link.startsWith("https")) {
+                                link = "https:" + link;
+                            }
                             extractor = new GogoPlayExtractor();
                             break;
                         case "streamsb":

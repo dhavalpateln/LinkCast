@@ -103,17 +103,22 @@ public class LinkDataBottomSheet extends BottomSheetDialogFragment {
         deleteButton.setOnClickListener(v -> {
             if(deletePrefs.equalsIgnoreCase("ask")) {
                 ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
-                    FirebaseDBHelper.removeAnimeLink(this.link.getId());
+                    delete();
                 });
                 confirmationDialog.show(getParentFragmentManager(), "Confirm");
             }
             else {
-                FirebaseDBHelper.removeAnimeLink(this.link.getId());
+                delete();
             }
             dismiss();
         });
 
         return view;
+    }
+
+    private void delete() {
+        if(this.link.isAnime()) FirebaseDBHelper.removeAnimeLink(this.link.getId());
+        else FirebaseDBHelper.removeMangaLink(this.link.getId());
     }
 
     @Override

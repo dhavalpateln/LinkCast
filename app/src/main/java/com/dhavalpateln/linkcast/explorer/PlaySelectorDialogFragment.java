@@ -55,10 +55,10 @@ public class PlaySelectorDialogFragment extends DialogFragment {
 
     private VideoURLData videoURLData;
     private boolean shouldAskResume;
-    private AnimeLinkData animeData;
+    private LinkWithAllData animeData;
     private MediaRouteButton mediaRouteButton;
 
-    public PlaySelectorDialogFragment(VideoURLData videoURLData, AnimeLinkData animeData, boolean shouldAskResume) {
+    public PlaySelectorDialogFragment(VideoURLData videoURLData, LinkWithAllData animeData, boolean shouldAskResume) {
         this.videoURLData = videoURLData;
         this.animeData = animeData;
         this.shouldAskResume = shouldAskResume;

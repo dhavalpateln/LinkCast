@@ -68,7 +68,6 @@ public class VideoSelectorDialogFragment extends BottomSheetDialogFragment imple
         super.onViewCreated(view, savedInstanceState);
         this.recyclerView = view.findViewById(R.id.video_list_recycler_view);
         this.progressBar = view.findViewById(R.id.video_progress_bar);
-        CastButtonFactory.setUpMediaRouteButton(getContext().getApplicationContext(), view.findViewById(R.id.mediaRouteButton));
         this.videoList = new ArrayList<>();
         adapter = new VideoListAdapter(this.videoList);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

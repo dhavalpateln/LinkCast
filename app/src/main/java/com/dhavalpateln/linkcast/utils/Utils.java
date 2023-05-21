@@ -165,4 +165,16 @@ public class Utils {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
     }
+
+    public static int findIndexOf(String value, String[] items) {
+        return findIndexOf(value, items, true);
+    }
+
+    public static int findIndexOf(String value, String[] items, boolean ignoreCase) {
+        for(int i = 0; i < items.length; i++) {
+            if(ignoreCase && items[i].equalsIgnoreCase(value))  return i;
+            else if(!ignoreCase && items[i].equals(value))  return i;
+        }
+        return -1;
+    }
 }

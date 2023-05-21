@@ -79,9 +79,9 @@ public class KitsuDB {
             String queryPayload = "query {\n" +
                     "  lookupMapping(externalId: " + malID + ", externalSite: " + externalSite + ") {\n" +
                     "    __typename\n" +
-                    "    ... on Anime {\n" +
+                    "    ... on " + (isAnime ? "Anime" : "Manga") + " {\n" +
                     "      id\n" +
-                    "      episodes(first: 2000) {\n" +
+                    "      " + (isAnime ? "episodes" : "chapters") + "(first: 2000) {\n" +
                     "        nodes {\n" +
                     "          number\n" +
                     "          titles {\n" +
@@ -103,7 +103,9 @@ public class KitsuDB {
             String response = SimpleHttpClient.getResponse(urlConnection);
 
             JSONObject jsonResponse = new JSONObject(response);
-            JSONArray episodeData = jsonResponse.getJSONObject("data").getJSONObject("lookupMapping").getJSONObject("episodes").getJSONArray("nodes");
+            JSONArray episodeData;
+            if(isAnime) episodeData = jsonResponse.getJSONObject("data").getJSONObject("lookupMapping").getJSONObject("episodes").getJSONArray("nodes");
+            else episodeData = jsonResponse.getJSONObject("data").getJSONObject("lookupMapping").getJSONObject("chapters").getJSONArray("nodes");
 
             for(int i = 0; i < episodeData.length(); i++) {
                 JSONObject data = episodeData.getJSONObject(i);

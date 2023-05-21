@@ -24,12 +24,12 @@ import java.util.Map;
 public class Providers {
 
     private static Providers instance;
-    private Map<String, AnimeExtractor> cachedAnimeExtractor;
-    private Map<String, MangaExtractor> cachedMangaExtractor;
+    private Map<String, AnimeMangaSearch> cachedSearcher;
+    private Map<String, Extractor> cachedExtractor;
 
     private Providers() {
-        cachedAnimeExtractor = new HashMap<>();
-        cachedMangaExtractor = new HashMap<>();
+        cachedSearcher = new HashMap<>();
+        cachedExtractor = new HashMap<>();
     }
 
     public static Providers getInstance() {
@@ -78,6 +78,22 @@ public class Providers {
         return searchers;
     }
 
+    public static String[] getAnimeProviderNames() {
+        return new String[] {
+                ProvidersData.GOGOANIME.NAME,
+                ProvidersData.ZORO.NAME,
+                ProvidersData.ANIMEPAHE.NAME,
+                ProvidersData.MARIN.NAME
+        };
+    }
+
+    public static String[] getMangaProviderNames() {
+        return new String[] {
+                ProvidersData.MANGAFOURLIFE.NAME,
+                ProvidersData.MANGAREADER.NAME
+        };
+    }
+
     public static String[] getSearchOrder() {
         return new String[] {
                 ProvidersData.GOGOANIME.NAME,
@@ -95,4 +111,23 @@ public class Providers {
         navigators.put(ProvidersData.STREAMSB.NAME, new StreamSBNavigator());
         return navigators;
     }
+
+    public AnimeMangaSearch getSearcher(String name) {
+        switch (name) {
+            case ProvidersData.ZORO.NAME:
+                return new ZoroSearch();
+            case ProvidersData.MARIN.NAME:
+                return new MarinSearch();
+            case ProvidersData.ANIMEPAHE.NAME:
+                return new AnimePaheSearch();
+            case ProvidersData.MANGAFOURLIFE.NAME:
+                return new MangaFourLifeSearch();
+            case ProvidersData.MANGAREADER.NAME:
+                return new MangaReaderSearch();
+            case ProvidersData.GOGOANIME.NAME:
+            default:
+                return new GogoAnimeSearch();
+        }
+    }
+
 }

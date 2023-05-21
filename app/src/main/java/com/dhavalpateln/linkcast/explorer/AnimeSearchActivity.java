@@ -1,9 +1,8 @@
-package com.dhavalpateln.linkcast;
+package com.dhavalpateln.linkcast.explorer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
@@ -22,28 +21,28 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dhavalpateln.linkcast.adapters.AnimeDataListRecyclerAdapter;
+import com.dhavalpateln.linkcast.AnimeWebExplorer;
+import com.dhavalpateln.linkcast.MangaWebExplorer;
+import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
-import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
-import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
-import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.dialogs.LinkDataBottomSheet;
-import com.dhavalpateln.linkcast.explorer.AdvancedView;
 import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
 import com.dhavalpateln.linkcast.extractors.Providers;
 import com.dhavalpateln.linkcast.extractors.bookmark.BookmarkedSearch;
+import com.google.android.material.search.SearchBar;
+import com.google.android.material.search.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +62,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
     private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
     private SearchListRecyclerAdapter adapter;
     private RecyclerView recyclerView;
-    private EditText searchEditText;
+    private AutoCompleteTextView searchEditText;
     private Spinner sourceSpinner;
     private ProgressDialog progressDialog;
 
@@ -237,7 +236,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_anime_search);
 
         sourceSpinner = findViewById(R.id.sourceSelectorSpinner);
-        searchEditText = findViewById(R.id.editTextSearchBar);
+        searchEditText = findViewById(R.id.searchBarText);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 

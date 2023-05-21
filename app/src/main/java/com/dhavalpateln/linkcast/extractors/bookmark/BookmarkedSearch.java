@@ -2,8 +2,6 @@ package com.dhavalpateln.linkcast.extractors.bookmark;
 
 import android.content.Context;
 
-import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
-import com.dhavalpateln.linkcast.data.StoredAnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.room.LinkCastRoomRepository;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
@@ -78,8 +76,8 @@ public class BookmarkedSearch extends AnimeMangaSearch {
                 result.add(linkWithAllData);
                 continue;
             }
-            if(linkWithAllData.malMetaData != null) {
-                if(linkWithAllData.malMetaData.getEngName().toLowerCase().contains(term) || linkWithAllData.malMetaData.getName().toLowerCase().contains(term)) {
+            if(linkWithAllData.alMalMetaData != null) {
+                if(linkWithAllData.alMalMetaData.getEngName().toLowerCase().contains(term) || linkWithAllData.alMalMetaData.getName().toLowerCase().contains(term)) {
                     result.add(linkWithAllData);
                 }
             }

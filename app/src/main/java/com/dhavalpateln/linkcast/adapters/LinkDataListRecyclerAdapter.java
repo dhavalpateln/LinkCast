@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
@@ -69,8 +68,8 @@ public class LinkDataListRecyclerAdapter extends RecyclerView.Adapter<LinkDataVi
             fetchedEpisodes = Math.max(watchedEpisodes, linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount());
         }
         int totalEpisode = fetchedEpisodes;
-        if(linkWithAllData.malMetaData != null && Utils.isNumeric(linkWithAllData.malMetaData.getTotalEpisodes())) {
-            totalEpisode = Math.max(Integer.parseInt(linkWithAllData.malMetaData.getTotalEpisodes()), totalEpisode);
+        if(linkWithAllData.alMalMetaData != null && Utils.isNumeric(linkWithAllData.alMalMetaData.getTotalEpisodes())) {
+            totalEpisode = Math.max(Integer.parseInt(linkWithAllData.alMalMetaData.getTotalEpisodes()), totalEpisode);
         }
 
         holder.progressBar.setProgress((int) ((watchedEpisodes*100.0) / totalEpisode));

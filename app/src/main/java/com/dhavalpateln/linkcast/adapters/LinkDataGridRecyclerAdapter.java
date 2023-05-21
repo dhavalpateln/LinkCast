@@ -1,7 +1,6 @@
 package com.dhavalpateln.linkcast.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
-import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.utils.Utils;
@@ -69,8 +67,8 @@ public class LinkDataGridRecyclerAdapter extends RecyclerView.Adapter<LinkDataGr
             fetchedEpisodes = Math.max(watchedEpisodes, linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount());
         }
         int totalEpisode = fetchedEpisodes;
-        if(linkWithAllData.malMetaData != null && Utils.isNumeric(linkWithAllData.malMetaData.getTotalEpisodes())) {
-            totalEpisode = Math.max(Integer.parseInt(linkWithAllData.malMetaData.getTotalEpisodes()), totalEpisode);
+        if(linkWithAllData.alMalMetaData != null && Utils.isNumeric(linkWithAllData.alMalMetaData.getTotalEpisodes())) {
+            totalEpisode = Math.max(Integer.parseInt(linkWithAllData.alMalMetaData.getTotalEpisodes()), totalEpisode);
         }
 
         //holder.progressBar.setProgress((int) ((watchedEpisodes*100.0) / totalEpisode));

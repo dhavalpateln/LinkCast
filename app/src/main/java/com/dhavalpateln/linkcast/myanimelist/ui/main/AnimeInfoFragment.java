@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.dhavalpateln.linkcast.AnimeSearchActivity;
+import com.dhavalpateln.linkcast.explorer.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;

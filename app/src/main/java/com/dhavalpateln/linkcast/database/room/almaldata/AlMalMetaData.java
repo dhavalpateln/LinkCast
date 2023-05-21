@@ -1,4 +1,4 @@
-package com.dhavalpateln.linkcast.database.room.maldata;
+package com.dhavalpateln.linkcast.database.room.almaldata;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,7 +11,7 @@ import com.dhavalpateln.linkcast.utils.Utils;
 import java.io.Serializable;
 
 @Entity
-public class MALMetaData implements Serializable {
+public class AlMalMetaData implements Serializable {
 
     @PrimaryKey
     @NonNull
@@ -89,17 +89,17 @@ public class MALMetaData implements Serializable {
         this.airDate = airDate;
     }
 
-    public static MALMetaData from(AnimeMALMetaData animeMALMetaData) {
-        MALMetaData malMetaData = new MALMetaData();
-        malMetaData.setAirDate(animeMALMetaData.getAirDate());
-        malMetaData.setEngName(animeMALMetaData.getEngName());
-        malMetaData.setId(animeMALMetaData.getId());
-        malMetaData.setImageURL(animeMALMetaData.getImageURL());
-        malMetaData.setName(animeMALMetaData.getName());
-        malMetaData.setStatus(animeMALMetaData.getStatus());
-        malMetaData.setTotalEpisodes(animeMALMetaData.getTotalEpisodes());
-        malMetaData.setUrl(animeMALMetaData.getUrl());
-        return malMetaData;
+    public static AlMalMetaData from(AnimeMALMetaData animeMALMetaData) {
+        AlMalMetaData alMalMetaData = new AlMalMetaData();
+        alMalMetaData.setAirDate(animeMALMetaData.getAirDate());
+        alMalMetaData.setEngName(animeMALMetaData.getEngName());
+        alMalMetaData.setId(animeMALMetaData.getId());
+        alMalMetaData.setImageURL(animeMALMetaData.getImageURL());
+        alMalMetaData.setName(animeMALMetaData.getName());
+        alMalMetaData.setStatus(animeMALMetaData.getStatus());
+        alMalMetaData.setTotalEpisodes(animeMALMetaData.getTotalEpisodes());
+        alMalMetaData.setUrl(animeMALMetaData.getUrl());
+        return alMalMetaData;
     }
 
     @Override
@@ -110,7 +110,7 @@ public class MALMetaData implements Serializable {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        MALMetaData metaDataObj = (MALMetaData) obj;
+        AlMalMetaData metaDataObj = (AlMalMetaData) obj;
         return getId().equals(metaDataObj.getId()) &&
                 Utils.compareNullableStrings(getStatus(), metaDataObj.getStatus()) &&
                 Utils.compareNullableStrings(getAirDate(), metaDataObj.getAirDate()) &&

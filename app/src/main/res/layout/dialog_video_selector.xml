@@ -6,14 +6,6 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <androidx.mediarouter.app.MediaRouteButton
-        android:id="@+id/mediaRouteButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <TextView
         android:id="@+id/video_selector_title"
         android:layout_width="wrap_content"

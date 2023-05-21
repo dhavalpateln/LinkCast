@@ -37,9 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -240,7 +238,7 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
         }
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-        int notificationID = linkWithAllData.malMetaData != null ? Integer.parseInt(linkWithAllData.malMetaData.getId()) : Utils.getRandomInt(1, 65535);
+        int notificationID = linkWithAllData.alMalMetaData != null ? Integer.parseInt(linkWithAllData.alMalMetaData.getId()) : Utils.getRandomInt(1, 65535);
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions

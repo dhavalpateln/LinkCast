@@ -167,6 +167,9 @@ public class GogoPlayExtractor extends AnimeExtractor {
                 Uri uri = Uri.parse(episodeUrl);
                 String hostName = "https://" + uri.getHost();
                 String contentId = uri.getQueryParameter("id");
+                if(contentId == null) {
+                    throw new Exception("Error fetching content ID");
+                }
                 GogoAnimeKeys gogoAnimeKeys = fetchKeys(episodeUrl);
 
                 String decrytedData = decrypt(gogoAnimeKeys.encrytedDataValue, gogoAnimeKeys.key1, gogoAnimeKeys.iv)

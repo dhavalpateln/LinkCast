@@ -26,7 +26,7 @@ import com.dhavalpateln.linkcast.database.JikanDatabase;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.MangaExtractor;
 import com.dhavalpateln.linkcast.extractors.Providers;
@@ -107,7 +107,7 @@ public class LinkMonitorTask extends LinkCastWorker {
         }
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        int notificationID = linkWithAllData.malMetaData != null ? Integer.parseInt(linkWithAllData.malMetaData.getId()) : Utils.getRandomInt(1, 65535);
+        int notificationID = linkWithAllData.alMalMetaData != null ? Integer.parseInt(linkWithAllData.alMalMetaData.getId()) : Utils.getRandomInt(1, 65535);
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -165,11 +165,11 @@ public class LinkMonitorTask extends LinkCastWorker {
     }
 
     private boolean shouldCheckNewEpisode(AnimeLinkData animeLinkData, LinkWithAllData linkWithAllData) {
-        if(linkWithAllData.malMetaData != null) {
-            return !linkWithAllData.malMetaData.getStatus().toLowerCase().contains("finished") ||
+        if(linkWithAllData.alMalMetaData != null) {
+            return !linkWithAllData.alMalMetaData.getStatus().toLowerCase().contains("finished") ||
                     (monitorStatusSet.contains(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS).toLowerCase())
-                            && Utils.isNumeric(linkWithAllData.malMetaData.getTotalEpisodes())
-                            && linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount() < Integer.parseInt(linkWithAllData.malMetaData.getTotalEpisodes()));
+                            && Utils.isNumeric(linkWithAllData.alMalMetaData.getTotalEpisodes())
+                            && linkWithAllData.linkMetaData.getLastEpisodeNodesFetchCount() < Integer.parseInt(linkWithAllData.alMalMetaData.getTotalEpisodes()));
         }
         else if(monitorStatusSet.contains(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS).toLowerCase())) {
             return true;
@@ -179,7 +179,7 @@ public class LinkMonitorTask extends LinkCastWorker {
 
     private boolean shouldUpdateMalMetaData(LinkWithAllData linkWithAllData) {
         if(linkWithAllData.linkData.getMalId() != null) {
-            return linkWithAllData.malMetaData == null || !linkWithAllData.malMetaData.getStatus().toLowerCase().contains("finished");
+            return linkWithAllData.alMalMetaData == null || !linkWithAllData.alMalMetaData.getStatus().toLowerCase().contains("finished");
         }
         return false;
     }
@@ -215,8 +215,8 @@ public class LinkMonitorTask extends LinkCastWorker {
                 // update mal meta data if required
                 if(shouldUpdateMalMetaData(linkWithAllData)) {
                     AnimeMALMetaData animeMALMetaData = JikanDatabase.getInstance().getMalMetaData(linkData.getMalId(), animeLinkData.isAnime());
-                    linkWithAllData.malMetaData = MALMetaData.from(animeMALMetaData);
-                    getRoomRepo().insert(linkWithAllData.malMetaData);
+                    linkWithAllData.alMalMetaData = AlMalMetaData.from(animeMALMetaData);
+                    getRoomRepo().insert(linkWithAllData.alMalMetaData);
                     malUpdated++;
                 }
 

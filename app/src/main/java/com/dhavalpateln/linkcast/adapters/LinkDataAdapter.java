@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,10 +18,10 @@ import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataGridViewHolder;
 import com.dhavalpateln.linkcast.adapters.viewholders.LinkDataViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
+import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
-import com.dhavalpateln.linkcast.database.room.maldata.MALMetaData;
 import com.dhavalpateln.linkcast.utils.Utils;
 
 import java.util.List;
@@ -70,7 +69,7 @@ public class LinkDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         LinkWithAllData linkData = this.linkDataList.get(position);
         LinkMetaData linkMetaData = linkData.linkMetaData;
-        MALMetaData malMetaData = linkData.malMetaData;
+        AlMalMetaData alMalMetaData = linkData.alMalMetaData;
         LinkData linkDataFB = linkData.linkData;
         ImageView animeImageView = null;
 
@@ -87,8 +86,8 @@ public class LinkDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             fetchedEpisodes = Math.max(watchedEpisodes, linkMetaData.getLastEpisodeNodesFetchCount());
         }
         int totalEpisode = fetchedEpisodes;
-        if (malMetaData != null && Utils.isNumeric(malMetaData.getTotalEpisodes())) {
-            totalEpisode = Math.max(Integer.parseInt(malMetaData.getTotalEpisodes()), totalEpisode);
+        if (alMalMetaData != null && Utils.isNumeric(alMalMetaData.getTotalEpisodes())) {
+            totalEpisode = Math.max(Integer.parseInt(alMalMetaData.getTotalEpisodes()), totalEpisode);
         }
 
         if (totalEpisode == fetchedEpisodes || (linkMetaData != null && linkMetaData.getLastEpisodeNodesFetchCount() == -2)) {
