@@ -24,7 +24,7 @@ public class Migration_0_1 extends MigrationTask {
     private int fireDBRefFetched;
     private String TAG = "MIGRATION_0_1";
     public Migration_0_1(Context context, MigrationListener listener) {
-        super(listener);
+        super(1, listener);
         this.roomRepo = new LinkCastRoomRepository(context);
         this.linkDataList = new ArrayList<>();
         this.fireDBRefFetched = 0;
@@ -67,11 +67,11 @@ public class Migration_0_1 extends MigrationTask {
     private void startMigration() {
         updateProgress(0);
         for(int i = 0; i < this.linkDataList.size(); i++) {
-            updateProgress((i + 1) / linkDataList.size());
+            updateProgress((i + 1) * 100 / linkDataList.size());
             LinkWithAllData link = linkDataList.get(i);
 
             try {
-                if (link.linkData.getTitle() == null || link.linkData.getUrl() == null) {
+                if (link.linkData.getTitle() == null) {
                     if (link.isAnime()) {
                         FirebaseDBHelper.getUserAnimeWebExplorerLinkRef(link.getId()).setValue(null);
                     } else {
@@ -80,13 +80,12 @@ public class Migration_0_1 extends MigrationTask {
                     continue;
                 }
 
-                if (link.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID) == null) {
-
-                }
+                roomRepo.insert(link.linkData);
             } catch (Exception e) {
                 Log.d(TAG, "Error migrating " + link.getId());
             }
         }
+        notifySuccess();
     }
 
 }

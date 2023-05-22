@@ -107,7 +107,8 @@ public class AdvViewSettingsDialogFragment extends BottomSheetDialogFragment {
 
         notificationSwitch.setOnCheckedChangeListener((compoundButton, isChecked) -> {
             this.linkWithAllData.updateLocalData(LinkDataContract.NOTIFICATION, isChecked ? "1" : "0");
-            this.roomRepo.insert(this.linkWithAllData.linkMetaData);
+            if(this.linkWithAllData.getId() != null)
+                this.roomRepo.insert(this.linkWithAllData.linkMetaData);
         });
 
     }

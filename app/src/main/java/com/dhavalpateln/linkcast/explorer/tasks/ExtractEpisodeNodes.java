@@ -9,6 +9,8 @@ import com.dhavalpateln.linkcast.database.kitsu.KitsuDB;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.explorer.listeners.EpisodeNodeListListener;
 import com.dhavalpateln.linkcast.extractors.Extractor;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistAnimeData;
+import com.dhavalpateln.linkcast.myanimelist.MyAnimelistSearch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,28 @@ public class ExtractEpisodeNodes extends RunnableTask {
         this.extractor = extractor;
         this.listener = listener;
         this.linkData = linkData;
+    }
+
+    private String getMalID() {
+        if(this.linkData.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID) != null) {
+            return this.linkData.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID);
+        }
+        String formattedTitle = this.linkData.getTitle().trim();
+        List<MyAnimelistAnimeData> myAnimelistSearchResult = MyAnimelistSearch.search(formattedTitle, this.linkData.isAnime());
+        for (MyAnimelistAnimeData myAnimelistAnimeData : myAnimelistSearchResult) {
+            if (myAnimelistAnimeData.getTitle().equalsIgnoreCase(formattedTitle)) {
+                //this.animeData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, String.valueOf(myAnimelistAnimeData.getId()), true, this.animeData.isAnime());
+                return String.valueOf(myAnimelistAnimeData.getId());
+            }
+        }
+        if(myAnimelistSearchResult.size() > 1) {
+            return String.valueOf(myAnimelistSearchResult.get(0).getId());
+            /*if (myAnimelistSearchResult.get(0).getSearchScore() - myAnimelistSearchResult.get(1).getSearchScore() > 10) {
+                //this.animeData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, String.valueOf(myAnimelistSearchResult.get(0).getId()), true, this.animeData.isAnime());
+                return String.valueOf(myAnimelistSearchResult.get(0).getId());
+            }*/
+        }
+        return null;
     }
 
     private class ExtractEpisodes implements Callable<List<EpisodeNode>> {
@@ -62,7 +86,7 @@ public class ExtractEpisodeNodes extends RunnableTask {
             AnimeLinkData animeData = AnimeLinkData.from(linkData.linkData);
             List<EpisodeNode> episodes = this.extractor.extractData(animeData);*/
 
-            String malId = this.linkData.getMetaData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID);
+            String malId = getMalID();
 
             if(malId != null) {
 

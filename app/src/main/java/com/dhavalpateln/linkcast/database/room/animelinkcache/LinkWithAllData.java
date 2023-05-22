@@ -40,7 +40,7 @@ public class LinkWithAllData implements Serializable {
 
     public String getMetaData(String key) {
         if(linkData.getData().containsKey(key))  return linkData.getData().get(key);
-        if(linkMetaData.getMiscData().containsKey(key)) return linkMetaData.getMiscData().get(key);
+        if(linkMetaData != null && linkMetaData.getMiscData().containsKey(key)) return linkMetaData.getMiscData().get(key);
         switch (key) {
             case LinkDataContract.DATA_FAVORITE:
                 return "false";
@@ -71,6 +71,7 @@ public class LinkWithAllData implements Serializable {
     }
 
     public void updateLocalData(String key, String value) {
+        if(this.linkMetaData == null)   this.linkMetaData = new LinkMetaData();
         this.linkMetaData.getMiscData().put(key, value);
     }
 
@@ -96,7 +97,11 @@ public class LinkWithAllData implements Serializable {
     }
 
     public void updateFirebase() {
-        if(getId() == null)  this.linkData.setId(Utils.getCurrentTime());
+        if(getId() == null) {
+            if(this.linkMetaData == null)   this.linkMetaData = new LinkMetaData();
+            this.linkData.setId(Utils.getCurrentTime());
+            this.linkMetaData.setId(this.linkData.getId());
+        }
 
         if(this.linkData.getTitle() == null || this.linkData.getUrl() == null) {
             Log.d("LinkWithAllData", "Something bad happened. Bad copy");

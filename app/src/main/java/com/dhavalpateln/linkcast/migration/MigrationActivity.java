@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 
 public class MigrationActivity extends AppCompatActivity implements MigrationListener {
 
-    public static final int VERSION = 0;
+    public static final int VERSION = 2;
     public static final String PREF_MIGRATION_VERSION_KEY = "migration_version";
 
     private ProgressBar progressBar;
@@ -43,6 +43,7 @@ public class MigrationActivity extends AppCompatActivity implements MigrationLis
     private MigrationTask getMigration(int version) {
         switch (version) {
             case 1: return new Migration_0_1(getApplicationContext(), this);
+            case 2: return new Migration_1_2(getApplicationContext(), this);
             default: return null;
         }
     }
@@ -69,9 +70,8 @@ public class MigrationActivity extends AppCompatActivity implements MigrationLis
 
     @Override
     public void onMigrationSuccess(int version) {
-        int currentMigration = this.prefs.getInt(PREF_MIGRATION_VERSION_KEY, 0);
         SharedPreferences.Editor editor = this.prefs.edit();
-        editor.putInt(PREF_MIGRATION_VERSION_KEY, currentMigration + 1);
+        editor.putInt(PREF_MIGRATION_VERSION_KEY, version);
         editor.commit();
         runNextMigration();
     }
