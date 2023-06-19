@@ -1,6 +1,8 @@
 package com.dhavalpateln.linkcast.explorer;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,10 +32,12 @@ import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataContract;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.dialogs.LinkDownloadManagerDialog;
+import com.dhavalpateln.linkcast.dialogs.MyAnimeListSearchDialog;
 import com.dhavalpateln.linkcast.explorer.listeners.SourceChangeListener;
 import com.dhavalpateln.linkcast.explorer.listeners.TaskCompleteListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoSelectedListener;
 import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
+import com.dhavalpateln.linkcast.explorer.tasks.ExtractMALMetaData;
 import com.dhavalpateln.linkcast.explorer.tasks.ExtractVideoServers;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
@@ -53,10 +57,13 @@ import java.util.concurrent.Executors;
 
 public class AdvViewSettingsDialogFragment extends BottomSheetDialogFragment {
 
+    private static final int CHANGE_SOURCE_REQUEST_CODE = 3;
     private LinkWithAllData linkWithAllData;
     private MaterialAutoCompleteTextView sourceDropdown;
     private TextView selectedSourceTitleTextView;
     private TextView malTitleTextView;
+    private TextView wrongSourceTitleTextView;
+    private TextView wrongMALTitleTextView;
     private MaterialSwitch notificationSwitch;
     private String[] sourceItems;
     private String TAG = "AdvViewSettings";
@@ -88,6 +95,8 @@ public class AdvViewSettingsDialogFragment extends BottomSheetDialogFragment {
         selectedSourceTitleTextView = view.findViewById(R.id.selectedSourceTitleTextView);
         notificationSwitch = view.findViewById(R.id.notification_switch);
         malTitleTextView = view.findViewById(R.id.malTitleTextView);
+        wrongSourceTitleTextView = view.findViewById(R.id.wrongSourceTitleTextView);
+        wrongMALTitleTextView = view.findViewById(R.id.wrongMalTitleTextView);
 
         sourceDropdown.setSimpleItems(this.sourceItems);
         sourceDropdown.setText(this.linkWithAllData.getMetaData(LinkDataContract.DATA_SOURCE), false);
@@ -111,6 +120,37 @@ public class AdvViewSettingsDialogFragment extends BottomSheetDialogFragment {
                 this.roomRepo.insert(this.linkWithAllData.linkMetaData);
         });
 
+        wrongSourceTitleTextView.setOnClickListener(v -> {
+            Intent intent = AnimeSearchActivity.prepareSearchIntent(
+                    getContext(),
+                    this.linkWithAllData.getTitle(),
+                    this.linkWithAllData.getMetaData(LinkDataContract.DATA_SOURCE)
+            );
+            startActivityForResult(intent, CHANGE_SOURCE_REQUEST_CODE);
+        });
+
+        wrongMALTitleTextView.setOnClickListener(v -> {
+            MyAnimeListSearchDialog myAnimeListSearchDialog = new MyAnimeListSearchDialog(this.linkWithAllData.getTitle(), this.linkWithAllData.isAnime(), myAnimelistAnimeData -> {
+                this.linkWithAllData.updateData(AnimeLinkData.DataContract.DATA_MYANIMELIST_ID, String.valueOf(myAnimelistAnimeData.getId()));
+                malTitleTextView.setText(myAnimelistAnimeData.getTitle());
+                sourceChangeListener.onSourceChanged();
+
+            });
+            myAnimeListSearchDialog.show(getParentFragmentManager(), "MALSearch");
+        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == CHANGE_SOURCE_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                LinkWithAllData changedSourceDataLWAD = (LinkWithAllData) data.getSerializableExtra(AnimeSearchActivity.RESULT_ANIMELINKDATA);
+                this.linkWithAllData.updateData(changedSourceDataLWAD.linkData);
+                selectedSourceTitleTextView.setText(changedSourceDataLWAD.linkData.getTitle());
+                sourceChangeListener.onSourceChanged();
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")

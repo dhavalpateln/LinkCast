@@ -301,7 +301,12 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
 
         adapter = new EpisodeNodeRecyclerAdapter(getApplicationContext(), episodeListData,this);
         episodeRecyclerView.setAdapter(adapter);
-        updateLayout(EpisodeNodeRecyclerAdapter.LIST);
+        if(this.linkWithAllData.isAnime()) {
+            updateLayout(EpisodeNodeRecyclerAdapter.LIST);
+        }
+        else {
+            updateLayout(EpisodeNodeRecyclerAdapter.GRID);
+        }
 
 
         Log.d("ADV_VIEW", "URL=" + this.linkWithAllData.getUrl());
@@ -515,6 +520,7 @@ public class AdvancedView extends AppCompatActivity implements EpisodeNodeListLi
         fetchNotes();
         updateAnimeBannerImage();
         updateAnimeTitle();
+        adapter.notifyDataSetChanged();
         //loadEpisodeChips(totalFetchedEpisodes);
     }
 

@@ -26,6 +26,7 @@ import com.dhavalpateln.linkcast.dialogs.ConfirmationDialog;
 import com.dhavalpateln.linkcast.ui.animes.AnimeFragment;
 import com.dhavalpateln.linkcast.ui.AbstractCatalogObjectFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -138,17 +139,17 @@ public class MangaFragmentObject extends AbstractCatalogObjectFragment {
         LinkDataViewModel viewModel = new ViewModelProvider(getActivity()).get(LinkDataViewModel.class);
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         viewModel.getMangaLinks().observe(getViewLifecycleOwner(), linkDataList -> {
-            dataList.clear();
+            List<LinkWithAllData> tempDataList = new ArrayList<>();
             for(LinkWithAllData linkWithAllData: linkDataList) {
                 AnimeLinkData animeLinkData = AnimeLinkData.from(linkWithAllData.linkData);
                 if(tabName.equals(AnimeFragment.Catalogs.ALL) ||
                         tabName.equalsIgnoreCase(animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_STATUS)) ||
                         (tabName.equals(AnimeFragment.Catalogs.FAVORITE) &&
                                 animeLinkData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_FAVORITE).equals("true"))) {
-                    dataList.add(linkWithAllData);
+                    tempDataList.add(linkWithAllData);
                 }
             }
-            refreshAdapter();
+            refreshAdapter(tempDataList);
         });
     }
 

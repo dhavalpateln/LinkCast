@@ -14,8 +14,10 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.extractors.mangareader.MangaReaderTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,8 @@ public class MangaReaderActivity extends AppCompatActivity {
 
     private class VerticalRecyclerAdapter extends MangaRecyclerAdapter {
 
+        //private BitmapTransformation trans = new MangaReaderTransform();
+
         public VerticalRecyclerAdapter(String[] recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
         }
@@ -49,8 +53,9 @@ public class MangaReaderActivity extends AppCompatActivity {
             Glide.with(getApplicationContext())
                     .load(imageUrl)
                     .transition(new DrawableTransitionOptions().crossFade())
+                    //.transform(trans)
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    //.diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
         }
     }

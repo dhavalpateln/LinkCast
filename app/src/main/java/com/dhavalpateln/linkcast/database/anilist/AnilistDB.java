@@ -91,6 +91,7 @@ public class AnilistDB {
 
     public AlMalMetaData getAlMalMetaData(String malID, boolean isAnime) {
         AlMalMetaData result = new AlMalMetaData();
+        result.setId(malID);
         try {
             JSONObject payload = new JSONObject();
             payload.put("variables", new JSONObject("{'idMal': " + malID + "}"));
@@ -123,10 +124,9 @@ public class AnilistDB {
                     "}");
 
             JSONObject jsonResult = fetchData(payload);
-            if(result == null)  return null;
+            if(jsonResult == null)  return result;
             JSONObject data = jsonResult.getJSONObject("data").getJSONObject("Media");
 
-            result.setId(malID);
             result.setEngName(data.getJSONObject("title").getString("english"));
             result.setName(data.getJSONObject("title").getString("romaji"));
             if(isAnime) result.setTotalEpisodes(data.getString("episodes"));
@@ -136,7 +136,7 @@ public class AnilistDB {
             result.setImageURL(data.getString("bannerImage"));
             JSONObject startDate = data.getJSONObject("startDate");
             result.setAirDate(startDate.getString("year") + "-" + startDate.getString("month") + "-" + startDate.getString("day"));
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;

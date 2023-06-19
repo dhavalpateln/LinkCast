@@ -15,29 +15,37 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-public class MyAnimeListGridCharacterAdapter extends GridRecyclerAdapter<MyAnimelistCharacterData> {
+public class MyAnimeListGridCharacterAdapter extends CatalogGridRecyclerAdapter<MyAnimelistCharacterData> {
 
-    private List<MyAnimelistCharacterData> dataList;
 
     public MyAnimeListGridCharacterAdapter(List<MyAnimelistCharacterData> recyclerDataArrayList, Context mcontext) {
         super(recyclerDataArrayList, mcontext);
-        this.dataList = recyclerDataArrayList;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AnimeGridViewHolder holder, int position) {
-        MyAnimelistCharacterData data = dataList.get(position);
-        holder.titleTextView.setText(data.getName());
-        holder.subTextTextView.setText(data.getType());
-        Glide.with(mcontext)
-                .load(data.getImages().get(0))
-                .centerCrop()
-                .transition(new DrawableTransitionOptions().crossFade())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.imageView);
-        holder.mainLayout.setOnClickListener(v -> {
-            Intent intent = MyAnimelistCharacterActivity.prepareIntent(mcontext, data);
-            mcontext.startActivity(intent);
-        });
+    public String getTitle(MyAnimelistCharacterData item) {
+        return item.getName();
     }
+
+    @Override
+    public String getSubTitle(MyAnimelistCharacterData item) {
+        return null;
+    }
+
+    @Override
+    public String getImageUrl(MyAnimelistCharacterData item) {
+        return item.getImages().get(0);
+    }
+
+    @Override
+    public String getScoreText(MyAnimelistCharacterData item) {
+        return null;
+    }
+
+    @Override
+    public void onClick(MyAnimelistCharacterData item) {
+        Intent intent = MyAnimelistCharacterActivity.prepareIntent(mcontext, item);
+        mcontext.startActivity(intent);
+    }
+
 }

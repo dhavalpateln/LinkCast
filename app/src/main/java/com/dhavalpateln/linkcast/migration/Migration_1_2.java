@@ -105,7 +105,7 @@ public class Migration_1_2 extends MigrationTask {
     public void execute() {
         List<LinkWithAllData> linkWithAllData = this.roomRepo.getLinkWithData();
         List<Future> futures = new ArrayList<>();
-        ExecutorService es = Executors.newFixedThreadPool(5);
+        ExecutorService es = Executors.newFixedThreadPool(10);
         for(LinkWithAllData link: linkWithAllData) {
             futures.add(es.submit(() -> sync(link)));
         }

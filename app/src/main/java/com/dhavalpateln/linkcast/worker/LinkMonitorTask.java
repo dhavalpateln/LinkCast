@@ -21,9 +21,11 @@ import com.dhavalpateln.linkcast.LauncherActivity;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.AnimeMALMetaData;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.database.FirebaseDBHelper;
 import com.dhavalpateln.linkcast.database.JikanDatabase;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkData;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkDataContract;
 import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
 import com.dhavalpateln.linkcast.database.room.linkmetadata.LinkMetaData;
 import com.dhavalpateln.linkcast.database.room.almaldata.AlMalMetaData;
@@ -34,6 +36,7 @@ import com.dhavalpateln.linkcast.utils.Utils;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +68,8 @@ public class LinkMonitorTask extends LinkCastWorker {
     }
 
     private void sendNewEpisodeNotification(LinkWithAllData linkWithAllData, int episodeNum) {
+
+        if(linkWithAllData.getMetaData(LinkDataContract.NOTIFICATION).equals("0"))  return;
 
         Intent intent = new Intent(getApplicationContext(), LauncherActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -129,7 +134,9 @@ public class LinkMonitorTask extends LinkCastWorker {
         if(this.animeExtractors.containsKey(source)) {
             AnimeExtractor extractor = this.animeExtractors.get(source);
             if(extractor.requiresInit())    extractor.init();
-            int episodes = extractor.extractData(data).size();
+            List<EpisodeNode> episodeListData = extractor.extractData(data);
+            Collections.sort(episodeListData, (node1, node2) -> (int) (node2.getEpisodeNum() - node1.getEpisodeNum()));
+            int episodes = (int) episodeListData.get(0).getEpisodeNum();
             if(episodes < lastFetchedCount) {
                 return false;
             }

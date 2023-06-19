@@ -23,7 +23,9 @@ import com.dhavalpateln.linkcast.explorer.AdvancedView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +48,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment implements 
     private ImageView sortButton;
     private TextView animeEntriesCountTextView;
     private Sort currentSortOrder = Sort.BY_SCORE;
+    private Set<String> currentIDs;
 
 
 
@@ -96,6 +99,7 @@ public abstract class AbstractCatalogObjectFragment extends Fragment implements 
         if(dataList == null) {
             dataList = new ArrayList<>();
         }
+        currentIDs = new HashSet<>();
         animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
         sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
@@ -173,14 +177,16 @@ public abstract class AbstractCatalogObjectFragment extends Fragment implements 
 
         popupMenu.show();
     }
-
     private void sortData() {
+        sortData(dataList);
+    }
+    private void sortData(List<LinkWithAllData> data) {
         switch (currentSortOrder) {
             case BY_NAME:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle()));
                 break;
             case BY_SCORE:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> {
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> {
                     int score1 = Integer.valueOf(animeLinkData1.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
                     int score2 = Integer.valueOf(animeLinkData2.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
                     if(score1 > score2) return -1;
@@ -191,10 +197,10 @@ public abstract class AbstractCatalogObjectFragment extends Fragment implements 
                 });
                 break;
             case BY_DATE_ADDED_ASC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.linkData.getId().compareToIgnoreCase(animeLinkData2.linkData.getId()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.linkData.getId().compareToIgnoreCase(animeLinkData2.linkData.getId()));
                 break;
             case BY_DATE_ADDED_DESC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData2.linkData.getId().compareToIgnoreCase(animeLinkData1.linkData.getId()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData2.linkData.getId().compareToIgnoreCase(animeLinkData1.linkData.getId()));
                 break;
         }
     }
@@ -204,6 +210,38 @@ public abstract class AbstractCatalogObjectFragment extends Fragment implements 
         animeEntriesCountTextView.setText(dataList.size() + " Entries");
         sortData();
         adapter.notifyDataSetChanged();
+    }
+
+    protected void refreshAdapter(List<LinkWithAllData> linkDataList) {
+        Log.d("Catalog", "refresh called");
+
+        sortData(linkDataList);
+
+        int minSize = Math.min(linkDataList.size(), dataList.size());
+
+        for(int i = 0; i < minSize; i++) {
+            if(!dataList.get(i).equals(linkDataList.get(i))) {
+                dataList.set(i, linkDataList.get(i));
+                adapter.notifyItemChanged(i);
+            }
+        }
+
+        if(linkDataList.size() > dataList.size()) {
+            for(int i = minSize; i < linkDataList.size(); i++) {
+                dataList.add(linkDataList.get(i));
+                adapter.notifyItemInserted(i);
+            }
+        }
+        else {
+            for(int i = minSize; i < dataList.size(); i++) {
+                dataList.remove(minSize);
+                adapter.notifyItemRemoved(minSize);
+            }
+        }
+
+        animeEntriesCountTextView.setText(dataList.size() + " Entries");
+        //sortData();
+        //adapter.notifyDataSetChanged();
     }
 
     private void getDefaultSortOrder() {

@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,8 @@ import android.widget.Toast;
 import com.dhavalpateln.linkcast.AnimeWebExplorer;
 import com.dhavalpateln.linkcast.MangaWebExplorer;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapter;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapterInterface;
 import com.dhavalpateln.linkcast.adapters.LinkDataGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 
@@ -50,13 +53,14 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class AnimeSearchActivity extends AppCompatActivity {
+public class AnimeSearchActivity extends AppCompatActivity implements LinkDataAdapterInterface {
 
     public static final String INTENT_SEARCH_TERM = "search";
     public static final String INTENT_CHANGE_SOURCE = "changesource";
 
     public static final String RESULT_ANIMELINKDATA = "resultanimedata";
     public static final String RESULT_FORCE = "resultforce";
+    private static final String INTENT_SOURCE = "initsource";
 
 
     private ListRecyclerAdapter<AnimeLinkData> recyclerAdapter;
@@ -86,149 +90,36 @@ public class AnimeSearchActivity extends AppCompatActivity {
         }
     };
 
-    private class SearchListRecyclerAdapter extends LinkDataGridRecyclerAdapter {
-
-        public SearchListRecyclerAdapter(List<LinkWithAllData> recyclerDataArrayList, Context mcontext) {
-            super(recyclerDataArrayList, mcontext);
+    @Override
+    public void onLinkDataClicked(LinkWithAllData linkData, ImageView animeImage) {
+        if(getIntent().hasExtra(INTENT_CHANGE_SOURCE) || getIntent().hasExtra(INTENT_SOURCE)) {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(RESULT_ANIMELINKDATA, linkData);
+            resultIntent.putExtra(RESULT_FORCE, false);
+            setResult(Activity.RESULT_OK, resultIntent);
+            finish();
+            return;
         }
+        Intent intent = AdvancedView.prepareIntent(getApplicationContext(), linkData);
+        intent.putExtra(AdvancedView.INTENT_MODE_ANIME, linkData.isAnime());
+        startActivity(intent);
+    }
 
-        private void open(LinkWithAllData recyclerData) {
-            LinkWithAllData correctData = recyclerData;
-
-
-            if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(RESULT_ANIMELINKDATA, correctData);
-                resultIntent.putExtra(RESULT_FORCE, false);
-                setResult(Activity.RESULT_OK, resultIntent);
-                finish();
-                return;
-            }
-            Intent intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
-            intent.putExtra(AdvancedView.INTENT_MODE_ANIME, recyclerData.linkData.getType().equalsIgnoreCase("anime"));
-            startActivity(intent);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull LinkDataGridViewHolder holder, int position) {
-            super.onBindViewHolder(holder, position);
-            LinkWithAllData link = this.dataArrayList.get(position);
-
-            holder.mainLayout.setOnClickListener(v -> {
-                open(link);
-            });
-
-            if(link.getId() != null) {
-
-                holder.mainLayout.setOnLongClickListener(v -> {
-                    LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(link, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
-                    bottomSheet.show(getSupportFragmentManager(), "LDBottomSheet");
-                    return true;
-                });
-
-                /*holder.editButton.setOnClickListener(v -> {
-                    // TODO: add more fields to edit
-                    BookmarkLinkDialog dialog = new BookmarkLinkDialog(recyclerData.getId(), recyclerData.getTitle(), recyclerData.getUrl(), recyclerData.getData());
-                    dialog.show(getSupportFragmentManager(), "bookmarkEdit");
-                });*/
-            }
+    @Override
+    public void onLinkDataLongClick(LinkWithAllData linkData) {
+        if(sourceSpinner.getSelectedItem().toString().equalsIgnoreCase(bookmarkedSearch.getDisplayName())) {
+            LinkDataBottomSheet bottomSheet = new LinkDataBottomSheet(linkData, prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask"));
+            bottomSheet.show(getSupportFragmentManager(), "LDBottomSheet");
         }
     }
 
-    /*private class SearchListRecyclerAdapter extends AnimeDataListRecyclerAdapter {
+    private class SearchListRecyclerAdapter extends LinkDataAdapter {
 
-        public SearchListRecyclerAdapter(List<AnimeLinkData> recyclerDataArrayList, Context mcontext) {
-            super(recyclerDataArrayList, mcontext);
-
+        public SearchListRecyclerAdapter(Context context, List<LinkWithAllData> linkDataList) {
+            super(context, linkDataList, AnimeSearchActivity.this);
         }
+    }
 
-        private void open(AnimeLinkData recyclerData, AnimeMangaSearch animeSearch, boolean isLongClick) {
-            AnimeLinkData correctData = recyclerData;
-
-            if(animeSearch instanceof BookmarkedSearch) {
-                boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
-                        !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                        animeSearch.isMangaSource();
-                if(isMangaSource) correctData = StoredAnimeLinkData.getInstance().getMangaCache().get(recyclerData.getId());
-                else correctData = StoredAnimeLinkData.getInstance().getAnimeCache().get(recyclerData.getId());
-            }
-            Intent intent;
-            if(getIntent().hasExtra(INTENT_CHANGE_SOURCE)) {
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra(RESULT_ANIMELINKDATA, correctData);
-                resultIntent.putExtra(RESULT_FORCE, isLongClick);
-                setResult(Activity.RESULT_OK, resultIntent);
-                finish();
-                return;
-            }
-            else if(animeSearch.isAdvanceModeSource()) {
-                intent = AdvancedView.prepareIntent(getApplicationContext(), correctData);
-                boolean isMangaSource = correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
-                        !correctData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                        animeSearch.isMangaSource();
-                intent.putExtra(AdvancedView.INTENT_MODE_ANIME, !isMangaSource);
-            }
-            else if(animeSearch.isMangaSource()){
-                intent = new Intent(getApplicationContext(), MangaWebExplorer.class);
-            }
-            else {
-                intent = AnimeWebExplorer.prepareIntent(getApplicationContext(), correctData);
-            }
-            startActivity(intent);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull AnimeListViewHolder holder, int position) {
-            super.onBindViewHolder(holder, position);
-            AnimeLinkData recyclerData = this.dataArrayList.get(position);
-            AnimeMangaSearch animeSearch = searchers.get(sourceSpinner.getSelectedItem().toString());
-            holder.openButton.setOnClickListener(v -> {
-                open(recyclerData, animeSearch, false);
-            });
-            holder.openButton.setOnLongClickListener(v -> {
-                open(recyclerData, animeSearch, true);
-                return true;
-            });
-            if(recyclerData.getId() != null) {
-                holder.deleteButton.setVisibility(View.VISIBLE);
-                holder.editButton.setVisibility(View.GONE);
-                holder.deleteButton.setOnClickListener(v -> {
-
-                    boolean isMangaSource = recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_SOURCE).equals(ProvidersData.MANGAFOURLIFE.NAME) ||
-                            !recyclerData.getAnimeMetaData(AnimeLinkData.DataContract.DATA_LINK_TYPE).equals("Anime") ||
-                            animeSearch.isMangaSource();
-
-                    if(prefs.getString(SharedPrefContract.BOOKMARK_DELETE_CONFIRMATION, "ask").equalsIgnoreCase("ask")) {
-                        ConfirmationDialog confirmationDialog = new ConfirmationDialog("Are you sure you want to delete this?", () -> {
-                            if(isMangaSource) {
-                                FirebaseDBHelper.removeMangaLink(recyclerData.getId());
-                                StoredAnimeLinkData.getInstance().getMangaCache().remove(recyclerData.getId());
-                            }
-                            else {
-                                FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
-                                StoredAnimeLinkData.getInstance().getAnimeCache().remove(recyclerData.getId());
-                            }
-                        });
-                        confirmationDialog.show(getSupportFragmentManager(), "Confirm");
-                    }
-                    else {
-                        if(isMangaSource) {
-                            FirebaseDBHelper.removeMangaLink(recyclerData.getId());
-                            StoredAnimeLinkData.getInstance().getMangaCache().remove(recyclerData.getId());
-                        }
-                        else {
-                            FirebaseDBHelper.removeAnimeLink(recyclerData.getId());
-                            StoredAnimeLinkData.getInstance().getAnimeCache().remove(recyclerData.getId());
-                        }
-                    }
-
-
-                    this.dataArrayList.remove(position);
-                    adapter.notifyDataSetChanged();
-                });
-            }
-        }
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +143,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         filteredData = new ArrayList<>();
 
         ArrayAdapter<String> sourceSpinnerAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item);
-        if(!getIntent().hasExtra(INTENT_CHANGE_SOURCE)) sourceSpinnerAdapter.add(bookmarkedSearch.getDisplayName());
+        if(!getIntent().hasExtra(INTENT_CHANGE_SOURCE) && !getIntent().hasExtra(INTENT_SOURCE)) sourceSpinnerAdapter.add(bookmarkedSearch.getDisplayName());
         sourceSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         searchers = Providers.getSearchers();
@@ -274,8 +165,11 @@ public class AnimeSearchActivity extends AppCompatActivity {
                 else if(searchers.get(searchSourceName).isMangaSource()) {
                     sourceSpinnerAdapter.add(searchSourceName);
                 }
-            }
-            else {
+            } else if (getIntent().hasExtra(INTENT_SOURCE)) {
+                if(searchSourceName.equalsIgnoreCase(getIntent().getStringExtra(INTENT_SOURCE))) {
+                    sourceSpinnerAdapter.add(searchSourceName);
+                }
+            } else {
                 sourceSpinnerAdapter.add(searchSourceName);
             }
         }
@@ -283,7 +177,7 @@ public class AnimeSearchActivity extends AppCompatActivity {
         searchers.put("Bookmarked", bookmarkedSearch);
 
         recyclerView = findViewById(R.id.search_recycler_view);
-        adapter = new SearchListRecyclerAdapter(filteredData, getApplicationContext());
+        adapter = new SearchListRecyclerAdapter(getApplicationContext(), filteredData);
         recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 3));
         //recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(adapter);
@@ -429,6 +323,13 @@ public class AnimeSearchActivity extends AppCompatActivity {
         Intent intent = new Intent(context, AnimeSearchActivity.class);
         intent.putExtra(INTENT_CHANGE_SOURCE, isAnime ? "anime" : "manga");
         intent.putExtra(INTENT_SEARCH_TERM, animeLinkData.getTitle().replaceAll("\\(.*\\)", "").trim());
+        return intent;
+    }
+
+    public static Intent prepareSearchIntent(Context context, String initSearch, String source) {
+        Intent intent = new Intent(context, AnimeSearchActivity.class);
+        intent.putExtra(INTENT_SOURCE, source);
+        intent.putExtra(INTENT_SEARCH_TERM, initSearch);
         return intent;
     }
 

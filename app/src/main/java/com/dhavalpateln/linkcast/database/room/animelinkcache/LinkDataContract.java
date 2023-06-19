@@ -19,4 +19,5 @@ public class LinkDataContract {
     public static final String DATA_LAST_FETCHED_EPISODES = "fepi";
     public static final String DATA_VERSION = "ver";
     public static final String NOTIFICATION = "notification";
+    public static final String EPISODE_LAYOUT = "epilayout";
 }

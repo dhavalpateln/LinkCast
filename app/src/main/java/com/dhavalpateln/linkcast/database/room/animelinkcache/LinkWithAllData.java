@@ -28,7 +28,7 @@ public class LinkWithAllData implements Serializable {
     public AlMalMetaData alMalMetaData;
 
     public String getTitle() {
-        if(this.alMalMetaData != null) {
+        if(this.alMalMetaData != null && this.alMalMetaData.getName() != null && isAnime()) {
             return this.alMalMetaData.getName();
         }
         return this.linkData.getTitle();

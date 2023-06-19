@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.CatalogGridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.GridRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeGridViewHolder;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
@@ -102,28 +103,37 @@ public class RecommendationsFragment extends Fragment {
         });
     }
 
-    private class RecommendationAdapter extends GridRecyclerAdapter<MyAnimelistAnimeData> {
+    private class RecommendationAdapter extends CatalogGridRecyclerAdapter<MyAnimelistAnimeData> {
 
         public RecommendationAdapter(List<MyAnimelistAnimeData> recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull AnimeGridViewHolder holder, int position) {
-            MyAnimelistAnimeData data = dataList.get(position);
-            holder.titleTextView.setText(data.getTitle());
-            Glide.with(getContext())
-                    .load(data.getImages().get(0))
-                    .centerCrop()
-                    .transition(new DrawableTransitionOptions().crossFade())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.imageView);
-            holder.mainLayout.setOnClickListener(v -> {
-                Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), data);
-                startActivity(intent);
-            });
+        public String getTitle(MyAnimelistAnimeData item) {
+            return item.getTitle();
+        }
+
+        @Override
+        public String getSubTitle(MyAnimelistAnimeData item) {
+            return null;
+        }
+
+        @Override
+        public String getImageUrl(MyAnimelistAnimeData item) {
+            return item.getImages().get(0);
+        }
+
+        @Override
+        public String getScoreText(MyAnimelistAnimeData item) {
+            return null;
+        }
+
+        @Override
+        public void onClick(MyAnimelistAnimeData item) {
+            Intent intent = MyAnimelistInfoActivity.prepareIntent(getContext(), item);
+            startActivity(intent);
         }
     }
-
 
 }

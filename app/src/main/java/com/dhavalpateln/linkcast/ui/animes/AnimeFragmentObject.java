@@ -297,11 +297,12 @@ public class AnimeFragmentObject extends AbstractCatalogObjectFragment {
                     tempDataList.add(linkWithAllData);
                 }
             }
-            if(hasListChanged(dataList, tempDataList)) {
+            /*if(hasListChanged(dataList, tempDataList)) {
                 dataList.clear();
                 dataList.addAll(tempDataList);
                 refreshAdapter();
-            }
+            }*/
+            refreshAdapter(tempDataList);
         });
     }
 
