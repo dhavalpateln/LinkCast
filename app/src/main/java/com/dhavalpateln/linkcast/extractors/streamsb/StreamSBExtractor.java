@@ -6,6 +6,7 @@ import android.util.Log;
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
+import com.dhavalpateln.linkcast.explorer.listeners.VideoServerListener;
 import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
 import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
@@ -20,12 +21,15 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StreamSBExtractor extends AnimeExtractor {
     private String TAG = "StreamSB";
     private String displayName;
+
+    private String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     public StreamSBExtractor() {
         super();
@@ -47,76 +51,73 @@ public class StreamSBExtractor extends AnimeExtractor {
     }
 
     @Override
-    public void extractEpisodeUrls(String url, List<VideoURLData> result) {
+    public void extractEpisodeUrls(String episodeUrl, List<VideoURLData> result) {
+        extractEpisodeUrls(episodeUrl, result, null);
+    }
+
+    @Override
+    public void extractEpisodeUrls(String episodeUrl, VideoServerListener listener) {
+        extractEpisodeUrls(episodeUrl, null, listener);
+    }
+
+    private String encode(String id) {
+        String code = makeID() + "||" + id + "||" + makeID() + "||" + "streamsb";
+        StringBuilder sb = new StringBuilder();
+        char[] codeArr = code.toCharArray();
+        for (char c: codeArr) {
+            sb.append(Integer.toHexString(c));
+        }
+        return sb.toString();
+    }
+
+    private String makeID() {
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i <= 12; i++) {
+            sb.append(alphabet.charAt((int) Math.floor(random.nextDouble() * alphabet.length())));
+        }
+        return sb.toString();
+    }
+
+    public void extractEpisodeUrls(String url, List<VideoURLData> result, VideoServerListener listener) {
+        Log.d(TAG, "StreamSB src");
+        Uri uri = Uri.parse(url);
+
         try {
-            Log.d(TAG, "StreamSB src");
-            Uri uri = Uri.parse(url);
+            String contentID = url.split("/e/")[1].split("\\.html")[0];
+            String contentURL = "https://" + uri.getHost();
 
-            //Pattern contentIDPattern = Pattern.compile("/e/([^?#&/.]+)");
-            //Matcher matcher = contentIDPattern.matcher(url);
-            boolean foundDirect = false;
+            /*String sourceInfoURL = contentURL + "/sources41/616e696d646c616e696d646c7c7c"
+                    + new String(hexlify(contentID.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+                    + "7c7c616e696d646c616e696d646c7c7c73747265616d7362/616e696d646c616e696d646c7c7c363136653639366436343663363136653639366436343663376337633631366536393664363436633631366536393664363436633763376336313665363936643634366336313665363936643634366337633763373337343732363536313664373336327c7c616e696d646c616e696d646c7c7c73747265616d7362";*/
 
-            try {
-                String contentID = url.split("/e/")[1].split("\\.html")[0];
-                String contentURL = "https://" + uri.getHost();
-                /*String sourceInfoURL = contentURL + "/sources41/616e696d646c616e696d646c7c7c"
-                        + new String(hexlify(contentID.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
-                        + "7c7c616e696d646c616e696d646c7c7c73747265616d7362/616e696d646c616e696d646c7c7c363136653639366436343663363136653639366436343663376337633631366536393664363436633631366536393664363436633763376336313665363936643634366336313665363936643634366337633763373337343732363536313664373336327c7c616e696d646c616e696d646c7c7c73747265616d7362";*/
-                String sourceInfoURL = "https://streamsss.net/sources16/"
-                        + Utils.bytesToString(Utils.hexlify(Utils.stringToBytes("||" + contentID + "||||streamsb")))+ "/";
+            /*String sourceInfoURL = "https://streamsss.net/sources16/"
+                    + Utils.bytesToString(Utils.hexlify(Utils.stringToBytes("||" + contentID + "||||streamsb")))+ "/";*/
 
-                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(sourceInfoURL);
-                urlConnection.setRequestProperty("watchsb", "sbstream");
-                SimpleHttpClient.setBrowserUserAgent(urlConnection);
+            String sourceInfoURL = contentURL + "/375664356a494546326c4b797c7c6e756577776778623171737/" + encode(contentID);
 
-                String responseStr = SimpleHttpClient.getResponse(urlConnection);
-                JSONObject response = new JSONObject(responseStr);
+            HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(sourceInfoURL);
+            urlConnection.setRequestProperty("watchsb", "sbstream");
+            SimpleHttpClient.setBrowserUserAgent(urlConnection);
 
-                result.add(new VideoURLData(
-                        ProvidersData.STREAMSB.NAME,
-                        getDisplayName(),
-                        response.getJSONObject("stream_data").getString("file"),
-                        contentURL
-                ));
-                result.add(new VideoURLData(
-                        ProvidersData.STREAMSB.NAME,
-                        getDisplayName() + " - Backup",
-                        response.getJSONObject("stream_data").getString("backup"),
-                        contentURL
-                ));
-                foundDirect = true;
+            String responseStr = SimpleHttpClient.getResponse(urlConnection);
+            JSONObject response = new JSONObject(responseStr);
 
-            } catch (Exception e) {
-                Log.d(TAG, "Error finding stream url");
-            }
-            //if(!foundDirect) {
-                if (url.contains("/e/")) {
-                    url = url.replace("/e/", "/d/") + ".html";
-                }
-                HttpURLConnection urlConnection = SimpleHttpClient.getURLConnection(url);
-                Document doc = Jsoup.parse(SimpleHttpClient.getResponse(urlConnection));
-                Elements divLinks = doc.select("div[onclick]");
-                for (Element divLink : divLinks) {
-                    try {
-                        String quality = divLink.text().split(" ")[0];
-                        String downloadMethod = divLink.attr("onclick");
-                        Pattern paramPattern = Pattern.compile("'(.*?)','(.?)','(.*?)'");
-                        Matcher paramMatcher = paramPattern.matcher(downloadMethod);
-                        if (paramMatcher.find()) {
-                            String downloadURL = "https://streamsss.net/dl?op=download_orig" +
-                                    "&id=" + paramMatcher.group(1) +
-                                    "&mode=" + paramMatcher.group(2) +
-                                    "&hash=" + paramMatcher.group(3);
-                            VideoURLData urlData = new VideoURLData(getDisplayName(), "Stream SB - " + quality, downloadURL, null);
-                            result.add(urlData);
-                        }
-                    } catch (Exception e) {
-                        Log.d(TAG, "Error in fetching stream SB web view mode url");
-                    }
-                }
-            //}
-        } catch (IOException e) {
-            e.printStackTrace();
+            result.add(new VideoURLData(
+                    ProvidersData.STREAMSB.NAME,
+                    getDisplayName(),
+                    response.getJSONObject("stream_data").getString("file"),
+                    contentURL
+            ));
+            result.add(new VideoURLData(
+                    ProvidersData.STREAMSB.NAME,
+                    getDisplayName() + " - Backup",
+                    response.getJSONObject("stream_data").getString("backup"),
+                    contentURL
+            ));
+
+        } catch (Exception e) {
+            Log.d(TAG, "Error finding stream url");
         }
     }
 

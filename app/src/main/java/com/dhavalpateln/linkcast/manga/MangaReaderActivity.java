@@ -42,7 +42,7 @@ public class MangaReaderActivity extends AppCompatActivity {
 
     private class VerticalRecyclerAdapter extends MangaRecyclerAdapter {
 
-        //private BitmapTransformation trans = new MangaReaderTransform();
+        private BitmapTransformation trans = new MangaReaderTransform();
 
         public VerticalRecyclerAdapter(String[] recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
@@ -53,7 +53,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             Glide.with(getApplicationContext())
                     .load(imageUrl)
                     .transition(new DrawableTransitionOptions().crossFade())
-                    //.transform(trans)
+                    .transform(trans)
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
                     //.diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);

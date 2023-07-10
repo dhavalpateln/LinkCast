@@ -21,4 +21,13 @@ public abstract class AnimeExtractor extends Extractor {
             listener.onVideoExtracted(videURL);
         }
     }
+
+    public void addVideoUrlData(VideoURLData data, List<VideoURLData> result, VideoServerListener listener) {
+        if(result != null) {
+            result.add(data);
+        }
+        if(listener != null) {
+            listener.onVideoExtracted(data);
+        }
+    }
 }

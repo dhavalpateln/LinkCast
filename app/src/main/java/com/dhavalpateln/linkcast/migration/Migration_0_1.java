@@ -43,8 +43,8 @@ public class Migration_0_1 extends MigrationTask {
                 for(DataSnapshot childSnapshot: snapshot.getChildren()) {
                     AnimeLinkData animeLinkData = childSnapshot.getValue(AnimeLinkData.class);
                     animeLinkData.setId(childSnapshot.getKey());
-                    LinkWithAllData linkWithAllData = new LinkWithAllData();
-                    linkWithAllData.linkData = LinkData.from(animeLinkData);
+                    LinkWithAllData linkWithAllData = LinkWithAllData.from(animeLinkData);
+                    //linkWithAllData.linkData = LinkData.from(animeLinkData);
                     linkDataList.add(linkWithAllData);
                 }
                 onRefFetched();
@@ -81,6 +81,8 @@ public class Migration_0_1 extends MigrationTask {
                 }
 
                 roomRepo.insert(link.linkData);
+                roomRepo.insert(link.linkMetaData);
+                roomRepo.insert(link.alMalMetaData);
             } catch (Exception e) {
                 Log.d(TAG, "Error migrating " + link.getId());
             }

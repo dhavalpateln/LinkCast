@@ -29,12 +29,15 @@ public class LinkCastRoomRepository {
     }
 
     public void insert(LinkData linkData) {
+        if(linkData == null)    return;
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> linkDataDao.insertAll(linkData));
     }
     public void insert(AlMalMetaData alMalMetaData) {
+        if(alMalMetaData == null || alMalMetaData.getId() == null)    return;
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> alMalMetaDataDao.insertAll(alMalMetaData));
     }
     public void insert(LinkMetaData linkMetaData) {
+        if(linkMetaData == null || linkMetaData.getId() == null)    return;
         LinkCastRoomDatabase.databaseWriteExecutor.execute(() -> linkMetaDataDao.insertAll(linkMetaData));
     }
 

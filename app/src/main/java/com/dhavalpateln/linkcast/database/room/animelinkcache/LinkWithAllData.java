@@ -124,7 +124,7 @@ public class LinkWithAllData implements Serializable {
         return this.linkData.getType().equalsIgnoreCase("anime");
     }
 
-    public LinkWithAllData from(AnimeLinkData animeLinkData) {
+    public static LinkWithAllData from(AnimeLinkData animeLinkData) {
         LinkWithAllData linkWithAllData = new LinkWithAllData();
         linkWithAllData.linkData = LinkData.from(animeLinkData);
         linkWithAllData.linkMetaData = new LinkMetaData();

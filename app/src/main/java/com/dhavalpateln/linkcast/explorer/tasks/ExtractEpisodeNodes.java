@@ -76,6 +76,7 @@ public class ExtractEpisodeNodes extends RunnableTask {
             ExecutorService es = Executors.newFixedThreadPool(3);
             List<Future> metaFuturesList = new ArrayList<>();
             Future<List<EpisodeNode>> episodeFuture = es.submit(new ExtractEpisodes());
+            //episodeFuture.get();
 
             Future<Map<String, EpisodeNode>> malAnimeMetaFuture = null;
             Map<String, EpisodeNode> malAnimeMeta = null;

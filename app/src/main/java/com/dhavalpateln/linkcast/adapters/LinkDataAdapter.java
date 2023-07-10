@@ -80,7 +80,10 @@ public class LinkDataAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             episodeNumText = episodeNumText.split("-")[1].trim();
         }
 
-        int watchedEpisodes = Integer.parseInt(episodeNumText);
+        int watchedEpisodes = 0;
+        try {
+            watchedEpisodes = Integer.parseInt(episodeNumText);
+        } catch (Exception e) {}
         int fetchedEpisodes = watchedEpisodes;
         if (linkMetaData != null) {
             fetchedEpisodes = Math.max(watchedEpisodes, linkMetaData.getLastEpisodeNodesFetchCount());
