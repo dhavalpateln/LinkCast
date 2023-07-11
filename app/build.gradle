@@ -61,6 +61,7 @@ dependencies {
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.work:work-rxjava2:2.8.1"
     implementation 'com.flaviofaria:kenburnsview:1.0.7'
+    implementation 'com.alexvasilkov:gesture-views:2.8.3'
 
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.android.exoplayer:exoplayer:2.17.1'

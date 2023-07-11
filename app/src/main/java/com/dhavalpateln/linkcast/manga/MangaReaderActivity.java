@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.alexvasilkov.gestures.views.GestureFrameLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
@@ -30,6 +31,7 @@ public class MangaReaderActivity extends AppCompatActivity {
     public static final String INTENT_START_POSITION = "startpos";
     public static final String INTENT_VERTICAL_MODE = "vertical";
     private boolean showVertical = false;
+    private GestureFrameLayout gestureFrameLayout;
 
 
 
@@ -53,7 +55,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             Glide.with(getApplicationContext())
                     .load(imageUrl)
                     .transition(new DrawableTransitionOptions().crossFade())
-                    .transform(trans)
+                    //.transform(trans)
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
                     //.diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
@@ -70,6 +72,7 @@ public class MangaReaderActivity extends AppCompatActivity {
 
         mViewPager = findViewById(R.id.mangaViewPager);
         verticalRecyclerView = findViewById(R.id.manga_vertical_recycler_view);
+        gestureFrameLayout = findViewById(R.id.manga_vertical_recycler_view_container);
         mViewPager.setOffscreenPageLimit(5);
 
         showVertical = intent.getBooleanExtra(INTENT_VERTICAL_MODE, false);
@@ -97,6 +100,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             verticalRecyclerView.setAdapter(verticalRecyclerAdapter);
             mViewPager.setVisibility(View.GONE);
             verticalRecyclerView.setVisibility(View.VISIBLE);
+            gestureFrameLayout.setVisibility(View.VISIBLE);
         }
         else {
             mViewPagerAdapter = new MangaPagerAdapter(MangaReaderActivity.this, images);
@@ -104,6 +108,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             mViewPager.setCurrentItem(initialPosition, false);
             mViewPager.setVisibility(View.VISIBLE);
             verticalRecyclerView.setVisibility(View.GONE);
+            gestureFrameLayout.setVisibility(View.GONE);
         }
     }
 
