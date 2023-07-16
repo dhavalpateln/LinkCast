@@ -248,12 +248,12 @@ public class LinkMonitorTask extends LinkCastWorker {
 
         }
 
-        DatabaseReference ref = FirebaseDBHelper.getUserWorkerRunHistory().child(Utils.getCurrentTime());
+        /*DatabaseReference ref = FirebaseDBHelper.getUserWorkerRunHistory().child(Utils.getCurrentTime());
         ref.child("newepi").setValue(newEpiChecked);
         ref.child("ex").setValue(exceptionsOccured);
         ref.child("exlist").setValue(exceptionList);
         ref.child("newnoti").setValue(newEpisNoti);
-        ref.child("mal").setValue(malUpdated);
+        ref.child("mal").setValue(malUpdated);*/
 
         getCallback().onComplete();
     }
