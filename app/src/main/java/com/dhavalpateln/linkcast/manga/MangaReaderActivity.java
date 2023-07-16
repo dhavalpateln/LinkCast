@@ -12,9 +12,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.alexvasilkov.gestures.views.GestureFrameLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.extractors.mangareader.MangaReaderTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ public class MangaReaderActivity extends AppCompatActivity {
     public static final String INTENT_START_POSITION = "startpos";
     public static final String INTENT_VERTICAL_MODE = "vertical";
     private boolean showVertical = false;
+    private GestureFrameLayout gestureFrameLayout;
 
 
 
@@ -39,6 +44,8 @@ public class MangaReaderActivity extends AppCompatActivity {
 
     private class VerticalRecyclerAdapter extends MangaRecyclerAdapter {
 
+        private BitmapTransformation trans = new MangaReaderTransform();
+
         public VerticalRecyclerAdapter(String[] recyclerDataArrayList, Context mcontext) {
             super(recyclerDataArrayList, mcontext);
         }
@@ -47,9 +54,10 @@ public class MangaReaderActivity extends AppCompatActivity {
         public void onBindViewHolder(RecyclerViewHolder holder, int position, String imageUrl) {
             Glide.with(getApplicationContext())
                     .load(imageUrl)
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
+                    //.transform(trans)
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    //.diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
         }
     }
@@ -64,6 +72,7 @@ public class MangaReaderActivity extends AppCompatActivity {
 
         mViewPager = findViewById(R.id.mangaViewPager);
         verticalRecyclerView = findViewById(R.id.manga_vertical_recycler_view);
+        gestureFrameLayout = findViewById(R.id.manga_vertical_recycler_view_container);
         mViewPager.setOffscreenPageLimit(5);
 
         showVertical = intent.getBooleanExtra(INTENT_VERTICAL_MODE, false);
@@ -91,6 +100,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             verticalRecyclerView.setAdapter(verticalRecyclerAdapter);
             mViewPager.setVisibility(View.GONE);
             verticalRecyclerView.setVisibility(View.VISIBLE);
+            gestureFrameLayout.setVisibility(View.VISIBLE);
         }
         else {
             mViewPagerAdapter = new MangaPagerAdapter(MangaReaderActivity.this, images);
@@ -98,6 +108,7 @@ public class MangaReaderActivity extends AppCompatActivity {
             mViewPager.setCurrentItem(initialPosition, false);
             mViewPager.setVisibility(View.VISIBLE);
             verticalRecyclerView.setVisibility(View.GONE);
+            gestureFrameLayout.setVisibility(View.GONE);
         }
     }
 

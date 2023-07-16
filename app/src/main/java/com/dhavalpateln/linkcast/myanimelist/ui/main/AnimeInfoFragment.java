@@ -17,7 +17,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.dhavalpateln.linkcast.AnimeSearchActivity;
+import com.dhavalpateln.linkcast.explorer.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.manga.MangaReaderActivity;
 import com.dhavalpateln.linkcast.myanimelist.AdvSearchParams;
@@ -140,6 +140,8 @@ public class AnimeInfoFragment extends Fragment {
             searchIntent.putExtra(AnimeSearchActivity.INTENT_SEARCH_TERM, myAnimelistAnimeData.getTitle());
             startActivity(searchIntent);
         });
+
+
 
         rankTextView.setText(myAnimelistAnimeData.getInfo("Ranked"));
         scoreTextView.setText(myAnimelistAnimeData.getInfo("Score"));

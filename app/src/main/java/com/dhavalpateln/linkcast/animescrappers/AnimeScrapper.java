@@ -2,7 +2,7 @@ package com.dhavalpateln.linkcast.animescrappers;
 
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

@@ -63,6 +63,11 @@ public class MyAnimelistDataViewModel extends ViewModel {
                         SimpleHttpClient.setBrowserUserAgent(httpURLConnection);
                         Document html = Jsoup.parse(SimpleHttpClient.getResponse(httpURLConnection));
 
+                        Element linkElement = html.selectFirst("link[rel=canonical]");
+                        if(linkElement != null) {
+                            myAnimelistAnimeData.setUrl(linkElement.attr("href"));
+                        }
+
                         Element titleElement = html.selectFirst("div[itemprop=name]");
                         if(titleElement == null) {
                             titleElement = html.selectFirst("span[itemprop=name]");

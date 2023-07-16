@@ -1,9 +1,7 @@
 package com.dhavalpateln.linkcast.mangascrappers;
 
-import android.util.Log;
-
 import com.dhavalpateln.linkcast.ProvidersData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;

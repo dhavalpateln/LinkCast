@@ -17,35 +17,28 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.animescrappers.AnimePaheExtractor;
-import com.dhavalpateln.linkcast.animescrappers.AnimeScrapper;
-import com.dhavalpateln.linkcast.animescrappers.CrunchyrollExtractor;
-import com.dhavalpateln.linkcast.animescrappers.GogoAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.NineAnimeExtractor;
-import com.dhavalpateln.linkcast.animescrappers.TenshiExtractor;
-import com.dhavalpateln.linkcast.animesearch.CrunchyrollSearch;
-import com.dhavalpateln.linkcast.animesearch.MangaReaderSearch;
-import com.dhavalpateln.linkcast.animesearch.TenshiSearch;
 import com.dhavalpateln.linkcast.database.VideoURLData;
-import com.dhavalpateln.linkcast.animescrappers.ZoroExtractor;
-import com.dhavalpateln.linkcast.animesearch.AnimePaheSearch;
-import com.dhavalpateln.linkcast.animesearch.AnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.GogoAnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.MangaFourLifeSearch;
-import com.dhavalpateln.linkcast.animesearch.NineAnimeSearch;
-import com.dhavalpateln.linkcast.animesearch.ZoroSearch;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.mangascrappers.MangaFourLife;
-import com.dhavalpateln.linkcast.mangascrappers.MangaReader;
-import com.dhavalpateln.linkcast.mangascrappers.MangaScrapper;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.extractors.AnimeExtractor;
+import com.dhavalpateln.linkcast.extractors.AnimeMangaSearch;
+import com.dhavalpateln.linkcast.extractors.MangaExtractor;
+import com.dhavalpateln.linkcast.extractors.animepahe.AnimePaheExtractor;
+import com.dhavalpateln.linkcast.extractors.animepahe.AnimePaheSearch;
+import com.dhavalpateln.linkcast.extractors.gogoanime.GogoAnimeExtractor;
+import com.dhavalpateln.linkcast.extractors.gogoanime.GogoAnimeSearch;
+import com.dhavalpateln.linkcast.extractors.mangafourlife.MangaFourLifeExtractor;
+import com.dhavalpateln.linkcast.extractors.mangafourlife.MangaFourLifeSearch;
+import com.dhavalpateln.linkcast.extractors.mangareader.MangaReaderExtractor;
+import com.dhavalpateln.linkcast.extractors.mangareader.MangaReaderSearch;
+import com.dhavalpateln.linkcast.extractors.marin.MarinExtractor;
+import com.dhavalpateln.linkcast.extractors.marin.MarinSearch;
+import com.dhavalpateln.linkcast.extractors.zoro.ZoroExtractor;
+import com.dhavalpateln.linkcast.extractors.zoro.ZoroSearch;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -80,16 +73,17 @@ public class StatusFragment extends Fragment {
 
         genericTest(statusContainer, new GogoAnimeSearch(), new GogoAnimeExtractor());
         genericTest(statusContainer, new ZoroSearch(), new ZoroExtractor());
-        genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
-        genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
+        //genericTest(statusContainer, new NineAnimeSearch(getContext()), new NineAnimeExtractor(getContext()));
+        //genericTest(statusContainer, new TenshiSearch(), new TenshiExtractor());
         genericTest(statusContainer, new AnimePaheSearch(), new AnimePaheExtractor());
-        genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
+        genericTest(statusContainer, new MarinSearch(), new MarinExtractor());
+        //genericTest(statusContainer, new CrunchyrollSearch(), new CrunchyrollExtractor());
 
-        genericTest(statusContainer, new MangaReaderSearch(), new MangaReader());
-        genericTest(statusContainer, new MangaFourLifeSearch(), new MangaFourLife());
+        genericTest(statusContainer, new MangaReaderSearch(), new MangaReaderExtractor());
+        genericTest(statusContainer, new MangaFourLifeSearch(), new MangaFourLifeExtractor());
     }
 
-    private void genericTest(LinearLayout container, AnimeSearch searcher, AnimeScrapper extractor) {
+    private void genericTest(LinearLayout container, AnimeMangaSearch searcher, AnimeExtractor extractor) {
         ConstraintLayout status = generateStatusView(extractor.getDisplayName());
         container.addView(status);
         executor.execute(() -> {
@@ -114,7 +108,7 @@ public class StatusFragment extends Fragment {
         });
     }
 
-    private void genericTest(LinearLayout container, AnimeSearch searcher, MangaScrapper extractor) {
+    private void genericTest(LinearLayout container, AnimeMangaSearch searcher, MangaExtractor extractor) {
         ConstraintLayout status = generateStatusView(extractor.getDisplayName());
         container.addView(status);
         executor.execute(() -> {
@@ -133,227 +127,13 @@ public class StatusFragment extends Fragment {
         });
     }
 
-    private void gogoanimeTest(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.GOGOANIME.NAME);
-        ConstraintLayout browsingStatus = generateStatusView("Browsing");
-        ConstraintLayout gogoplayStatus = generateStatusView("GogoPlay");
-        ConstraintLayout sbStatus = generateStatusView("StreamSB");
-        ConstraintLayout xStreamStatus = generateStatusView("XStream");
-        container.addView(divider);
-        container.addView(browsingStatus);
-        container.addView(gogoplayStatus);
-        container.addView(sbStatus);
-        container.addView(xStreamStatus);
-
-        executor.execute(() -> {
-            boolean searchSuccess = false;
-            boolean episodeListSuccess = false;
-            try {
-                GogoAnimeExtractor extractor = new GogoAnimeExtractor();
-                GogoAnimeSearch searcher = new GogoAnimeSearch();
-
-                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia 5");
-                episodeListSuccess = !episodeList.isEmpty();
-
-                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
-
-                List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
-                Set<String> extractedSources = new HashSet<>();
-                for (VideoURLData videoURLData : episodeURLs) {
-                    extractedSources.add(videoURLData.getSource().toLowerCase());
-                }
-                uiHandler.post(() -> {
-                    markStatus(gogoplayStatus, extractedSources.contains("gogoplay"));
-                    markStatus(sbStatus, extractedSources.contains("streamsb"));
-                    markStatus(xStreamStatus, extractedSources.contains("xstream"));
-                });
-            } catch (Exception e) {
-                boolean finalEpisodeListSuccess1 = episodeListSuccess;
-                uiHandler.post(() -> {
-                    markStatus(browsingStatus, finalEpisodeListSuccess1);
-                    markStatus(gogoplayStatus, false);
-                    markStatus(sbStatus, false);
-                    markStatus(xStreamStatus, false);
-                });
-            }
-        });
-    }
-
-    private void nineanimeTest(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.NINEANIME.NAME);
-        ConstraintLayout browsingStatus = generateStatusView("Browsing");
-        ConstraintLayout vidstream = generateStatusView(ProvidersData.VIDSTREAM.NAME);
-        ConstraintLayout mcloud = generateStatusView(ProvidersData.MCLOUD.NAME);
-        ConstraintLayout streamtape = generateStatusView(ProvidersData.STREAMTAPE.NAME);
-        container.addView(divider);
-        container.addView(browsingStatus);
-        container.addView(vidstream);
-        container.addView(mcloud);
-        container.addView(streamtape);
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            boolean searchSuccess = false;
-            boolean episodeListSuccess = false;
-            try {
-                NineAnimeExtractor extractor = new NineAnimeExtractor(getActivity());
-                NineAnimeSearch searcher = new NineAnimeSearch(getActivity());
-
-                searcher.init();
-                searchSuccess = !searcher.search("hero academia").isEmpty();
-                List<EpisodeNode> episodeList = extractor.getEpisodeList("https://9anime.to/watch/my-hero-academia-season-5.653z");
-                episodeListSuccess = !episodeList.isEmpty();
-
-                boolean finalSearchSuccess = searchSuccess;
-                boolean finalEpisodeListSuccess = episodeListSuccess;
-                uiHandler.post(() -> markStatus(browsingStatus, finalSearchSuccess && finalEpisodeListSuccess));
-
-                List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
-                Set<String> extractedSources = new HashSet<>();
-                for (VideoURLData videoURLData : episodeURLs) {
-                    extractedSources.add(videoURLData.getSource());
-                }
-                uiHandler.post(() -> {
-                    markStatus(vidstream, extractedSources.contains(ProvidersData.VIDSTREAM.NAME));
-                    markStatus(mcloud, extractedSources.contains(ProvidersData.MCLOUD.NAME));
-                    markStatus(streamtape, extractedSources.contains(ProvidersData.STREAMTAPE.NAME));
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                markStatus(browsingStatus, searchSuccess && episodeListSuccess);
-                markStatus(vidstream, false);
-                markStatus(mcloud, false);
-                markStatus(streamtape, false);
-            }
-        });
-    }
-
-    private void animepaheTest(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.ANIMEPAHE.NAME);
-        ConstraintLayout browsingStatus = generateStatusView("Browsing");
-        ConstraintLayout kwik = generateStatusView("Kwik");
-        container.addView(divider);
-        container.addView(browsingStatus);
-        container.addView(kwik);
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            boolean browseSuccess = false;
-            try {
-                AnimePaheExtractor extractor = new AnimePaheExtractor();
-                AnimePaheSearch searcher = new AnimePaheSearch();
-
-                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia");
-                browseSuccess = !episodeList.isEmpty();
-
-                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
-
-                List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
-                Set<String> extractedSources = new HashSet<>();
-                for (VideoURLData videoURLData : episodeURLs) {
-                    extractedSources.add(videoURLData.getSource().toLowerCase());
-                }
-                uiHandler.post(() -> {
-                    markStatus(kwik, !extractedSources.isEmpty());
-                });
-            } catch (Exception e) {
-                boolean finalBrowseSuccess = browseSuccess;
-                uiHandler.post(() -> {
-                    markStatus(browsingStatus, finalBrowseSuccess);
-                    markStatus(kwik, false);
-                });
-            }
-        });
-    }
-
-    private void zoroTest(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.ZORO.NAME);
-        ConstraintLayout browsingStatus = generateStatusView("Browsing");
-        ConstraintLayout rapidCloud = generateStatusView("RapidCloud");
-        ConstraintLayout sbStatus = generateStatusView("StreamSB");
-        ConstraintLayout streamTape = generateStatusView("StreamTape");
-        container.addView(divider);
-        container.addView(browsingStatus);
-        container.addView(rapidCloud);
-        container.addView(sbStatus);
-        container.addView(streamTape);
-
-        executor.execute(() -> {
-            boolean searchSuccess = false;
-            boolean episodeListSuccess = false;
-            try {
-                ZoroExtractor extractor = new ZoroExtractor();
-                ZoroSearch searcher = new ZoroSearch();
-
-                List<EpisodeNode> episodeList = browse(searcher, extractor, "hero academia 5");
-                episodeListSuccess = !episodeList.isEmpty();
-
-                uiHandler.post(() -> markStatus(browsingStatus, !episodeList.isEmpty()));
-
-                List<VideoURLData> episodeURLs = new ArrayList<>();
-                extractor.extractEpisodeUrls(episodeList.get(0).getUrl(), episodeURLs);
-                Set<String> extractedSources = new HashSet<>();
-                for (VideoURLData videoURLData : episodeURLs) {
-                    extractedSources.add(videoURLData.getSource());
-                }
-                uiHandler.post(() -> {
-                    markStatus(sbStatus, extractedSources.contains(ProvidersData.STREAMSB.NAME));
-                    markStatus(streamTape, extractedSources.contains(ProvidersData.STREAMTAPE.NAME));
-                    markStatus(rapidCloud, extractedSources.contains(ProvidersData.RAPIDCLOUD.NAME));
-                });
-            } catch (Exception e) {
-                boolean finalEpisodeListSuccess1 = episodeListSuccess;
-                uiHandler.post(() -> {
-                    markStatus(browsingStatus, finalEpisodeListSuccess1);
-                    markStatus(rapidCloud, false);
-                    markStatus(sbStatus, false);
-                    markStatus(streamTape, false);
-                });
-            }
-        });
-    }
-
-    private void manga4lifeTest(LinearLayout container) {
-        LinearLayout divider = generateHeaderView(ProvidersData.MANGAFOURLIFE.NAME);
-        ConstraintLayout browsingStatus = generateStatusView("Browsing");
-        ConstraintLayout mangas = generateStatusView("Manga");
-        container.addView(divider);
-        container.addView(browsingStatus);
-        container.addView(mangas);
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            boolean episodeListSuccess = false;
-            try {
-                MangaFourLife extractor = new MangaFourLife();
-                MangaFourLifeSearch searcher = new MangaFourLifeSearch();
-
-                searcher.init();
-                List<EpisodeNode> episodeList = browse(searcher, extractor, "my hero academia");
-                episodeListSuccess = !episodeList.isEmpty();
-
-                boolean finalEpisodeListSuccess = episodeListSuccess;
-                uiHandler.post(() -> markStatus(browsingStatus, finalEpisodeListSuccess));
-
-                List<String> imageURLs = extractor.getPages(episodeList.get(0).getUrl());
-
-                uiHandler.post(() -> {
-                    markStatus(mangas, !imageURLs.isEmpty());
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                markStatus(browsingStatus, episodeListSuccess);
-                markStatus(mangas, false);
-            }
-        });
-    }
 
 
-    private List<EpisodeNode> browse(AnimeSearch searcher, AnimeScrapper extractor, String searchTerm) {
+    private List<EpisodeNode> browse(AnimeMangaSearch searcher, AnimeExtractor extractor, String searchTerm) {
         List<AnimeLinkData> searchResult = searcher.search(searchTerm);
         return extractor.extractData(searchResult.get(0));
     }
-    private List<EpisodeNode> browse(AnimeSearch searcher, MangaScrapper extractor, String searchTerm) {
+    private List<EpisodeNode> browse(AnimeMangaSearch searcher, MangaExtractor extractor, String searchTerm) {
         List<AnimeLinkData> searchResult = searcher.search(searchTerm);
         return extractor.getChapters(searchResult.get(0).getUrl());
     }

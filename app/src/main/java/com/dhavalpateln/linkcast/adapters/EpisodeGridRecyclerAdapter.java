@@ -4,11 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
 
 import java.util.List;
 
@@ -30,7 +28,7 @@ public abstract class EpisodeGridRecyclerAdapter<T> extends RecyclerView.Adapter
     @Override
     public EpisodeGridRecyclerAdapter.EpisodeRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.anime_advanced_view_episode, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_episode_node_grid_object, parent, false);
         return new EpisodeGridRecyclerAdapter.EpisodeRecyclerViewHolder(view);
     }
 

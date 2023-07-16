@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.dhavalpateln.linkcast.AnimeSearchActivity;
+import com.dhavalpateln.linkcast.explorer.AnimeSearchActivity;
 import com.dhavalpateln.linkcast.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -45,6 +45,7 @@ public abstract class AbstractCatalogFragment extends Fragment {
 
         catalogCollectionAdapter = new CatalogCollectionAdapter(this);
         viewPager = view.findViewById(R.id.pager);
+        //viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(catalogCollectionAdapter);
 
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);

@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.ListRecyclerAdapter;
 import com.dhavalpateln.linkcast.adapters.viewholders.AnimeListViewHolder;
@@ -106,7 +107,7 @@ public class MyAnimeListSearchDialog extends LinkCastDialog {
             Glide.with(getContext())
                     .load(data.getImages().get(0))
                     .centerCrop()
-                    .crossFade()
+                    .transition(new DrawableTransitionOptions().crossFade())
                     //.bitmapTransform(new CropCircleTransformation(getApplicationContext()))
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.animeImageView);

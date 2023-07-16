@@ -1,46 +1,56 @@
 package com.dhavalpateln.linkcast.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapter;
+import com.dhavalpateln.linkcast.adapters.LinkDataAdapterInterface;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.SharedPrefContract;
+import com.dhavalpateln.linkcast.database.room.animelinkcache.LinkWithAllData;
+import com.dhavalpateln.linkcast.explorer.AdvancedView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public abstract class AbstractCatalogObjectFragment extends Fragment {
+public abstract class AbstractCatalogObjectFragment extends Fragment implements LinkDataAdapterInterface {
 
     protected static final String CATALOG_TYPE_ARG = "type";
     private static final String SORT_ARG = "sort";
     private static final String TAG = "CATALOG_FRAGMENT";
+    private View root;
 
     protected String tabName;
-    protected List<AnimeLinkData> dataList;
+    protected List<LinkWithAllData> dataList;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private ImageView sortButton;
     private TextView animeEntriesCountTextView;
     private Sort currentSortOrder = Sort.BY_SCORE;
+    private Set<String> currentIDs;
+
+
 
     public enum Sort {
         BY_NAME,
@@ -77,7 +87,9 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_catalog_object, container, false);
+        if(root == null) {
+            root = inflater.inflate(R.layout.fragment_catalog_object, container, false);
+        }
         return root;
     }
 
@@ -87,16 +99,41 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
         if(dataList == null) {
             dataList = new ArrayList<>();
         }
+        currentIDs = new HashSet<>();
         animeEntriesCountTextView = view.findViewById(R.id.anime_entries_text_view);
         sortButton = view.findViewById(R.id.anime_list_sort_button);
         recyclerView = view.findViewById(R.id.catalog_recycler_view);
-        adapter = getAdapter(dataList, getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
+        boolean useListAdapter = false;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int viewType = prefs.getInt("link_data_view", LinkDataAdapter.GRID_VIEW);
+        switch (viewType) {
+            case LinkDataAdapter.LIST_VIEW:
+                adapter = getListAdapter(dataList, getContext());
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                break;
+            case LinkDataAdapter.GRID_VIEW:
+            default:
+                adapter = new LinkDataAdapter(getContext(), dataList, this, LinkDataAdapter.GRID_VIEW);
+                recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }
+        /*if(useListAdapter) {
+            adapter = getListAdapter(dataList, getContext());
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        }
+        else {
+            adapter = new LinkDataAdapter(getContext(), dataList, this, LinkDataAdapter.GRID_VIEW);
+            //adapter = getGridAdapter(dataList, getContext());
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        }*/
         recyclerView.setAdapter(adapter);
         sortButton.setOnClickListener(v -> showSortOptions(v));
     }
 
-    public abstract RecyclerView.Adapter getAdapter(List<AnimeLinkData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getAdapter(List<LinkWithAllData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getListAdapter(List<LinkWithAllData> adapterDataList, Context context);
+    public abstract RecyclerView.Adapter getGridAdapter(List<LinkWithAllData> adapterDataList, Context context);
 
     private void showSortOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
@@ -134,22 +171,24 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 default:
                     break;
             }
-            sortData();
+            refreshAdapter();
             return false;
         });
 
         popupMenu.show();
     }
-
     private void sortData() {
+        sortData(dataList);
+    }
+    private void sortData(List<LinkWithAllData> data) {
         switch (currentSortOrder) {
             case BY_NAME:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.getTitle().compareToIgnoreCase(animeLinkData2.getTitle()));
                 break;
             case BY_SCORE:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> {
-                    int score1 = Integer.valueOf(animeLinkData1.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
-                    int score2 = Integer.valueOf(animeLinkData2.getAnimeMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> {
+                    int score1 = Integer.valueOf(animeLinkData1.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
+                    int score2 = Integer.valueOf(animeLinkData2.getMetaData(AnimeLinkData.DataContract.DATA_USER_SCORE));
                     if(score1 > score2) return -1;
                     else if(score2 > score1)    return 1;
                     else {
@@ -158,19 +197,51 @@ public abstract class AbstractCatalogObjectFragment extends Fragment {
                 });
                 break;
             case BY_DATE_ADDED_ASC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData1.getId().compareToIgnoreCase(animeLinkData2.getId()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData1.linkData.getId().compareToIgnoreCase(animeLinkData2.linkData.getId()));
                 break;
             case BY_DATE_ADDED_DESC:
-                Collections.sort(dataList, (animeLinkData1, animeLinkData2) -> animeLinkData2.getId().compareToIgnoreCase(animeLinkData1.getId()));
+                Collections.sort(data, (animeLinkData1, animeLinkData2) -> animeLinkData2.linkData.getId().compareToIgnoreCase(animeLinkData1.linkData.getId()));
                 break;
         }
-        adapter.notifyDataSetChanged();
     }
 
     protected void refreshAdapter() {
+        Log.d("Catalog", "refresh called");
         animeEntriesCountTextView.setText(dataList.size() + " Entries");
         sortData();
         adapter.notifyDataSetChanged();
+    }
+
+    protected void refreshAdapter(List<LinkWithAllData> linkDataList) {
+        Log.d("Catalog", "refresh called");
+
+        sortData(linkDataList);
+
+        int minSize = Math.min(linkDataList.size(), dataList.size());
+
+        for(int i = 0; i < minSize; i++) {
+            if(!dataList.get(i).equals(linkDataList.get(i))) {
+                dataList.set(i, linkDataList.get(i));
+                adapter.notifyItemChanged(i);
+            }
+        }
+
+        if(linkDataList.size() > dataList.size()) {
+            for(int i = minSize; i < linkDataList.size(); i++) {
+                dataList.add(linkDataList.get(i));
+                adapter.notifyItemInserted(i);
+            }
+        }
+        else {
+            for(int i = minSize; i < dataList.size(); i++) {
+                dataList.remove(minSize);
+                adapter.notifyItemRemoved(minSize);
+            }
+        }
+
+        animeEntriesCountTextView.setText(dataList.size() + " Entries");
+        //sortData();
+        //adapter.notifyDataSetChanged();
     }
 
     private void getDefaultSortOrder() {

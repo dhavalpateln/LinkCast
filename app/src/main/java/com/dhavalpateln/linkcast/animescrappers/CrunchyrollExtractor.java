@@ -1,13 +1,14 @@
 package com.dhavalpateln.linkcast.animescrappers;
 
-import android.content.Context;
-import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.dhavalpateln.linkcast.ProvidersData;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
 import com.dhavalpateln.linkcast.database.VideoURLData;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 import com.dhavalpateln.linkcast.utils.SimpleHttpClient;
 
 import org.json.JSONArray;
@@ -51,10 +52,16 @@ public class CrunchyrollExtractor extends AnimeScrapper {
         return url.startsWith(ProvidersData.CRUNCHYROLL.URL);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public List<EpisodeNode> getEpisodeList(String episodeListUrl) {
         List<EpisodeNode> result = new ArrayList<>();
         try {
+            String[] linkData = episodeListUrl.split(":::");
+            episodeListUrl = linkData[0];
+            String id = linkData[1];
+            String garbage = getHttpContent("https://www.crunchyroll.com");
+            String apiContent = getHttpContent("https://www.crunchyroll.com/content/v2/cms/seasons/GRK587V16/episodes?locale=en-US");
             HttpURLConnection pageUrlConnection = SimpleHttpClient.getURLConnection(episodeListUrl);
             Document html = Jsoup.parse(SimpleHttpClient.getResponse(pageUrlConnection));
             Elements episodeElements = html.select("a.episode");

@@ -11,14 +11,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.dhavalpateln.linkcast.R;
 import com.dhavalpateln.linkcast.adapters.viewholders.NotesViewHolder;
 import com.dhavalpateln.linkcast.database.AnimeLinkData;
-import com.dhavalpateln.linkcast.database.JikanDatabase;
 import com.dhavalpateln.linkcast.database.MyAnimeListDatabase;
-import com.dhavalpateln.linkcast.utils.EpisodeNode;
+import com.dhavalpateln.linkcast.database.EpisodeNode;
 
 import java.util.ArrayList;
 import java.util.List;
